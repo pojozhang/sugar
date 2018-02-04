@@ -1,7 +1,9 @@
 package rum
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGet(t *testing.T) {
-	Get("https://",Q{"":[]string{"ss"}})
+	Get("https://baidu.com",Q{"qq":"ww"})
 }
