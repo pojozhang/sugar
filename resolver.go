@@ -3,6 +3,9 @@ package rum
 import (
 	"net/http"
 	"strconv"
+	"encoding/json"
+	"bytes"
+	"io/ioutil"
 )
 
 type MapParams map[string]interface{}
@@ -28,19 +31,45 @@ type Json MapParams
 type J = Json
 
 type Resolver interface {
-	resolve(req *http.Request, params []interface{}, param interface{}, index int)
+	resolve(req *http.Request, params []interface{}, param interface{}, index int) error
 }
 
 type QueryResolver struct {
 }
 
-func (r *QueryResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) {
+func (r *QueryResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	q := param.(Query)
 	query := req.URL.Query()
 	for k, v := range q {
 		query.Add(k, ToString(v))
 	}
 	req.URL.RawQuery = query.Encode()
+	return nil
+}
+
+type HeaderResolver struct {
+}
+
+func (r *HeaderResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	h := param.(Header)
+	header := req.Header
+	for k, v := range h {
+		header.Add(k, ToString(v))
+	}
+	return nil
+}
+
+type JsonResolver struct {
+}
+
+func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
+	b, err := json.Marshal(param)
+	if err != nil {
+		return err
+	}
+	req.Body = ioutil.NopCloser(bytes.NewReader(b))
+	return nil
 }
 
 func ToString(v interface{}) string {

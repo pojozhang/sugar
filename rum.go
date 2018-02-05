@@ -2,7 +2,7 @@ package rum
 
 import (
 	"net/http"
-	"net/url"
+	"net/http/httputil"
 	"reflect"
 	"log"
 )
@@ -40,19 +40,21 @@ func (c *Client) Delete(rawUrl string, params ...interface{}) (*http.Response, e
 }
 
 func (c *Client) Do(method, rawUrl string, params ...interface{}) (*http.Response, error) {
-	u, err := url.Parse(rawUrl)
+	req, err := http.NewRequest(method, rawUrl, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req := &http.Request{URL: u}
 	for i, param := range params {
 		if r, ok := resolvers[reflect.TypeOf(param)]; ok {
-			r.resolve(req, params, param, i)
+			if err := r.resolve(req, params, param, i); err != nil {
+				return nil, err
+			}
 		}
 	}
 
-	log.Printf("%s %s\n", method, req.URL.String())
+	d, _ := httputil.DumpRequest(req, true)
+	log.Printf("%s\n", d)
 	return c.HttpClient.Do(req)
 }
 
@@ -86,7 +88,7 @@ func GetResolvers() map[reflect.Type]Resolver {
 
 func init() {
 	resolvers[reflect.TypeOf(Query{})] = &QueryResolver{}
-	resolvers[reflect.TypeOf(Header{})] = &QueryResolver{}
-	resolvers[reflect.TypeOf(Json{})] = &QueryResolver{}
+	resolvers[reflect.TypeOf(Header{})] = &HeaderResolver{}
+	resolvers[reflect.TypeOf(Json{})] = &JsonResolver{}
 	resolvers[reflect.TypeOf(Form{})] = &QueryResolver{}
 }
