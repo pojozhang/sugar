@@ -20,23 +20,23 @@ var DefaultClient = Client{
 }
 
 func (c *Client) Get(rawUrl string, params ...interface{}) (*http.Response, error) {
-	return c.Do(http.MethodGet, rawUrl, params)
+	return c.Do(http.MethodGet, rawUrl, params...)
 }
 
 func (c *Client) Post(rawUrl string, params ...interface{}) (*http.Response, error) {
-	return c.Do(http.MethodPost, rawUrl, params)
+	return c.Do(http.MethodPost, rawUrl, params...)
 }
 
 func (c *Client) Put(rawUrl string, params ...interface{}) (*http.Response, error) {
-	return c.Do(http.MethodPut, rawUrl, params)
+	return c.Do(http.MethodPut, rawUrl, params...)
 }
 
 func (c *Client) Patch(rawUrl string, params ...interface{}) (*http.Response, error) {
-	return c.Do(http.MethodPatch, rawUrl, params)
+	return c.Do(http.MethodPatch, rawUrl, params...)
 }
 
 func (c *Client) Delete(rawUrl string, params ...interface{}) (*http.Response, error) {
-	return c.Do(http.MethodDelete, rawUrl, params)
+	return c.Do(http.MethodDelete, rawUrl, params...)
 }
 
 func (c *Client) Do(method, rawUrl string, params ...interface{}) (*http.Response, error) {
@@ -51,34 +51,33 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*http.Respons
 			r.resolve(req, params, param, i)
 		}
 	}
-	req.URL.RawQuery = req.URL.Query().Encode()
 
-	log.Printf("%s %s/n", method, req.URL.String())
+	log.Printf("%s %s\n", method, req.URL.String())
 	return c.HttpClient.Do(req)
 }
 
 func Get(rawUrl string, params ...interface{}) (*http.Response, error) {
-	return DefaultClient.Get(rawUrl, params)
+	return DefaultClient.Get(rawUrl, params...)
 }
 
 func Post(rawUrl string, params ...interface{}) (*http.Response, error) {
-	return DefaultClient.Post(rawUrl, params)
+	return DefaultClient.Post(rawUrl, params...)
 }
 
 func Put(rawUrl string, params ...interface{}) (*http.Response, error) {
-	return DefaultClient.Put(rawUrl, params)
+	return DefaultClient.Put(rawUrl, params...)
 }
 
 func Patch(rawUrl string, params ...interface{}) (*http.Response, error) {
-	return DefaultClient.Patch(rawUrl, params)
+	return DefaultClient.Patch(rawUrl, params...)
 }
 
 func Delete(rawUrl string, params ...interface{}) (*http.Response, error) {
-	return DefaultClient.Delete(rawUrl, params)
+	return DefaultClient.Delete(rawUrl, params...)
 }
 
 func Do(method, rawUrl string, params ...interface{}) (*http.Response, error) {
-	return DefaultClient.Do(method, rawUrl, params)
+	return DefaultClient.Do(method, rawUrl, params...)
 }
 
 func GetResolvers() map[reflect.Type]Resolver {

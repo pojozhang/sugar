@@ -35,11 +35,12 @@ type QueryResolver struct {
 }
 
 func (r *QueryResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) {
-	m := param.(map[string]interface{})
-	q := req.URL.Query()
-	for k, v := range m {
-		q.Add(k, ToString(v))
+	q := param.(Query)
+	query := req.URL.Query()
+	for k, v := range q {
+		query.Add(k, ToString(v))
 	}
+	req.URL.RawQuery = query.Encode()
 }
 
 func ToString(v interface{}) string {
