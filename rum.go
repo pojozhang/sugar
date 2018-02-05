@@ -87,8 +87,10 @@ func GetResolvers() map[reflect.Type]Resolver {
 }
 
 func init() {
+	resolvers[reflect.TypeOf(Path{})] = &PathResolver{}
 	resolvers[reflect.TypeOf(Query{})] = &QueryResolver{}
 	resolvers[reflect.TypeOf(Header{})] = &HeaderResolver{}
 	resolvers[reflect.TypeOf(Json{})] = &JsonResolver{}
-	resolvers[reflect.TypeOf(Form{})] = &QueryResolver{}
+	resolvers[reflect.TypeOf(Form{})] = &FormResolver{}
+	resolvers[reflect.TypeOf(Cookie{})] = &CookieResolver{}
 }

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"bytes"
 	"io/ioutil"
+	"strings"
 )
 
 type MapParams map[string]interface{}
@@ -30,8 +31,35 @@ type Json MapParams
 
 type J = Json
 
+type Cookie MapParams
+
+type C = Cookie
+
 type Resolver interface {
 	resolve(req *http.Request, params []interface{}, param interface{}, index int) error
+}
+
+type PathResolver struct {
+}
+
+func (r *PathResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	for i := 0; i < len(req.URL.Path); i++ {
+		if string(req.URL.Path[i]) == ":" {
+			j := i + 1
+			for ; j < len(req.URL.Path); j++ {
+				s := string(req.URL.Path[j])
+				if s == "/" {
+					break
+				}
+			}
+
+			key := req.URL.Path[i+1 : j]
+			value := param.(Path)[key]
+			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], ToString(value), -1)
+		}
+	}
+	println(req.URL.Path)
+	return nil
 }
 
 type QueryResolver struct {
@@ -59,6 +87,13 @@ func (r *HeaderResolver) resolve(req *http.Request, params []interface{}, param 
 	return nil
 }
 
+type FormResolver struct {
+}
+
+func (r *FormResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	return nil
+}
+
 type JsonResolver struct {
 }
 
@@ -69,6 +104,13 @@ func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param in
 		return err
 	}
 	req.Body = ioutil.NopCloser(bytes.NewReader(b))
+	return nil
+}
+
+type CookieResolver struct {
+}
+
+func (r *CookieResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	return nil
 }
 
