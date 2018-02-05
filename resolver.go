@@ -1,4 +1,4 @@
-package rum
+package sugar
 
 import (
 	"net/http"
