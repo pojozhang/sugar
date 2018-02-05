@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"strings"
+	"io/ioutil"
+	"fmt"
 )
 
 type book struct {
@@ -84,6 +86,28 @@ func TestDeleteBookById(t *testing.T) {
 	}
 
 	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestCreateBook(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Post("/books").
+		AddMatcher(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		b, _ := ioutil.ReadAll(request.Body)
+		println(string(b))
+		var book book
+		json.Unmarshal(b, &book)
+		fmt.Printf("%v", book)
+		return book.Name == "bookA", nil
+	}).Reply(201)
+
+	resp, err := Post("http://api.example.com/books", Json(`{"Name":"bookA"}`))
+
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+
+	assert.Equal(t, 201, resp.StatusCode)
 }
 
 func TestSendCookies(t *testing.T) {

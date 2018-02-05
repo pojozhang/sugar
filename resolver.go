@@ -7,31 +7,36 @@ import (
 	"bytes"
 	"io/ioutil"
 	"strings"
+	"reflect"
 )
 
-type MapParams map[string]interface{}
+type Array []interface{}
 
-type Header MapParams
+type A = Array
+
+type Map map[string]interface{}
+
+type Header Map
 
 type H = Header
 
-type Path MapParams
+type Path Map
 
 type P = Path
 
-type Query MapParams
+type Query Map
 
 type Q = Query
 
-type Form MapParams
+type Form Map
 
 type F = Form
 
-type Json MapParams
+type JSON struct {
+	Data interface{}
+}
 
-type J = Json
-
-type Cookie MapParams
+type Cookie Map
 
 type C = Cookie
 
@@ -97,11 +102,23 @@ type JsonResolver struct {
 }
 
 func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
-	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
-	b, err := json.Marshal(param)
+	v := param.(*JSON)
+
+	var b []byte
+	var err error
+	switch x := v.Data.(type) {
+	case []byte:
+		b, err = json.RawMessage(x).MarshalJSON()
+	case string:
+		b, err = json.RawMessage([]byte(x)).MarshalJSON()
+	default:
+		b, err = json.Marshal(x)
+	}
 	if err != nil {
 		return err
 	}
+
+	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
 	req.Body = ioutil.NopCloser(bytes.NewReader(b))
 	return nil
 }
@@ -149,4 +166,21 @@ func ToString(v interface{}) string {
 	}
 
 	return s
+}
+
+func Json(v interface{}) *JSON {
+	return J(v)
+}
+
+func J(v interface{}) *JSON {
+	return &JSON{Data: v}
+}
+
+func init() {
+	resolvers[reflect.TypeOf(Path{})] = &PathResolver{}
+	resolvers[reflect.TypeOf(Query{})] = &QueryResolver{}
+	resolvers[reflect.TypeOf(Header{})] = &HeaderResolver{}
+	resolvers[reflect.TypeOf(JSON{})] = &JsonResolver{}
+	resolvers[reflect.TypeOf(Form{})] = &FormResolver{}
+	resolvers[reflect.TypeOf(Cookie{})] = &CookieResolver{}
 }

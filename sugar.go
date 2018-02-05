@@ -46,10 +46,16 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response, er
 	}
 
 	for i, param := range params {
-		if r, ok := resolvers[reflect.TypeOf(param)]; ok {
+		t := reflect.TypeOf(param)
+		if t.Kind() == reflect.Ptr {
+			t = t.Elem()
+		}
+		if r, ok := resolvers[t]; ok {
 			if err := r.resolve(req, params, param, i); err != nil {
 				return nil, err
 			}
+		} else {
+			log.Printf("No resolvers found for %v", t)
 		}
 	}
 
@@ -90,13 +96,4 @@ func Do(method, rawUrl string, params ...interface{}) (*Response, error) {
 
 func GetResolvers() map[reflect.Type]Resolver {
 	return resolvers
-}
-
-func init() {
-	resolvers[reflect.TypeOf(Path{})] = &PathResolver{}
-	resolvers[reflect.TypeOf(Query{})] = &QueryResolver{}
-	resolvers[reflect.TypeOf(Header{})] = &HeaderResolver{}
-	resolvers[reflect.TypeOf(Json{})] = &JsonResolver{}
-	resolvers[reflect.TypeOf(Form{})] = &FormResolver{}
-	resolvers[reflect.TypeOf(Cookie{})] = &CookieResolver{}
 }
