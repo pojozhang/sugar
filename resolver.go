@@ -110,6 +110,10 @@ type CookieResolver struct {
 }
 
 func (r *CookieResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	c := param.(Cookie)
+	for k, v := range c {
+		req.AddCookie(&http.Cookie{Name: k, Value: ToString(v)})
+	}
 	return nil
 }
 
