@@ -58,7 +58,6 @@ func (r *PathResolver) resolve(req *http.Request, params []interface{}, param in
 			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], ToString(value), -1)
 		}
 	}
-	println(req.URL.Path)
 	return nil
 }
 
