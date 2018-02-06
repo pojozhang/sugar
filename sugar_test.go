@@ -208,6 +208,22 @@ func TestPatch(t *testing.T) {
 	assert.Equal(t, 204, resp.StatusCode)
 }
 
+func TestDo(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		return request.Method == http.MethodTrace, nil
+	})
+	gock.New("http://api.example.com").
+		SetMatcher(matcher).
+		Reply(200)
+
+	resp, err := Do(http.MethodTrace, "http://api.example.com/books")
+
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
 func TestGetResolvers(t *testing.T) {
 	assert.True(t, len(GetResolvers()) > 0)
 }
@@ -215,4 +231,16 @@ func TestGetResolvers(t *testing.T) {
 func TestErrorRequest(t *testing.T) {
 	_, err := Patch("http://wrong-url")
 	assert.NotNil(t, err)
+}
+
+func TestNoResolverFound(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Path("/books").
+		Reply(200)
+
+	resp, err := Get("http://api.example.com/books", struct{}{})
+
+	assert.NotNil(t, err)
+	assert.Nil(t, resp)
 }
