@@ -3,6 +3,7 @@ package sugar
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
+	"net/http"
 )
 
 func TestToString(t *testing.T) {
@@ -21,4 +22,10 @@ func TestToString(t *testing.T) {
 	assert.Equal(t, "8", ToString("8"))
 	assert.Equal(t, "true", ToString(true))
 	assert.Equal(t, "", ToString(struct{}{}))
+}
+
+func TestResolvePath(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "http://github.com/:id/", nil)
+	new(PathResolver).resolve(req, L{P{"id": "golang"}}, P{"id": "golang"}, 0)
+	assert.Equal(t, "http://github.com/golang/", req.URL.String())
 }
