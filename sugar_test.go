@@ -241,6 +241,7 @@ func TestNoResolverFound(t *testing.T) {
 
 	resp, err := Get("http://api.example.com/books", struct{}{})
 
+	println(err.Error())
 	assert.NotNil(t, err)
 	assert.Nil(t, resp)
 }
