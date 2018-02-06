@@ -110,19 +110,36 @@ func TestCreateBook(t *testing.T) {
 	assert.Equal(t, 201, resp.StatusCode)
 }
 
-func TestSendCookies(t *testing.T) {
+func TestWriteCookies(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
 		c, _ := request.Cookie("name")
-		return c.Value == "sugar", nil
+		return c.Value == "bookA", nil
 	})
 	gock.New("http://api.example.com").
 		Get("/books").
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Get("http://api.example.com/books", Cookie{"name": "sugar"})
+	resp, err := Get("http://api.example.com/books", Cookie{"name": "bookA"})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestWriteHeaders(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		return request.Header.Get("name") == "bookA", nil
+	})
+	gock.New("http://api.example.com").
+		Get("/books").
+		SetMatcher(matcher).
+		Reply(200)
+
+	resp, err := Get("http://api.example.com/books", Header{"name": "bookA"})
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
