@@ -109,10 +109,22 @@ func TestPostJson(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(201)
 
-	resp, err := Post("http://api.example.com/books", Json(`{"Name":"bookA"}`))
+	resp, err := Post("http://api.example.com/books", Json(`{"name":"bookA"}`))
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
+}
+
+func TestPostBadJson(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Post("/books").
+		Reply(200)
+
+	badValue := make(chan int)
+	_, err := Post("http://api.example.com/books", Json(badValue))
+
+	assert.NotNil(t, err)
 }
 
 func TestPostForm(t *testing.T) {
@@ -130,6 +142,17 @@ func TestPostForm(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestPostFormWithBadUrl(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Post("/books").
+		Reply(200)
+
+	_, err := Post("http://api.example.com/books?%%", Form{"name": "bookA"})
+
+	assert.NotNil(t, err)
 }
 
 func TestWriteCookies(t *testing.T) {
