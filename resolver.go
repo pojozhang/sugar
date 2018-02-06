@@ -8,6 +8,13 @@ import (
 	"io/ioutil"
 	"strings"
 	"reflect"
+	"net/url"
+)
+
+const (
+	ContentType     = "Content-Type"
+	ContentTypeForm = "application/x-www-form-urlencoded"
+	ContentTypeJson = "application/json;charset=UTF-8"
 )
 
 type Array []interface{}
@@ -58,7 +65,7 @@ func (r *PathResolver) resolve(req *http.Request, params []interface{}, param in
 				}
 			}
 
-			key := req.URL.Path[i+1 : j]
+			key := req.URL.Path[i+1: j]
 			value := param.(Path)[key]
 			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], ToString(value), -1)
 		}
@@ -70,12 +77,11 @@ type QueryResolver struct {
 }
 
 func (r *QueryResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
-	q := param.(Query)
-	query := req.URL.Query()
-	for k, v := range q {
-		query.Add(k, ToString(v))
+	q := req.URL.Query()
+	for k, v := range param.(Query) {
+		q.Add(k, ToString(v))
 	}
-	req.URL.RawQuery = query.Encode()
+	req.URL.RawQuery = q.Encode()
 	return nil
 }
 
@@ -83,10 +89,8 @@ type HeaderResolver struct {
 }
 
 func (r *HeaderResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
-	h := param.(Header)
-	header := req.Header
-	for k, v := range h {
-		header.Add(k, ToString(v))
+	for k, v := range param.(Header) {
+		req.Header.Add(k, ToString(v))
 	}
 	return nil
 }
@@ -95,6 +99,19 @@ type FormResolver struct {
 }
 
 func (r *FormResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	form := url.Values{}
+	for k, v := range param.(Form) {
+		form.Add(k, ToString(v))
+	}
+	req.PostForm = form
+	err := req.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	if _, ok := req.Header[ContentType]; !ok {
+		req.Header.Set(ContentType, ContentTypeForm)
+	}
 	return nil
 }
 
@@ -103,7 +120,6 @@ type JsonResolver struct {
 
 func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	v := param.(*JSON)
-
 	var b []byte
 	var err error
 	switch x := v.Data.(type) {
@@ -118,7 +134,9 @@ func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param in
 		return err
 	}
 
-	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
+	if _, ok := req.Header[ContentType]; !ok {
+		req.Header.Set(ContentType, ContentTypeJson)
+	}
 	req.Body = ioutil.NopCloser(bytes.NewReader(b))
 	return nil
 }

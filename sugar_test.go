@@ -14,7 +14,7 @@ type book struct {
 	Name string
 }
 
-func TestGetBooks(t *testing.T) {
+func TestGet(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Get("/books").
@@ -30,7 +30,7 @@ func TestGetBooks(t *testing.T) {
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
-func TestFindBooksByName(t *testing.T) {
+func TestGetWithQueryVar(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
@@ -52,7 +52,7 @@ func TestFindBooksByName(t *testing.T) {
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
-func TestFindBookById(t *testing.T) {
+func TestGetWithPathVar(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
@@ -73,7 +73,7 @@ func TestFindBookById(t *testing.T) {
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
-func TestDeleteBookById(t *testing.T) {
+func TestDelete(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
@@ -90,14 +90,14 @@ func TestDeleteBookById(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
-func TestCreateBook(t *testing.T) {
+func TestPostJSON(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
 		b, _ := ioutil.ReadAll(request.Body)
 		var book book
 		json.Unmarshal(b, &book)
-		return book.Name == "bookA", nil
+		return request.Header[ContentType][0] == ContentTypeJson && book.Name == "bookA", nil
 	})
 	gock.New("http://api.example.com").
 		Post("/books").
@@ -108,6 +108,23 @@ func TestCreateBook(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
+}
+
+func TestPostForm(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		return request.Header[ContentType][0] == ContentTypeForm && request.Form["name"][0] == "bookA", nil
+	})
+	gock.New("http://api.example.com").
+		Post("/books").
+		SetMatcher(matcher).
+		Reply(200)
+
+	resp, err := Post("http://api.example.com/books", Form{"name": "bookA"})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
 }
 
 func TestWriteCookies(t *testing.T) {
