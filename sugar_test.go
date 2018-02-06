@@ -228,8 +228,13 @@ func TestGetResolvers(t *testing.T) {
 	assert.True(t, len(GetResolvers()) > 0)
 }
 
-func TestErrorRequest(t *testing.T) {
+func TestUrlNotExists(t *testing.T) {
 	_, err := Patch("http://wrong-url")
+	assert.NotNil(t, err)
+}
+
+func TestWrongRequest(t *testing.T) {
+	_, err := Do("?", "http://wrong-url")
 	assert.NotNil(t, err)
 }
 
