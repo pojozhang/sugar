@@ -183,3 +183,7 @@ func TestWriteHeaders(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }
+
+func TestGetResolvers(t *testing.T) {
+	assert.True(t, len(GetResolvers()) > 0)
+}
