@@ -19,5 +19,5 @@ sugar.Get("http://api.example.com/books/:id", Path{"id": 123})
 
 ### Post JSON
 ```go
-sugar.Post("http://api.example.com/books", Json(`{"Name":"bookA"}`)
+sugar.Post("http://api.example.com/books", Json(`{"Name":"bookA"}`))
 ```
