@@ -26,6 +26,12 @@ sugar.Get("http://api.example.com/books/:id", P{"id": 123})
 // Host: api.example.com
 sugar.Get("http://api.example.com/books", Query{"name": "bookA"})
 sugar.Get("http://api.example.com/books", Q{"name": "bookA"})
+
+// List
+// GET /books?name=bookA&name=bookB HTTP/1.1
+// Host: api.example.com
+sugar.Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}})
+sugar.Get("http://api.example.com/books", Query{"name": L{"bookA", "bookB"}})
 ```
 
 ### Cookie
