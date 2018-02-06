@@ -95,24 +95,7 @@ func TestGetWithPathVar(t *testing.T) {
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
-func TestDelete(t *testing.T) {
-	defer gock.Off()
-	matcher := gock.NewBasicMatcher()
-	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
-		return strings.Contains(request.URL.Path, "123"), nil
-	})
-	gock.New("http://api.example.com").
-		Delete("/books").
-		SetMatcher(matcher).
-		Reply(200)
-
-	resp, err := Delete("http://api.example.com/books/:id", Path{"id": 123})
-
-	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
-}
-
-func TestPostJSON(t *testing.T) {
+func TestPostJson(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
@@ -182,6 +165,47 @@ func TestWriteHeaders(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestDelete(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		return strings.Contains(request.URL.Path, "123"), nil
+	})
+	gock.New("http://api.example.com").
+		Delete("/books").
+		SetMatcher(matcher).
+		Reply(200)
+
+	resp, err := Delete("http://api.example.com/books/:id", Path{"id": 123})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestPut(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Put("/books/123").
+		Reply(204)
+
+	resp, err := Put("http://api.example.com/books/:id", Path{"id": 123})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 204, resp.StatusCode)
+}
+
+func TestPatch(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Path("/books/123").
+		Reply(204)
+
+	resp, err := Patch("http://api.example.com/books/:id", Path{"id": 123})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 204, resp.StatusCode)
 }
 
 func TestGetResolvers(t *testing.T) {
