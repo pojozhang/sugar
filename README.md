@@ -15,19 +15,23 @@ dep ensure -add github.com/pojozhang/sugar
 ### Path
 ```go
 sugar.Get("http://api.example.com/books/:id", Path{"id": 123})
+sugar.Get("http://api.example.com/books/:id", P{"id": 123})
 ```
 
 ### Query
 ```go
 sugar.Get("http://api.example.com/books", Query{"name": "bookA"})
+sugar.Get("http://api.example.com/books", Q{"name": "bookA"})
 ```
 
 ### Cookie
 ```go
 sugar.Get("http://api.example.com/books", Cookie{"name": "sugar"})
+sugar.Get("http://api.example.com/books", C{"name": "sugar"})
 ```
 
 ### JSON
 ```go
 sugar.Post("http://api.example.com/books", Json(`{"Name":"bookA"}`))
+sugar.Post("http://api.example.com/books", J(`{"Name":"bookA"}`))
 ```
