@@ -42,3 +42,15 @@ func TestResolveJsonBytes(t *testing.T) {
 	json.Unmarshal(b, n)
 	assert.Equal(t, "v", m["k"])
 }
+
+func TestResolveJsonList(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "http://github.com", nil)
+	new(JsonResolver).resolve(req, L{J(L{1, 2, 3})}, J(L{1, 2, 3}), 0)
+	b, _ := ioutil.ReadAll(req.Body)
+	n := make([]int, 0)
+	json.Unmarshal(b, &n)
+	assert.Equal(t, 1, n[0])
+	assert.Equal(t, 2, n[1])
+	assert.Equal(t, 3, n[2])
+
+}
