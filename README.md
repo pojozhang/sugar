@@ -26,8 +26,8 @@ sugar.Get("http://api.example.com/books", Q{"name": "bookA"})
 
 ### Cookie
 ```go
-sugar.Get("http://api.example.com/books", Cookie{"name": "sugar"})
-sugar.Get("http://api.example.com/books", C{"name": "sugar"})
+sugar.Get("http://api.example.com/books", Cookie{"name": "bookA"})
+sugar.Get("http://api.example.com/books", C{"name": "bookA"})
 ```
 
 ### Header
@@ -38,9 +38,9 @@ sugar.Get("http://api.example.com/books", H{"name": "bookA"})
 
 ### Json
 ```go
-//will automatically add 'Content-Type=application/json;charset=UTF-8' to header if not 'Content-Type' exists
-sugar.Post("http://api.example.com/books", Json(`{"Name":"bookA"}`))
-sugar.Post("http://api.example.com/books", J(`{"Name":"bookA"}`))
+//will automatically add 'Content-Type=application/json;charset=UTF-8' to header if 'Content-Type' not exists
+sugar.Post("http://api.example.com/books", Json(`{"name":"bookA"}`))
+sugar.Post("http://api.example.com/books", J(`{"name":"bookA"}`))
 ```
 
 ### Form
