@@ -52,5 +52,4 @@ func TestResolveJsonList(t *testing.T) {
 	assert.Equal(t, 1, n[0])
 	assert.Equal(t, 2, n[1])
 	assert.Equal(t, 3, n[2])
-
 }
