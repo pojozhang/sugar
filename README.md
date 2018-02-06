@@ -30,6 +30,12 @@ sugar.Get("http://api.example.com/books", Cookie{"name": "sugar"})
 sugar.Get("http://api.example.com/books", C{"name": "sugar"})
 ```
 
+### Header
+```go
+sugar.Get("http://api.example.com/books", Header{"name": "bookA"})
+sugar.Get("http://api.example.com/books", H{"name": "bookA"})
+```
+
 ### JSON
 ```go
 sugar.Post("http://api.example.com/books", Json(`{"Name":"bookA"}`))
