@@ -34,7 +34,6 @@ func TestGetWithQueryVar(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
-		println(request.URL.String())
 		return request.URL.Query()["name"][0] == "bookA", nil
 	})
 	gock.New("http://api.example.com").
