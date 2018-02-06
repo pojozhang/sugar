@@ -5,6 +5,7 @@ import (
 	"net/http/httputil"
 	"reflect"
 	"log"
+	"io/errors"
 )
 
 var (
@@ -55,7 +56,7 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response, er
 				return nil, err
 			}
 		} else {
-			log.Printf("No resolvers found for %v", t)
+			return nil, errors.New("No resolvers found for", t)
 		}
 	}
 
