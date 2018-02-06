@@ -31,7 +31,7 @@ sugar.Get("http://api.example.com/books", Q{"name": "bookA"})
 // GET /books?name=bookA&name=bookB HTTP/1.1
 // Host: api.example.com
 sugar.Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}})
-sugar.Get("http://api.example.com/books", Query{"name": L{"bookA", "bookB"}})
+sugar.Get("http://api.example.com/books", Q{"name": L{"bookA", "bookB"}})
 ```
 
 ### Cookie
