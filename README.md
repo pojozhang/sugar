@@ -12,12 +12,22 @@ dep ensure -add github.com/pojozhang/sugar
 
 ## Usage
 
-### Build a get request with path variables
+### Path
 ```go
 sugar.Get("http://api.example.com/books/:id", Path{"id": 123})
 ```
 
-### Post JSON
+### Query
+```go
+sugar.Get("http://api.example.com/books", Query{"name": "bookA"})
+```
+
+### Cookie
+```go
+sugar.Get("http://api.example.com/books", Cookie{"name": "sugar"})
+```
+
+### JSON
 ```go
 sugar.Post("http://api.example.com/books", Json(`{"Name":"bookA"}`))
 ```
