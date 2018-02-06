@@ -36,7 +36,7 @@ sugar.Get("http://api.example.com/books", Header{"name": "bookA"})
 sugar.Get("http://api.example.com/books", H{"name": "bookA"})
 ```
 
-### JSON
+### Json
 ```go
 //will automatically add 'Content-Type=application/json;charset=UTF-8' to header if not 'Content-Type' exists
 sugar.Post("http://api.example.com/books", Json(`{"Name":"bookA"}`))
