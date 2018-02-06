@@ -4,6 +4,8 @@ import (
 	"testing"
 	"github.com/stretchr/testify/assert"
 	"net/http"
+	"encoding/json"
+	"io/ioutil"
 )
 
 func TestToString(t *testing.T) {
@@ -28,4 +30,15 @@ func TestResolvePath(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://github.com/:id/", nil)
 	new(PathResolver).resolve(req, L{P{"id": "golang"}}, P{"id": "golang"}, 0)
 	assert.Equal(t, "http://github.com/golang/", req.URL.String())
+}
+
+func TestResolveJsonBytes(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "http://github.com", nil)
+	m := map[string]string{"k": "v"}
+	b, _ := json.Marshal(m)
+	new(JsonResolver).resolve(req, L{J(b)}, J(b), 0)
+	b, _ = ioutil.ReadAll(req.Body)
+	var n map[string]*json.RawMessage
+	json.Unmarshal(b, n)
+	assert.Equal(t, "v", m["k"])
 }
