@@ -163,6 +163,8 @@ func (r *CookieResolver) resolve(req *http.Request, params []interface{}, param 
 func ToString(v interface{}) string {
 	var s string
 	switch x := v.(type) {
+	case bool:
+		s = strconv.FormatBool(x)
 	case uint:
 		s = strconv.FormatUint(uint64(x), 10)
 	case uint8:
