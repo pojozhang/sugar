@@ -51,6 +51,29 @@ func TestGetWithQueryVar(t *testing.T) {
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
+func TestGetWithQueryList(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		q := request.URL.Query()
+		return q["name"][0] == "bookA" && q["name"][1] == "bookB", nil
+	})
+	gock.New("http://api.example.com").
+		Get("/books").
+		SetMatcher(matcher).
+		Reply(200).
+		JSON(`[{"name":"bookA"},{"name":"bookB"}]`)
+
+	resp, err := Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}})
+
+	assert.Nil(t, err)
+
+	var books []book
+	json.Unmarshal(resp.ReadBytes(), &books)
+	assert.Equal(t, "bookA", books[0].Name)
+	assert.Equal(t, "bookB", books[1].Name)
+}
+
 func TestGetWithPathVar(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()

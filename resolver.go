@@ -17,9 +17,9 @@ const (
 	ContentTypeJson = "application/json;charset=UTF-8"
 )
 
-type Array []interface{}
+type List []interface{}
 
-type A = Array
+type L = List
 
 type Map map[string]interface{}
 
@@ -79,7 +79,15 @@ type QueryResolver struct {
 func (r *QueryResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	q := req.URL.Query()
 	for k, v := range param.(Query) {
-		q.Add(k, ToString(v))
+		switch reflect.TypeOf(v).Kind() {
+		case reflect.Array, reflect.Slice:
+			a := reflect.ValueOf(v)
+			for i := 0; i < a.Len(); i++ {
+				q.Add(k, ToString(a.Index(i).Elem().Interface()))
+			}
+		default:
+			q.Add(k, ToString(v))
+		}
 	}
 	req.URL.RawQuery = q.Encode()
 	return nil
