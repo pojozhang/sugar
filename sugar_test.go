@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strings"
 	"io/ioutil"
-	"fmt"
 )
 
 type book struct {
@@ -24,9 +23,7 @@ func TestGetBooks(t *testing.T) {
 
 	resp, err := Get("http://api.example.com/books")
 
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
+	assert.Nil(t, err)
 
 	var books []book
 	json.Unmarshal(resp.ReadBytes(), &books)
@@ -35,17 +32,20 @@ func TestGetBooks(t *testing.T) {
 
 func TestFindBooksByName(t *testing.T) {
 	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		println(request.URL.String())
+		return request.URL.Query()["name"][0] == "bookA", nil
+	})
 	gock.New("http://api.example.com").
 		Get("/books").
-		AddMatcher(func(request *http.Request, request2 *gock.Request) (bool, error) {
-		return request.URL.Query()["name"][0] == "bookA", nil
-	}).Reply(200).JSON(`[{"name":"bookA"}]`)
+		SetMatcher(matcher).
+		Reply(200).
+		JSON(`[{"name":"bookA"}]`)
 
 	resp, err := Get("http://api.example.com/books", Query{"name": "bookA"})
 
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
+	assert.Nil(t, err)
 
 	var books []book
 	json.Unmarshal(resp.ReadBytes(), &books)
@@ -54,17 +54,19 @@ func TestFindBooksByName(t *testing.T) {
 
 func TestFindBookById(t *testing.T) {
 	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		return strings.Contains(request.URL.Path, "123"), nil
+	})
 	gock.New("http://api.example.com").
 		Get("/books").
-		AddMatcher(func(request *http.Request, request2 *gock.Request) (bool, error) {
-		return strings.Contains(request.URL.Path, "123"), nil
-	}).Reply(200).JSON(`[{"name":"bookA"}]`)
+		SetMatcher(matcher).
+		Reply(200).
+		JSON(`[{"name":"bookA"}]`)
 
 	resp, err := Get("http://api.example.com/books/:id", Path{"id": 123})
 
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
+	assert.Nil(t, err)
 
 	var books []book
 	json.Unmarshal(resp.ReadBytes(), &books)
@@ -73,57 +75,55 @@ func TestFindBookById(t *testing.T) {
 
 func TestDeleteBookById(t *testing.T) {
 	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		return strings.Contains(request.URL.Path, "123"), nil
+	})
 	gock.New("http://api.example.com").
 		Delete("/books").
-		AddMatcher(func(request *http.Request, request2 *gock.Request) (bool, error) {
-		return strings.Contains(request.URL.Path, "123"), nil
-	}).Reply(200)
+		SetMatcher(matcher).
+		Reply(200)
 
 	resp, err := Delete("http://api.example.com/books/:id", Path{"id": 123})
 
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
-
+	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
 func TestCreateBook(t *testing.T) {
 	defer gock.Off()
-	gock.New("http://api.example.com").
-		Post("/books").
-		AddMatcher(func(request *http.Request, request2 *gock.Request) (bool, error) {
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
 		b, _ := ioutil.ReadAll(request.Body)
-		println(string(b))
 		var book book
 		json.Unmarshal(b, &book)
-		fmt.Printf("%v", book)
 		return book.Name == "bookA", nil
-	}).Reply(201)
+	})
+	gock.New("http://api.example.com").
+		Post("/books").
+		SetMatcher(matcher).
+		Reply(201)
 
 	resp, err := Post("http://api.example.com/books", Json(`{"Name":"bookA"}`))
 
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
-
+	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
 }
 
 func TestSendCookies(t *testing.T) {
 	defer gock.Off()
-	gock.New("http://api.example.com").
-		Get("/books").
-		AddMatcher(func(request *http.Request, request2 *gock.Request) (bool, error) {
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
 		c, _ := request.Cookie("name")
 		return c.Value == "sugar", nil
-	}).Reply(200)
+	})
+	gock.New("http://api.example.com").
+		Get("/books").
+		SetMatcher(matcher).
+		Reply(200)
 
 	resp, err := Get("http://api.example.com/books", Cookie{"name": "sugar"})
 
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
-
+	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }
