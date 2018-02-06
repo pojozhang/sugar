@@ -14,18 +14,25 @@ dep ensure -add github.com/pojozhang/sugar
 
 ### Path
 ```go
+// GET /books/123 HTTP/1.1
+// Host: api.example.com
 sugar.Get("http://api.example.com/books/:id", Path{"id": 123})
 sugar.Get("http://api.example.com/books/:id", P{"id": 123})
 ```
 
 ### Query
 ```go
+// GET /books?name=bookA HTTP/1.1
+// Host: api.example.com
 sugar.Get("http://api.example.com/books", Query{"name": "bookA"})
 sugar.Get("http://api.example.com/books", Q{"name": "bookA"})
 ```
 
 ### Cookie
 ```go
+// GET /books HTTP/1.1
+// Host: api.example.com
+// Cookie: name=bookA
 sugar.Get("http://api.example.com/books", Cookie{"name": "bookA"})
 sugar.Get("http://api.example.com/books", C{"name": "bookA"})
 ```
@@ -38,6 +45,10 @@ sugar.Get("http://api.example.com/books", H{"name": "bookA"})
 
 ### Json
 ```go
+// POST /books HTTP/1.1
+// Host: api.example.com
+// Content-Type: application/json;charset=UTF-8
+// {"name":"bookA"}
 //will automatically add 'Content-Type=application/json;charset=UTF-8' to header if 'Content-Type' not exists
 sugar.Post("http://api.example.com/books", Json(`{"name":"bookA"}`))
 sugar.Post("http://api.example.com/books", J(`{"name":"bookA"}`))
@@ -45,6 +56,9 @@ sugar.Post("http://api.example.com/books", J(`{"name":"bookA"}`))
 
 ### Form
 ```go
+// POST /books HTTP/1.1
+// Host: api.example.com
+// Content-Type: application/x-www-form-urlencoded
 sugar.Post("http://api.example.com/books", Form{"name": "bookA"})
 sugar.Post("http://api.example.com/books", F{"name": "bookA"})
 ```
