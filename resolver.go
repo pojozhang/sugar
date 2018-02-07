@@ -9,6 +9,9 @@ import (
 	"strings"
 	"reflect"
 	"net/url"
+	"mime/multipart"
+	"os"
+	"io"
 )
 
 const (
@@ -41,6 +44,8 @@ type Form Map
 
 type F = Form
 
+type File string
+
 type JSON struct {
 	Data interface{}
 }
@@ -54,6 +59,10 @@ type User struct {
 }
 
 type U = User
+
+type MultiPart Map
+
+type D = MultiPart
 
 type Resolver interface {
 	resolve(req *http.Request, params []interface{}, param interface{}, index int) error
@@ -183,6 +192,56 @@ func (r *BasicAuthResolver) resolve(req *http.Request, params []interface{}, par
 	return nil
 }
 
+type MultiPartResolver struct {
+}
+
+func (r *MultiPartResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	m := param.(MultiPart)
+	b := &bytes.Buffer{}
+	w := multipart.NewWriter(b)
+	defer w.Close()
+	for k, v := range m {
+		switch x := v.(type) {
+		case *os.File:
+			writeFile(w, k, x)
+		case File:
+			if f, err := os.Open(string(x)); err == nil {
+				writeFile(w, k, f)
+				f.Close()
+			} else {
+				return err
+			}
+		default:
+			w.WriteField(k, ToString(v))
+		}
+	}
+
+	if _, ok := req.Header[ContentType]; !ok {
+		req.Header.Set(ContentType, w.FormDataContentType())
+	}
+	req.Body = ioutil.NopCloser(b)
+	return nil
+}
+
+func writeFile(w *multipart.Writer, fieldName string, file *os.File) error {
+	f, err := file.Stat()
+	if err != nil {
+		return err
+	}
+
+	fileWriter, err := w.CreateFormFile(fieldName, f.Name())
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(fileWriter, file)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ToString(v interface{}) string {
 	var s string
 	switch x := v.(type) {
@@ -215,7 +274,6 @@ func ToString(v interface{}) string {
 	case string:
 		s = v.(string)
 	}
-
 	return s
 }
 
@@ -227,19 +285,20 @@ func J(v interface{}) *JSON {
 	return &JSON{Data: v}
 }
 
-func init() {
-	resolvers[reflect.TypeOf(Path{})] = &PathResolver{}
-	resolvers[reflect.TypeOf(Query{})] = &QueryResolver{}
-	resolvers[reflect.TypeOf(Header{})] = &HeaderResolver{}
-	resolvers[reflect.TypeOf(JSON{})] = &JsonResolver{}
-	resolvers[reflect.TypeOf(Form{})] = &FormResolver{}
-	resolvers[reflect.TypeOf(Cookie{})] = &CookieResolver{}
-	resolvers[reflect.TypeOf(User{})] = &BasicAuthResolver{}
-}
-
 func foreach(v interface{}, f func(interface{})) {
 	a := reflect.ValueOf(v)
 	for i := 0; i < a.Len(); i++ {
 		f(a.Index(i).Elem().Interface())
 	}
+}
+
+func init() {
+	Register(Path{}, &PathResolver{})
+	Register(Query{}, &QueryResolver{})
+	Register(Header{}, &HeaderResolver{})
+	Register(JSON{}, &JsonResolver{})
+	Register(Form{}, &FormResolver{})
+	Register(Cookie{}, &CookieResolver{})
+	Register(User{}, &BasicAuthResolver{})
+	Register(MultiPart{}, &MultiPartResolver{})
 }

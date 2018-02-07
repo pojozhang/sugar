@@ -105,6 +105,10 @@ func Apply(v ...interface{}) {
 	DefaultClient.Apply(v...)
 }
 
-func GetResolvers() map[reflect.Type]Resolver {
+func Resolvers() map[reflect.Type]Resolver {
 	return resolvers
+}
+
+func Register(v interface{}, resolver Resolver) {
+	resolvers[reflect.TypeOf(v)] = resolver
 }

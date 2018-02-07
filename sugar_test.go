@@ -9,6 +9,7 @@ import (
 	"strings"
 	"io/ioutil"
 	"encoding/base64"
+	"os"
 )
 
 type book struct {
@@ -324,7 +325,7 @@ func TestDo(t *testing.T) {
 }
 
 func TestGetResolvers(t *testing.T) {
-	assert.True(t, len(GetResolvers()) > 0)
+	assert.True(t, len(Resolvers()) > 0)
 }
 
 func TestUrlNotExists(t *testing.T) {
@@ -366,4 +367,43 @@ func TestApply(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestPostMultiPart(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		request.ParseMultipartForm(32 << 20)
+		file, _, _ := request.FormFile("file")
+		defer file.Close()
+		b, _ := ioutil.ReadAll(file)
+		return string(b) == "hello sugar!" && request.FormValue("name") == "bookA", nil
+	})
+	gock.New("http://api.example.com").
+		Post("/books").
+		SetMatcher(matcher).
+		Reply(200)
+
+	resp, err := Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": File("text")})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+
+	f, _ := os.Open("text")
+	defer f.Close()
+	resp, err = Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestPostMultiPartWithUnavailableFile(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Post("/books").
+		Reply(200)
+
+	_, err := Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": File("file_not_exists")})
+
+	assert.NotNil(t, err)
 }
