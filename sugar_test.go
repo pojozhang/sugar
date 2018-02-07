@@ -412,6 +412,17 @@ func TestPostMultiPartWithOsFile(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
+func TestPostMultiPartWithNilOsFile(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Post("/books").
+		Reply(200)
+
+	var f *os.File
+	_, err := Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f})
+	assert.NotNil(t, err)
+}
+
 func TestPostMultiPartWithUnavailableFile(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").

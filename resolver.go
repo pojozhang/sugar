@@ -203,13 +203,18 @@ func (r *MultiPartResolver) resolve(req *http.Request, params []interface{}, par
 	for k, v := range m {
 		switch x := v.(type) {
 		case *os.File:
-			writeFile(w, k, x)
-		case File:
-			if f, err := os.Open(string(x)); err == nil {
-				writeFile(w, k, f)
-				f.Close()
-			} else {
+			if err := writeFile(w, k, x); err != nil {
 				return err
+			}
+		case File:
+			if f, err := os.Open(string(x)); err != nil {
+				return err
+			} else {
+				if err := writeFile(w, k, f); err != nil {
+					f.Close()
+					return err
+				}
+				f.Close()
 			}
 		default:
 			w.WriteField(k, ToString(v))
