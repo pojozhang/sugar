@@ -95,7 +95,7 @@ func TestGetWithPathVar(t *testing.T) {
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
-func TestPostJson(t *testing.T) {
+func TestPostJsonString(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
@@ -110,6 +110,46 @@ func TestPostJson(t *testing.T) {
 		Reply(201)
 
 	resp, err := Post("http://api.example.com/books", Json(`{"name":"bookA"}`))
+
+	assert.Nil(t, err)
+	assert.Equal(t, 201, resp.StatusCode)
+}
+
+func TestPostJsonMap(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		b, _ := ioutil.ReadAll(request.Body)
+		var book book
+		json.Unmarshal(b, &book)
+		return request.Header[ContentType][0] == ContentTypeJson && book.Name == "bookA", nil
+	})
+	gock.New("http://api.example.com").
+		Post("/books").
+		SetMatcher(matcher).
+		Reply(201)
+
+	resp, err := Post("http://api.example.com/books", Json(Map{"name": "bookA"}))
+
+	assert.Nil(t, err)
+	assert.Equal(t, 201, resp.StatusCode)
+}
+
+func TestPostJsonList(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		b, _ := ioutil.ReadAll(request.Body)
+		var book []book
+		json.Unmarshal(b, &book)
+		return request.Header[ContentType][0] == ContentTypeJson && book[0].Name == "bookA", nil
+	})
+	gock.New("http://api.example.com").
+		Post("/books").
+		SetMatcher(matcher).
+		Reply(201)
+
+	resp, err := Post("http://api.example.com/books", Json(List{Map{"name": "bookA"}}))
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)

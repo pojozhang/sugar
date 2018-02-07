@@ -58,9 +58,17 @@ sugar.Get("http://api.example.com/books", H{"name": "bookA"})
 // Host: api.example.com
 // Content-Type: application/json;charset=UTF-8
 // {"name":"bookA"}
-// will automatically add 'Content-Type=application/json;charset=UTF-8' to header if 'Content-Type' not exists
+// automatically set 'Content-Type=application/json;charset=UTF-8' if 'Content-Type' not exists
 sugar.Post("http://api.example.com/books", Json(`{"name":"bookA"}`))
 sugar.Post("http://api.example.com/books", J(`{"name":"bookA"}`))
+
+// map
+sugar.Post("http://api.example.com/books", Json(Map{"name": "bookA"}))
+sugar.Post("http://api.example.com/books", J(M{"name": "bookA"}))
+
+// list
+sugar.Post("http://api.example.com/books", Json(List{Map{"name": "bookA"}}))
+sugar.Post("http://api.example.com/books", J(L{M{"name": "bookA"}}))
 ```
 
 ### Form
