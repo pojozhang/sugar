@@ -20,6 +20,10 @@ const (
 	ContentTypeJson = "application/json;charset=UTF-8"
 )
 
+var (
+	Encode = ToString
+)
+
 type List []interface{}
 
 type L = List
@@ -84,7 +88,7 @@ func (r *PathResolver) resolve(req *http.Request, params []interface{}, param in
 
 			key := req.URL.Path[i+1: j]
 			value := param.(Path)[key]
-			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], ToString(value), -1)
+			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], Encode(value), -1)
 		}
 	}
 	return nil
@@ -99,10 +103,10 @@ func (r *QueryResolver) resolve(req *http.Request, params []interface{}, param i
 		switch reflect.TypeOf(v).Kind() {
 		case reflect.Array, reflect.Slice:
 			foreach(v, func(i interface{}) {
-				q.Add(k, ToString(i))
+				q.Add(k, Encode(i))
 			})
 		default:
-			q.Add(k, ToString(v))
+			q.Add(k, Encode(v))
 		}
 	}
 	req.URL.RawQuery = q.Encode()
@@ -114,7 +118,7 @@ type HeaderResolver struct {
 
 func (r *HeaderResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	for k, v := range param.(Header) {
-		req.Header.Add(k, ToString(v))
+		req.Header.Add(k, Encode(v))
 	}
 	return nil
 }
@@ -128,10 +132,10 @@ func (r *FormResolver) resolve(req *http.Request, params []interface{}, param in
 		switch reflect.TypeOf(v).Kind() {
 		case reflect.Array, reflect.Slice:
 			foreach(v, func(i interface{}) {
-				form.Add(k, ToString(i))
+				form.Add(k, Encode(i))
 			})
 		default:
-			form.Add(k, ToString(v))
+			form.Add(k, Encode(v))
 		}
 	}
 	req.PostForm = form
@@ -178,7 +182,7 @@ type CookieResolver struct {
 func (r *CookieResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	c := param.(Cookie)
 	for k, v := range c {
-		req.AddCookie(&http.Cookie{Name: k, Value: ToString(v)})
+		req.AddCookie(&http.Cookie{Name: k, Value: Encode(v)})
 	}
 	return nil
 }
@@ -217,7 +221,7 @@ func (r *MultiPartResolver) resolve(req *http.Request, params []interface{}, par
 				f.Close()
 			}
 		default:
-			w.WriteField(k, ToString(v))
+			w.WriteField(k, Encode(v))
 		}
 	}
 
