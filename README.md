@@ -27,7 +27,7 @@ sugar.Get("http://api.example.com/books/:id", P{"id": 123})
 sugar.Get("http://api.example.com/books", Query{"name": "bookA"})
 sugar.Get("http://api.example.com/books", Q{"name": "bookA"})
 
-// List
+// list
 // GET /books?name=bookA&name=bookB HTTP/1.1
 // Host: api.example.com
 sugar.Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}})
@@ -117,8 +117,15 @@ f, _ := os.Open("text")
 sugar.Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f})
 ```
 
+### Mix
+Due to Sugar's flexible design, different types of parameters can be freely combined.
+
+```go
+sugar.Patch("http://api.example.com/books/:id", Path{"id": 123}, Json(`{"name":"bookA"}`), User{"user", "password"})
+```
+
 ### Apply
-You can use Apply() function to preset some values which will be attached to every following request.
+You can use Apply() to preset some values which will be attached to every following request.
 
 ```go
 sugar.Apply(User{"user", "password"})
@@ -130,3 +137,10 @@ sugar.Get("http://api.example.com/books", User{"user", "password"})
 sugar.Get("http://api.example.com/books", User{"user", "password"})
 ```
 The latter is equal to the former.
+
+### Extension
+You can register your custom resolver which should implement interface `Resolver` and bind it to the target type.  
+```go
+sugar.Register(Custom{}, &CustomResolver{})
+sugar.Get("http://api.example.com/books", Custom{})
+```
