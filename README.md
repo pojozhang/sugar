@@ -1,6 +1,6 @@
 # Sugar  [![Build Status](https://travis-ci.org/pojozhang/sugar.svg?branch=master)](https://travis-ci.org/pojozhang/sugar) [![codecov](https://codecov.io/gh/pojozhang/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/pojozhang/sugar)
 
-A simple http client with elegant APIs for Golang.
+Sugar is a **DECLARATIVE** http client providing elegant APIs for Golang.
 
 Now you can send requests in just one line.
 
