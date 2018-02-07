@@ -78,4 +78,8 @@ sugar.Post("http://api.example.com/books", J(L{M{"name": "bookA"}}))
 // Content-Type: application/x-www-form-urlencoded
 sugar.Post("http://api.example.com/books", Form{"name": "bookA"})
 sugar.Post("http://api.example.com/books", F{"name": "bookA"})
+
+// list
+sugar.Post("http://api.example.com/books", Form{"name": List{"bookA", "bookB"}})
+sugar.Post("http://api.example.com/books", F{"name": L{"bookA", "bookB"}})
 ```
