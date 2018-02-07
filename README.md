@@ -93,6 +93,30 @@ sugar.Delete("http://api.example.com/books", User{"user", "password"})
 sugar.Delete("http://api.example.com/books", U{"user", "password"})
 ```
 
+### Multipart
+```go
+// POST /books HTTP/1.1
+// Host: api.example.com
+// Content-Type: multipart/form-data; boundary=19b8acc2469f1914a24fc6e0152aac72f1f92b6f5104b57477262816ab0f
+//
+// --19b8acc2469f1914a24fc6e0152aac72f1f92b6f5104b57477262816ab0f
+// Content-Disposition: form-data; name="name"
+//
+// bookA
+// --19b8acc2469f1914a24fc6e0152aac72f1f92b6f5104b57477262816ab0f
+// Content-Disposition: form-data; name="file"; filename="text"
+// Content-Type: application/octet-stream
+//
+// hello sugar!
+// --19b8acc2469f1914a24fc6e0152aac72f1f92b6f5104b57477262816ab0f--
+sugar.Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": File("text")})
+sugar.Post("http://api.example.com/books", D{"name": "bookA", "file": File("text")})
+
+// we also support *os.File
+f, _ := os.Open("text")
+sugar.Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f})
+```
+
 ### Apply
 You can use Apply() function to preset some values which will be attached to every following request.
 
