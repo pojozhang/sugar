@@ -92,3 +92,17 @@ sugar.Post("http://api.example.com/books", F{"name": L{"bookA", "bookB"}})
 sugar.Delete("http://api.example.com/books", User{"user", "password"})
 sugar.Delete("http://api.example.com/books", U{"user", "password"})
 ```
+
+### Apply
+You can use Apply() function to preset some values which will be attached to every following request.
+
+```go
+sugar.Apply(User{"user", "password"})
+sugar.Get("http://api.example.com/books")
+sugar.Get("http://api.example.com/books")
+```
+```go
+sugar.Get("http://api.example.com/books", User{"user", "password"})
+sugar.Get("http://api.example.com/books", User{"user", "password"})
+```
+The latter is equal to the former.

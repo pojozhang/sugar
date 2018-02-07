@@ -348,3 +348,22 @@ func TestNoResolverFound(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Nil(t, resp)
 }
+
+func TestApply(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		s := "Basic " + base64.StdEncoding.EncodeToString([]byte("user:password"))
+		return strings.Contains(request.Header["Authorization"][0], s), nil
+	})
+	gock.New("http://api.example.com").
+		Get("/books").
+		SetMatcher(matcher).
+		Reply(200)
+
+	Apply(User{"user", "password"})
+	resp, err := Get("http://api.example.com/books")
+
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}

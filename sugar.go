@@ -14,6 +14,7 @@ var (
 
 type Client struct {
 	HttpClient *http.Client
+	presets    []interface{}
 }
 
 var DefaultClient = Client{
@@ -46,6 +47,7 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response, er
 		return nil, err
 	}
 
+	params = append(c.presets, params...)
 	for i, param := range params {
 		t := reflect.TypeOf(param)
 		if t.Kind() == reflect.Ptr {
@@ -71,6 +73,10 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response, er
 	return &r, err
 }
 
+func (c *Client) Apply(v ...interface{}) {
+	c.presets = append(c.presets, v...)
+}
+
 func Get(rawUrl string, params ...interface{}) (*Response, error) {
 	return DefaultClient.Get(rawUrl, params...)
 }
@@ -93,6 +99,10 @@ func Delete(rawUrl string, params ...interface{}) (*Response, error) {
 
 func Do(method, rawUrl string, params ...interface{}) (*Response, error) {
 	return DefaultClient.Do(method, rawUrl, params...)
+}
+
+func Apply(v ...interface{}) {
+	DefaultClient.Apply(v...)
 }
 
 func GetResolvers() map[reflect.Type]Resolver {
