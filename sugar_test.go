@@ -184,6 +184,23 @@ func TestPostForm(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
+func TestPostFormList(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		return request.Header[ContentType][0] == ContentTypeForm && request.Form["name"][0] == "bookA" && request.Form["name"][1] == "bookB", nil
+	})
+	gock.New("http://api.example.com").
+		Post("/books").
+		SetMatcher(matcher).
+		Reply(200)
+
+	resp, err := Post("http://api.example.com/books", Form{"name": List{"bookA", "bookB"}})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
 func TestPostFormWithBadUrl(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").

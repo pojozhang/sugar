@@ -83,10 +83,9 @@ func (r *QueryResolver) resolve(req *http.Request, params []interface{}, param i
 	for k, v := range param.(Query) {
 		switch reflect.TypeOf(v).Kind() {
 		case reflect.Array, reflect.Slice:
-			a := reflect.ValueOf(v)
-			for i := 0; i < a.Len(); i++ {
-				q.Add(k, ToString(a.Index(i).Elem().Interface()))
-			}
+			foreach(v, func(i interface{}) {
+				q.Add(k, ToString(i))
+			})
 		default:
 			q.Add(k, ToString(v))
 		}
@@ -111,7 +110,14 @@ type FormResolver struct {
 func (r *FormResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	form := url.Values{}
 	for k, v := range param.(Form) {
-		form.Add(k, ToString(v))
+		switch reflect.TypeOf(v).Kind() {
+		case reflect.Array, reflect.Slice:
+			foreach(v, func(i interface{}) {
+				form.Add(k, ToString(i))
+			})
+		default:
+			form.Add(k, ToString(v))
+		}
 	}
 	req.PostForm = form
 	err := req.ParseForm()
@@ -213,4 +219,11 @@ func init() {
 	resolvers[reflect.TypeOf(JSON{})] = &JsonResolver{}
 	resolvers[reflect.TypeOf(Form{})] = &FormResolver{}
 	resolvers[reflect.TypeOf(Cookie{})] = &CookieResolver{}
+}
+
+func foreach(v interface{}, f func(interface{})) {
+	a := reflect.ValueOf(v)
+	for i := 0; i < a.Len(); i++ {
+		f(a.Index(i).Elem().Interface())
+	}
 }
