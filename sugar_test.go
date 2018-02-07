@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"io/ioutil"
+	"encoding/base64"
 )
 
 type book struct {
@@ -286,6 +287,24 @@ func TestPatch(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, 204, resp.StatusCode)
+}
+
+func TestBasicAuth(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		s := "Basic " + base64.StdEncoding.EncodeToString([]byte("user:password"))
+		return strings.Contains(request.Header["Authorization"][0], s), nil
+	})
+	gock.New("http://api.example.com").
+		Delete("/books").
+		SetMatcher(matcher).
+		Reply(200)
+
+	resp, err := Delete("http://api.example.com/books", User{"user", "password"})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
 }
 
 func TestDo(t *testing.T) {

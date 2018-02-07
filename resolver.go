@@ -49,6 +49,12 @@ type Cookie Map
 
 type C = Cookie
 
+type User struct {
+	Name, Password string
+}
+
+type U = User
+
 type Resolver interface {
 	resolve(req *http.Request, params []interface{}, param interface{}, index int) error
 }
@@ -168,6 +174,15 @@ func (r *CookieResolver) resolve(req *http.Request, params []interface{}, param 
 	return nil
 }
 
+type BasicAuthResolver struct {
+}
+
+func (r *BasicAuthResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	u := param.(User)
+	req.SetBasicAuth(u.Name, u.Password)
+	return nil
+}
+
 func ToString(v interface{}) string {
 	var s string
 	switch x := v.(type) {
@@ -219,6 +234,7 @@ func init() {
 	resolvers[reflect.TypeOf(JSON{})] = &JsonResolver{}
 	resolvers[reflect.TypeOf(Form{})] = &FormResolver{}
 	resolvers[reflect.TypeOf(Cookie{})] = &CookieResolver{}
+	resolvers[reflect.TypeOf(User{})] = &BasicAuthResolver{}
 }
 
 func foreach(v interface{}, f func(interface{})) {
