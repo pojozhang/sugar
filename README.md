@@ -83,3 +83,12 @@ sugar.Post("http://api.example.com/books", F{"name": "bookA"})
 sugar.Post("http://api.example.com/books", Form{"name": List{"bookA", "bookB"}})
 sugar.Post("http://api.example.com/books", F{"name": L{"bookA", "bookB"}})
 ```
+
+### Basic Auth
+```go
+// DELETE /books HTTP/1.1
+// Host: api.example.com
+// Authorization: Basic dXNlcjpwYXNzd29yZA==
+sugar.Delete("http://api.example.com/books", User{"user", "password"})
+sugar.Delete("http://api.example.com/books", U{"user", "password"})
+```
