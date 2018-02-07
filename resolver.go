@@ -23,6 +23,8 @@ type L = List
 
 type Map map[string]interface{}
 
+type M = Map
+
 type Header Map
 
 type H = Header
