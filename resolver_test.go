@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"encoding/json"
 	"io/ioutil"
-	"os"
 )
 
 func TestToString(t *testing.T) {
