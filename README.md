@@ -68,16 +68,16 @@ sugar.Get("http://api.example.com/books", H{"name": "bookA"})
 // Host: api.example.com
 // Content-Type: application/json;charset=UTF-8
 // {"name":"bookA"}
-sugar.Post("http://api.example.com/books", Json(`{"name":"bookA"}`))
-sugar.Post("http://api.example.com/books", J(`{"name":"bookA"}`))
+sugar.Post("http://api.example.com/books", Json{`{"name":"bookA"}`})
+sugar.Post("http://api.example.com/books", J{`{"name":"bookA"}`})
 
 // map
-sugar.Post("http://api.example.com/books", Json(Map{"name": "bookA"}))
-sugar.Post("http://api.example.com/books", J(M{"name": "bookA"}))
+sugar.Post("http://api.example.com/books", Json{Map{"name": "bookA"}})
+sugar.Post("http://api.example.com/books", J{M{"name": "bookA"}})
 
 // list
-sugar.Post("http://api.example.com/books", Json(List{Map{"name": "bookA"}}))
-sugar.Post("http://api.example.com/books", J(L{M{"name": "bookA"}}))
+sugar.Post("http://api.example.com/books", Json{List{Map{"name": "bookA"}}})
+sugar.Post("http://api.example.com/books", J{L{M{"name": "bookA"}}})
 ```
 
 ### Xml
@@ -87,8 +87,8 @@ sugar.Post("http://api.example.com/books", J(L{M{"name": "bookA"}}))
 // Authorization: Basic dXNlcjpwYXNzd29yZA==
 // Content-Type: application/xml; charset=UTF-8
 // <book name="bookA"></book>
-sugar.Post("http://api.example.com/books", Xml(`<book name="bookA"></book>`))
-sugar.Post("http://api.example.com/books", X(`<book name="bookA"></book>`))
+sugar.Post("http://api.example.com/books", Xml{`<book name="bookA"></book>`})
+sugar.Post("http://api.example.com/books", X{`<book name="bookA"></book>`})
 ```
 
 ### Form
@@ -137,7 +137,7 @@ sugar.Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f}
 Due to Sugar's flexible design, different types of parameters can be freely combined.
 
 ```go
-sugar.Patch("http://api.example.com/books/:id", Path{"id": 123}, Json(`{"name":"bookA"}`), User{"user", "password"})
+sugar.Patch("http://api.example.com/books/:id", Path{"id": 123}, Json{`{"name":"bookA"}`}, User{"user", "password"})
 ```
 
 ### Apply

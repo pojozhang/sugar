@@ -112,7 +112,7 @@ func TestPostJsonString(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(201)
 
-	resp, err := Post("http://api.example.com/books", Json(`{"name":"bookA"}`))
+	resp, err := Post("http://api.example.com/books", Json{`{"name":"bookA"}`})
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
@@ -132,7 +132,7 @@ func TestPostJsonMap(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(201)
 
-	resp, err := Post("http://api.example.com/books", Json(Map{"name": "bookA"}))
+	resp, err := Post("http://api.example.com/books", Json{Map{"name": "bookA"}})
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
@@ -152,7 +152,7 @@ func TestPostJsonList(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(201)
 
-	resp, err := Post("http://api.example.com/books", Json(List{Map{"name": "bookA"}}))
+	resp, err := Post("http://api.example.com/books", Json{List{Map{"name": "bookA"}}})
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
@@ -165,7 +165,7 @@ func TestPostBadJson(t *testing.T) {
 		Reply(200)
 
 	badValue := make(chan int)
-	_, err := Post("http://api.example.com/books", Json(badValue))
+	_, err := Post("http://api.example.com/books", Json{badValue})
 
 	assert.NotNil(t, err)
 }
@@ -448,7 +448,7 @@ func TestPostXml(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Post("http://api.example.com/books", Xml(`<book name="bookA"></book>`))
+	resp, err := Post("http://api.example.com/books", Xml{`<book name="bookA"></book>`})
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }
@@ -459,6 +459,6 @@ func TestPostBadXml(t *testing.T) {
 		Post("/books").
 		Reply(200)
 
-	_, err := Post("http://api.example.com/books", Xml(make(chan int)))
+	_, err := Post("http://api.example.com/books", Xml{make(chan int)})
 	assert.NotNil(t, err)
 }

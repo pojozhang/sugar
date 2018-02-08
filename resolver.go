@@ -51,9 +51,11 @@ type Form Map
 
 type F = Form
 
-type JSON struct {
-	Data interface{}
+type Json struct {
+	Payload interface{}
 }
+
+type J = Json
 
 type Cookie Map
 
@@ -69,8 +71,8 @@ type MultiPart Map
 
 type D = MultiPart
 
-type XML struct {
-	Data interface{}
+type Xml struct {
+	Payload interface{}
 }
 
 type Resolver interface {
@@ -156,21 +158,13 @@ func (r *FormResolver) resolve(req *http.Request, params []interface{}, param in
 	return nil
 }
 
-func Json(v interface{}) *JSON {
-	return J(v)
-}
-
-func J(v interface{}) *JSON {
-	return &JSON{Data: v}
-}
-
 type JsonResolver struct {
 }
 
 func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	var b []byte
 	var err error
-	switch x := param.(*JSON).Data.(type) {
+	switch x := param.(Json).Payload.(type) {
 	case []byte:
 		b, err = json.RawMessage(x).MarshalJSON()
 	case string:
@@ -265,21 +259,13 @@ func (r *PlainTextResolver) resolve(req *http.Request, params []interface{}, par
 	return nil
 }
 
-func Xml(v interface{}) *XML {
-	return X(v)
-}
-
-func X(v interface{}) *XML {
-	return &XML{Data: v}
-}
-
 type XmlResolver struct {
 }
 
 func (r *XmlResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	var b []byte
 	var err error
-	switch x := param.(*XML).Data.(type) {
+	switch x := param.(Xml).Payload.(type) {
 	case string:
 		b = []byte(x)
 	default:
@@ -343,8 +329,8 @@ func init() {
 	Register(Path{}, &PathResolver{})
 	Register(Query{}, &QueryResolver{})
 	Register(Header{}, &HeaderResolver{})
-	Register(JSON{}, &JsonResolver{})
-	Register(XML{}, &XmlResolver{})
+	Register(Json{}, &JsonResolver{})
+	Register(Xml{}, &XmlResolver{})
 	Register(Form{}, &FormResolver{})
 	Register(Cookie{}, &CookieResolver{})
 	Register(User{}, &BasicAuthResolver{})

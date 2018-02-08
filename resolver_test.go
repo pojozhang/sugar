@@ -36,7 +36,7 @@ func TestResolveJsonBytes(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://github.com", nil)
 	m := map[string]string{"k": "v"}
 	b, _ := json.Marshal(m)
-	new(JsonResolver).resolve(req, L{J(b)}, J(b), 0)
+	new(JsonResolver).resolve(req, L{J{b}}, J{b}, 0)
 	b, _ = ioutil.ReadAll(req.Body)
 	var n map[string]*json.RawMessage
 	json.Unmarshal(b, n)
@@ -45,7 +45,7 @@ func TestResolveJsonBytes(t *testing.T) {
 
 func TestResolveJsonList(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://github.com", nil)
-	new(JsonResolver).resolve(req, L{J(L{1, 2, 3})}, J(L{1, 2, 3}), 0)
+	new(JsonResolver).resolve(req, L{J{L{1, 2, 3}}}, J{L{1, 2, 3}}, 0)
 	b, _ := ioutil.ReadAll(req.Body)
 	n := make([]int, 0)
 	json.Unmarshal(b, &n)
