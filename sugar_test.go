@@ -433,3 +433,20 @@ func TestPostMultiPartWithUnavailableFile(t *testing.T) {
 
 	assert.NotNil(t, err)
 }
+
+func TestPostPlainText(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		b, _ := ioutil.ReadAll(request.Body)
+		return request.Header[ContentType][0] == ContentTypePlainText && string(b) == "bookA", nil
+	})
+	gock.New("http://api.example.com").
+		Post("/books").
+		SetMatcher(matcher).
+		Reply(200)
+
+	resp, err := Post("http://api.example.com/books", "bookA")
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}

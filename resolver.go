@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	ContentType     = "Content-Type"
-	ContentTypeForm = "application/x-www-form-urlencoded"
-	ContentTypeJson = "application/json;charset=UTF-8"
+	ContentType          = "Content-Type"
+	ContentTypeForm      = "application/x-www-form-urlencoded"
+	ContentTypeJson      = "application/json;charset=UTF-8"
+	ContentTypePlainText = "text/plain"
 )
 
 var (
@@ -168,11 +169,11 @@ func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param in
 	if err != nil {
 		return err
 	}
+	req.Body = ioutil.NopCloser(bytes.NewReader(b))
 
 	if _, ok := req.Header[ContentType]; !ok {
 		req.Header.Set(ContentType, ContentTypeJson)
 	}
-	req.Body = ioutil.NopCloser(bytes.NewReader(b))
 	return nil
 }
 
@@ -224,11 +225,11 @@ func (r *MultiPartResolver) resolve(req *http.Request, params []interface{}, par
 			w.WriteField(k, Encode(v))
 		}
 	}
+	req.Body = ioutil.NopCloser(b)
 
 	if _, ok := req.Header[ContentType]; !ok {
 		req.Header.Set(ContentType, w.FormDataContentType())
 	}
-	req.Body = ioutil.NopCloser(b)
 	return nil
 }
 
@@ -247,6 +248,21 @@ func writeFile(w *multipart.Writer, fieldName string, file *os.File) error {
 		return err
 	}
 
+	return nil
+}
+
+type PlainTextResolver struct {
+}
+
+func (r *PlainTextResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	s := param.(string)
+	b := &bytes.Buffer{}
+	b.WriteString(s)
+	req.Body = ioutil.NopCloser(b)
+
+	if _, ok := req.Header[ContentType]; !ok {
+		req.Header.Set(ContentType, ContentTypePlainText)
+	}
 	return nil
 }
 
@@ -309,4 +325,5 @@ func init() {
 	Register(Cookie{}, &CookieResolver{})
 	Register(User{}, &BasicAuthResolver{})
 	Register(MultiPart{}, &MultiPartResolver{})
+	Register(string(""), &PlainTextResolver{})
 }
