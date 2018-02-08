@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"reflect"
-	"log"
 	"errors"
+	"os"
 )
 
 var (
@@ -14,11 +14,22 @@ var (
 
 type Client struct {
 	HttpClient *http.Client
+	Log        func(string)
 	presets    []interface{}
 }
 
-var DefaultClient = Client{
-	HttpClient: http.DefaultClient,
+var (
+	DefaultClient = NewClient()
+	DefaultLog    = func(s string) {
+		os.Stdout.WriteString(s)
+	}
+)
+
+func NewClient() *Client {
+	return &Client{
+		HttpClient: http.DefaultClient,
+		Log:        DefaultLog,
+	}
 }
 
 func (c *Client) Get(rawUrl string, params ...interface{}) (*Response, error) {
@@ -62,8 +73,10 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response, er
 		}
 	}
 
-	d, _ := httputil.DumpRequest(req, true)
-	log.Printf("%s\n", d)
+	if c.Log != nil {
+		b, _ := httputil.DumpRequest(req, true)
+		c.Log(string(b))
+	}
 
 	resp, err := c.HttpClient.Do(req)
 	if err != nil {
