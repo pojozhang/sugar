@@ -243,8 +243,7 @@ func writeFile(w *multipart.Writer, fieldName string, file *os.File) error {
 		return err
 	}
 
-	_, err = io.Copy(fileWriter, file)
-	if err != nil {
+	if _, err = io.Copy(fileWriter, file); err != nil {
 		return err
 	}
 
