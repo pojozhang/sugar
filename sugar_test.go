@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"encoding/base64"
 	"os"
+	"encoding/xml"
 )
 
 type book struct {
@@ -447,6 +448,30 @@ func TestPostPlainText(t *testing.T) {
 		Reply(200)
 
 	resp, err := Post("http://api.example.com/books", "bookA")
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestPostXml(t *testing.T) {
+	type book struct {
+		XMLName xml.Name `xml:"book"`
+		Name    string   `xml:"name,attr"`
+	}
+
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		b, _ := ioutil.ReadAll(request.Body)
+		var book book
+		xml.Unmarshal(b, &book)
+		return request.Header[ContentType][0] == ContentTypeXml && book.Name == "bookA", nil
+	})
+	gock.New("http://api.example.com").
+		Post("/books").
+		SetMatcher(matcher).
+		Reply(200)
+
+	resp, err := Post("http://api.example.com/books", Xml(`<book name="bookA"></book>`))
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }

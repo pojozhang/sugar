@@ -12,12 +12,14 @@ import (
 	"mime/multipart"
 	"os"
 	"io"
+	"encoding/xml"
 )
 
 const (
 	ContentType          = "Content-Type"
 	ContentTypeForm      = "application/x-www-form-urlencoded"
-	ContentTypeJson      = "application/json;charset=UTF-8"
+	ContentTypeJson      = "application/json; charset=UTF-8"
+	ContentTypeXml       = "application/xml; charset=UTF-8"
 	ContentTypePlainText = "text/plain"
 )
 
@@ -68,6 +70,10 @@ type U = User
 type MultiPart Map
 
 type D = MultiPart
+
+type XML struct {
+	Data interface{}
+}
 
 type Resolver interface {
 	resolve(req *http.Request, params []interface{}, param interface{}, index int) error
@@ -139,6 +145,7 @@ func (r *FormResolver) resolve(req *http.Request, params []interface{}, param in
 			form.Add(k, Encode(v))
 		}
 	}
+
 	req.PostForm = form
 	err := req.ParseForm()
 	if err != nil {
@@ -151,14 +158,21 @@ func (r *FormResolver) resolve(req *http.Request, params []interface{}, param in
 	return nil
 }
 
+func Json(v interface{}) *JSON {
+	return J(v)
+}
+
+func J(v interface{}) *JSON {
+	return &JSON{Data: v}
+}
+
 type JsonResolver struct {
 }
 
 func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
-	v := param.(*JSON)
 	var b []byte
 	var err error
-	switch x := v.Data.(type) {
+	switch x := param.(*JSON).Data.(type) {
 	case []byte:
 		b, err = json.RawMessage(x).MarshalJSON()
 	case string:
@@ -166,6 +180,7 @@ func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param in
 	default:
 		b, err = json.Marshal(x)
 	}
+
 	if err != nil {
 		return err
 	}
@@ -225,6 +240,7 @@ func (r *MultiPartResolver) resolve(req *http.Request, params []interface{}, par
 			w.WriteField(k, Encode(v))
 		}
 	}
+
 	req.Body = ioutil.NopCloser(b)
 
 	if _, ok := req.Header[ContentType]; !ok {
@@ -266,6 +282,38 @@ func (r *PlainTextResolver) resolve(req *http.Request, params []interface{}, par
 	return nil
 }
 
+func Xml(v interface{}) *XML {
+	return X(v)
+}
+
+func X(v interface{}) *XML {
+	return &XML{Data: v}
+}
+
+type XmlResolver struct {
+}
+
+func (r *XmlResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	var b []byte
+	var err error
+	switch x := param.(*XML).Data.(type) {
+	case string:
+		b = []byte(x)
+	default:
+		b, err = xml.Marshal(x)
+	}
+
+	if err != nil {
+		return err
+	}
+	req.Body = ioutil.NopCloser(bytes.NewReader(b))
+
+	if _, ok := req.Header[ContentType]; !ok {
+		req.Header.Set(ContentType, ContentTypeXml)
+	}
+	return nil
+}
+
 func ToString(v interface{}) string {
 	var s string
 	switch x := v.(type) {
@@ -301,14 +349,6 @@ func ToString(v interface{}) string {
 	return s
 }
 
-func Json(v interface{}) *JSON {
-	return J(v)
-}
-
-func J(v interface{}) *JSON {
-	return &JSON{Data: v}
-}
-
 func foreach(v interface{}, f func(interface{})) {
 	a := reflect.ValueOf(v)
 	for i := 0; i < a.Len(); i++ {
@@ -321,6 +361,7 @@ func init() {
 	Register(Query{}, &QueryResolver{})
 	Register(Header{}, &HeaderResolver{})
 	Register(JSON{}, &JsonResolver{})
+	Register(XML{}, &XmlResolver{})
 	Register(Form{}, &FormResolver{})
 	Register(Cookie{}, &CookieResolver{})
 	Register(User{}, &BasicAuthResolver{})
