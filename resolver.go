@@ -215,7 +215,7 @@ func (r *MultiPartResolver) resolve(req *http.Request, params []interface{}, par
 	for k, v := range m {
 		switch x := v.(type) {
 		case *os.File:
-			if err := writeFile(w, k, x); err != nil {
+			if err := writeFile(w, k, x.Name(), x); err != nil {
 				return err
 			}
 		default:
@@ -231,8 +231,8 @@ func (r *MultiPartResolver) resolve(req *http.Request, params []interface{}, par
 	return nil
 }
 
-func writeFile(w *multipart.Writer, fieldName string, file *os.File) error {
-	fileWriter, err := w.CreateFormFile(fieldName, file.Name())
+func writeFile(w *multipart.Writer, fieldName, fileName string, file io.Reader) error {
+	fileWriter, err := w.CreateFormFile(fieldName, fileName)
 	if err != nil {
 		return err
 	}

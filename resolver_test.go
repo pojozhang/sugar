@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"encoding/json"
 	"io/ioutil"
+	"mime/multipart"
+	"os"
+	"errors"
 )
 
 func TestToString(t *testing.T) {
@@ -52,4 +55,16 @@ func TestResolveJsonList(t *testing.T) {
 	assert.Equal(t, 1, n[0])
 	assert.Equal(t, 2, n[1])
 	assert.Equal(t, 3, n[2])
+}
+
+type mockReader struct {
+}
+
+func (r *mockReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("mock reader error")
+}
+
+func TestWriteFileErrorWhenFileReaderReturnError(t *testing.T) {
+	err := writeFile(multipart.NewWriter(os.Stdout), "file", "file", &mockReader{})
+	assert.NotNil(t, err)
 }
