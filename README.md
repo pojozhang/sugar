@@ -143,7 +143,7 @@ sugar.Patch("http://api.example.com/books/:id", Path{"id": 123}, Json(`{"name":"
 ```
 
 ### Apply
-You can use Apply() to preset some values which will be attached to every following request.
+You can use Apply() to preset some values which will be attached to every following request. Call Reset() to clean preset values.
 
 ```go
 sugar.Apply(User{"user", "password"})
