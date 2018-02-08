@@ -12,6 +12,14 @@ dep ensure -add github.com/pojozhang/sugar
 
 ## Usage
 
+### Plain Text
+```go
+// POST /books HTTP/1.1
+// Host: api.example.com
+// Content-Type: text/plain
+sugar.Post("http://api.example.com/books", "bookA")
+```
+
 ### Path
 ```go
 // GET /books/123 HTTP/1.1
@@ -58,7 +66,6 @@ sugar.Get("http://api.example.com/books", H{"name": "bookA"})
 // Host: api.example.com
 // Content-Type: application/json;charset=UTF-8
 // {"name":"bookA"}
-// automatically set 'Content-Type=application/json;charset=UTF-8' if 'Content-Type' not exists
 sugar.Post("http://api.example.com/books", Json(`{"name":"bookA"}`))
 sugar.Post("http://api.example.com/books", J(`{"name":"bookA"}`))
 
@@ -69,6 +76,17 @@ sugar.Post("http://api.example.com/books", J(M{"name": "bookA"}))
 // list
 sugar.Post("http://api.example.com/books", Json(List{Map{"name": "bookA"}}))
 sugar.Post("http://api.example.com/books", J(L{M{"name": "bookA"}}))
+```
+
+### Xml
+```go
+// POST /books HTTP/1.1
+// Host: api.example.com
+// Authorization: Basic dXNlcjpwYXNzd29yZA==
+// Content-Type: application/xml; charset=UTF-8
+// <book name="bookA"></book>
+sugar.Post("http://api.example.com/books", Xml(`<book name="bookA"></book>`))
+sugar.Post("http://api.example.com/books", X(`<book name="bookA"></book>`))
 ```
 
 ### Form
