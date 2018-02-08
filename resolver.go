@@ -250,12 +250,7 @@ func (r *MultiPartResolver) resolve(req *http.Request, params []interface{}, par
 }
 
 func writeFile(w *multipart.Writer, fieldName string, file *os.File) error {
-	f, err := file.Stat()
-	if err != nil {
-		return err
-	}
-
-	fileWriter, err := w.CreateFormFile(fieldName, f.Name())
+	fileWriter, err := w.CreateFormFile(fieldName, file.Name())
 	if err != nil {
 		return err
 	}
