@@ -475,3 +475,13 @@ func TestPostXml(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }
+
+func TestPostBadXml(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Post("/books").
+		Reply(200)
+
+	_, err := Post("http://api.example.com/books", Xml(make(chan int)))
+	assert.NotNil(t, err)
+}

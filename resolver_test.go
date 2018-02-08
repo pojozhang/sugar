@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"io/ioutil"
+	"os"
 )
 
 func TestToString(t *testing.T) {
@@ -52,4 +53,10 @@ func TestResolveJsonList(t *testing.T) {
 	assert.Equal(t, 1, n[0])
 	assert.Equal(t, 2, n[1])
 	assert.Equal(t, 3, n[2])
+}
+
+func TestReturnErrorIfWriterIsNull(t *testing.T) {
+	f, _ := os.Open("file")
+	err := writeFile(nil, "file", f)
+	assert.NotNil(t, err)
 }
