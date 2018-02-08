@@ -364,6 +364,26 @@ func TestApply(t *testing.T) {
 		Reply(200)
 
 	Apply(User{"user", "password"})
+	defer Reset()
+	resp, err := Get("http://api.example.com/books")
+
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestReset(t *testing.T) {
+	defer gock.Off()
+	matcher := gock.NewBasicMatcher()
+	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
+		return len(request.Header["Authorization"]) == 0, nil
+	})
+	gock.New("http://api.example.com").
+		Get("/books").
+		SetMatcher(matcher).
+		Reply(200)
+
+	Apply(User{"user", "password"})
+	Reset()
 	resp, err := Get("http://api.example.com/books")
 
 	assert.Nil(t, err)

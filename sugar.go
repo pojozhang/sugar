@@ -28,7 +28,7 @@ var (
 
 func NewClient() *Client {
 	return &Client{
-		HttpClient: http.DefaultClient,
+		HttpClient: &http.Client{},
 		Log:        DefaultLog,
 	}
 }
@@ -91,6 +91,10 @@ func (c *Client) Apply(v ...interface{}) {
 	c.presets = append(c.presets, v...)
 }
 
+func (c *Client) Reset(v ...interface{}) {
+	c.presets = nil
+}
+
 func Get(rawUrl string, params ...interface{}) (*Response, error) {
 	return DefaultClient.Get(rawUrl, params...)
 }
@@ -117,6 +121,10 @@ func Do(method, rawUrl string, params ...interface{}) (*Response, error) {
 
 func Apply(v ...interface{}) {
 	DefaultClient.Apply(v...)
+}
+
+func Reset() {
+	DefaultClient.Reset()
 }
 
 func Resolvers() map[reflect.Type]Resolver {
