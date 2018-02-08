@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"errors"
 	"os"
+	"fmt"
 )
 
 var (
@@ -21,7 +22,7 @@ type Client struct {
 var (
 	DefaultClient = NewClient()
 	DefaultLog    = func(s string) {
-		os.Stdout.WriteString(s)
+		os.Stdout.WriteString(fmt.Sprintf("%s\n", s))
 	}
 )
 
