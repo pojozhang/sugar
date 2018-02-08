@@ -129,10 +129,6 @@ sugar.Delete("http://api.example.com/books", U{"user", "password"})
 //
 // hello sugar!
 // --19b8acc2469f1914a24fc6e0152aac72f1f92b6f5104b57477262816ab0f--
-sugar.Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": File("text")})
-sugar.Post("http://api.example.com/books", D{"name": "bookA", "file": File("text")})
-
-// we also support *os.File
 f, _ := os.Open("text")
 sugar.Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f})
 ```

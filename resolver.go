@@ -51,8 +51,6 @@ type Form Map
 
 type F = Form
 
-type File string
-
 type JSON struct {
 	Data interface{}
 }
@@ -225,16 +223,6 @@ func (r *MultiPartResolver) resolve(req *http.Request, params []interface{}, par
 		case *os.File:
 			if err := writeFile(w, k, x); err != nil {
 				return err
-			}
-		case File:
-			if f, err := os.Open(string(x)); err != nil {
-				return err
-			} else {
-				if err := writeFile(w, k, f); err != nil {
-					f.Close()
-					return err
-				}
-				f.Close()
 			}
 		default:
 			w.WriteField(k, Encode(v))
