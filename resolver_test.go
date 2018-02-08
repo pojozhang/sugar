@@ -54,9 +54,3 @@ func TestResolveJsonList(t *testing.T) {
 	assert.Equal(t, 2, n[1])
 	assert.Equal(t, 3, n[2])
 }
-
-func TestReturnErrorIfWriterIsNull(t *testing.T) {
-	f, _ := os.Open("file")
-	err := writeFile(nil, "file", f)
-	assert.NotNil(t, err)
-}
