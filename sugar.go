@@ -62,9 +62,6 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response, er
 	params = append(c.presets, params...)
 	for i, param := range params {
 		t := reflect.TypeOf(param)
-		if t.Kind() == reflect.Ptr {
-			t = t.Elem()
-		}
 		if r, ok := resolvers[t]; ok {
 			if err := r.resolve(req, params, param, i); err != nil {
 				return nil, err
