@@ -160,3 +160,6 @@ You can register your custom resolver which should implement interface `Resolver
 sugar.Register(Custom{}, &CustomResolver{})
 sugar.Get("http://api.example.com/books", Custom{})
 ```
+
+### License
+Apache License, Version 2.0
