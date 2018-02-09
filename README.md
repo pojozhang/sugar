@@ -161,5 +161,5 @@ sugar.Register(Custom{}, &CustomResolver{})
 sugar.Get("http://api.example.com/books", Custom{})
 ```
 
-### License
+## License
 Apache License, Version 2.0
