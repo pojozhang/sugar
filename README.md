@@ -165,10 +165,10 @@ The problem is that `book-service` is not the real host and I'm sure you'll get 
 The following codes show a good solution.
 ```go
 sugar.Apply(Mapper{func(req *http.Request) {
-		if req.URL.Host == "book-service" {
-			req.URL.Host = "api.example.com"
-		}
-	}})
+	if req.URL.Host == "book-service" {
+		req.URL.Host = "api.example.com"
+	}
+}})
 resp, err := sugar.Get("http://book-service/books")
 ```
 
