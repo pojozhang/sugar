@@ -21,6 +21,14 @@ type Client struct {
 
 var (
 	DefaultClient = NewClient()
+	Get           = DefaultClient.Get
+	Post          = DefaultClient.Post
+	Put           = DefaultClient.Put
+	Patch         = DefaultClient.Patch
+	Delete        = DefaultClient.Delete
+	Do            = DefaultClient.Do
+	Apply         = DefaultClient.Apply
+	Reset         = DefaultClient.Reset
 	DefaultLog    = func(s string) {
 		os.Stdout.WriteString(fmt.Sprintf("%s\n", s))
 	}
@@ -90,38 +98,6 @@ func (c *Client) Apply(v ...interface{}) {
 
 func (c *Client) Reset(v ...interface{}) {
 	c.presets = nil
-}
-
-func Get(rawUrl string, params ...interface{}) (*Response, error) {
-	return DefaultClient.Get(rawUrl, params...)
-}
-
-func Post(rawUrl string, params ...interface{}) (*Response, error) {
-	return DefaultClient.Post(rawUrl, params...)
-}
-
-func Put(rawUrl string, params ...interface{}) (*Response, error) {
-	return DefaultClient.Put(rawUrl, params...)
-}
-
-func Patch(rawUrl string, params ...interface{}) (*Response, error) {
-	return DefaultClient.Patch(rawUrl, params...)
-}
-
-func Delete(rawUrl string, params ...interface{}) (*Response, error) {
-	return DefaultClient.Delete(rawUrl, params...)
-}
-
-func Do(method, rawUrl string, params ...interface{}) (*Response, error) {
-	return DefaultClient.Do(method, rawUrl, params...)
-}
-
-func Apply(v ...interface{}) {
-	DefaultClient.Apply(v...)
-}
-
-func Reset() {
-	DefaultClient.Reset()
 }
 
 func Resolvers() map[reflect.Type]Resolver {
