@@ -154,6 +154,24 @@ sugar.Get("http://api.example.com/books", User{"user", "password"})
 ```
 The latter is equal to the former.
 
+### Mapper
+This method allows you to change your request directly.
+For example, if your project is running as a micro service, you may want to call a remote API via service name, like
+```go
+sugar.Get("http://book-service/books")
+```
+
+The problem is that `book-service` is not the real host and I'm sure you'll get an error.
+The following codes show a good solution.
+```go
+sugar.Apply(Mapper{func(req *http.Request) {
+		if req.URL.Host == "book-service" {
+			req.URL.Host = "api.example.com"
+		}
+	}})
+resp, err := sugar.Get("http://book-service/books")
+```
+
 ### Extension
 You can register your custom resolver which should implement interface `Resolver` and bind it to the target type.  
 ```go

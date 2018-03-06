@@ -75,6 +75,10 @@ type Xml struct {
 	Payload interface{}
 }
 
+type Mapper struct {
+	mapper func(*http.Request)
+}
+
 type Resolver interface {
 	resolve(req *http.Request, params []interface{}, param interface{}, index int) error
 }
@@ -93,7 +97,7 @@ func (r *PathResolver) resolve(req *http.Request, params []interface{}, param in
 				}
 			}
 
-			key := req.URL.Path[i+1: j]
+			key := req.URL.Path[i+1 : j]
 			value := param.(Path)[key]
 			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], Encode(value), -1)
 		}
@@ -283,6 +287,14 @@ func (r *XmlResolver) resolve(req *http.Request, params []interface{}, param int
 	return nil
 }
 
+type MapperResolver struct {
+}
+
+func (r *MapperResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	param.(Mapper).mapper(req)
+	return nil
+}
+
 func ToString(v interface{}) string {
 	var s string
 	switch x := v.(type) {
@@ -336,4 +348,5 @@ func init() {
 	Register(User{}, &BasicAuthResolver{})
 	Register(MultiPart{}, &MultiPartResolver{})
 	Register(string(""), &PlainTextResolver{})
+	Register(Mapper{}, &MapperResolver{})
 }

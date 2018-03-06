@@ -462,3 +462,19 @@ func TestPostBadXml(t *testing.T) {
 	_, err := Post("http://api.example.com/books", Xml{make(chan int)})
 	assert.NotNil(t, err)
 }
+
+func TestMap(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Get("/books").
+		Reply(200)
+
+	Apply(Mapper{func(req *http.Request) {
+		if req.URL.Host == "book-service" {
+			req.URL.Host = "api.example.com"
+		}
+	}})
+	resp, err := Get("http://book-service/books")
+	assert.Nil(t, err)
+	assert.Equal(t, 200, resp.StatusCode)
+}
