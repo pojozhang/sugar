@@ -22,12 +22,12 @@
 [[projects]]
   name = "gopkg.in/h2non/gock.v1"
   packages = ["."]
-  revision = "26775f23aa9da4cbd47bc2600a57ac07bbf3bd20"
-  version = "v1.0.7"
+  revision = "550b7ca3aa563b9974e2391274ea55a940d05ca9"
+  version = "v1.0.8"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f5a86ba184b66937ed4e83c24d4923731a5d6f11b3012ff2aec3fe627d896b36"
+  inputs-digest = "fd4c30b25951796aefe60038a5bbe12595541618687498497455b6088b71c228"
   solver-name = "gps-cdcl"
   solver-version = 1
