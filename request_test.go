@@ -24,12 +24,12 @@ func TestGet(t *testing.T) {
 		Reply(200).
 		JSON(`[{"name":"bookA"},{"name":"bookB"}]`)
 
-	resp, err := Get("http://api.example.com/books")
+	bytes, err := Get("http://api.example.com/books").ReadBytes()
 
 	assert.Nil(t, err)
 
 	var books []book
-	json.Unmarshal(resp.ReadBytes(), &books)
+	json.Unmarshal(bytes, &books)
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
@@ -45,12 +45,12 @@ func TestGetWithQueryVar(t *testing.T) {
 		Reply(200).
 		JSON(`[{"name":"bookA"}]`)
 
-	resp, err := Get("http://api.example.com/books", Query{"name": "bookA"})
+	bytes, err := Get("http://api.example.com/books", Query{"name": "bookA"}).ReadBytes()
 
 	assert.Nil(t, err)
 
 	var books []book
-	json.Unmarshal(resp.ReadBytes(), &books)
+	json.Unmarshal(bytes, &books)
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
@@ -67,12 +67,12 @@ func TestGetWithQueryList(t *testing.T) {
 		Reply(200).
 		JSON(`[{"name":"bookA"},{"name":"bookB"}]`)
 
-	resp, err := Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}})
+	bytes, err := Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}}).ReadBytes()
 
 	assert.Nil(t, err)
 
 	var books []book
-	json.Unmarshal(resp.ReadBytes(), &books)
+	json.Unmarshal(bytes, &books)
 	assert.Equal(t, "bookA", books[0].Name)
 	assert.Equal(t, "bookB", books[1].Name)
 }
@@ -89,12 +89,12 @@ func TestGetWithPathVar(t *testing.T) {
 		Reply(200).
 		JSON(`[{"name":"bookA"}]`)
 
-	resp, err := Get("http://api.example.com/books/:id", Path{"id": 123})
+	bytes, err := Get("http://api.example.com/books/:id", Path{"id": 123}).ReadBytes()
 
 	assert.Nil(t, err)
 
 	var books []book
-	json.Unmarshal(resp.ReadBytes(), &books)
+	json.Unmarshal(bytes, &books)
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
@@ -112,7 +112,7 @@ func TestPostJsonString(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(201)
 
-	resp, err := Post("http://api.example.com/books", Json{`{"name":"bookA"}`})
+	resp, err := Post("http://api.example.com/books", Json{`{"name":"bookA"}`}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
@@ -132,7 +132,7 @@ func TestPostJsonMap(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(201)
 
-	resp, err := Post("http://api.example.com/books", Json{Map{"name": "bookA"}})
+	resp, err := Post("http://api.example.com/books", Json{Map{"name": "bookA"}}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
@@ -152,7 +152,7 @@ func TestPostJsonList(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(201)
 
-	resp, err := Post("http://api.example.com/books", Json{List{Map{"name": "bookA"}}})
+	resp, err := Post("http://api.example.com/books", Json{List{Map{"name": "bookA"}}}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
@@ -165,7 +165,7 @@ func TestPostBadJson(t *testing.T) {
 		Reply(200)
 
 	badValue := make(chan int)
-	_, err := Post("http://api.example.com/books", Json{badValue})
+	_, err := Post("http://api.example.com/books", Json{badValue}).Raw()
 
 	assert.NotNil(t, err)
 }
@@ -181,7 +181,7 @@ func TestPostForm(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Post("http://api.example.com/books", Form{"name": "bookA"})
+	resp, err := Post("http://api.example.com/books", Form{"name": "bookA"}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
@@ -198,7 +198,7 @@ func TestPostFormList(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Post("http://api.example.com/books", Form{"name": List{"bookA", "bookB"}})
+	resp, err := Post("http://api.example.com/books", Form{"name": List{"bookA", "bookB"}}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
@@ -210,7 +210,7 @@ func TestPostFormWithBadUrl(t *testing.T) {
 		Post("/books").
 		Reply(200)
 
-	_, err := Post("http://api.example.com/books?%%", Form{"name": "bookA"})
+	_, err := Post("http://api.example.com/books?%%", Form{"name": "bookA"}).Raw()
 
 	assert.NotNil(t, err)
 }
@@ -227,7 +227,7 @@ func TestWriteCookies(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Get("http://api.example.com/books", Cookie{"name": "bookA"})
+	resp, err := Get("http://api.example.com/books", Cookie{"name": "bookA"}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
@@ -244,7 +244,7 @@ func TestWriteHeaders(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Get("http://api.example.com/books", Header{"name": "bookA"})
+	resp, err := Get("http://api.example.com/books", Header{"name": "bookA"}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
@@ -261,7 +261,7 @@ func TestDelete(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Delete("http://api.example.com/books/:id", Path{"id": 123})
+	resp, err := Delete("http://api.example.com/books/:id", Path{"id": 123}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
@@ -273,7 +273,7 @@ func TestPut(t *testing.T) {
 		Put("/books/123").
 		Reply(204)
 
-	resp, err := Put("http://api.example.com/books/:id", Path{"id": 123})
+	resp, err := Put("http://api.example.com/books/:id", Path{"id": 123}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 204, resp.StatusCode)
@@ -285,7 +285,7 @@ func TestPatch(t *testing.T) {
 		Path("/books/123").
 		Reply(204)
 
-	resp, err := Patch("http://api.example.com/books/:id", Path{"id": 123})
+	resp, err := Patch("http://api.example.com/books/:id", Path{"id": 123}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 204, resp.StatusCode)
@@ -303,7 +303,7 @@ func TestBasicAuth(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Delete("http://api.example.com/books", User{"user", "password"})
+	resp, err := Delete("http://api.example.com/books", User{"user", "password"}).Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
@@ -319,7 +319,7 @@ func TestDo(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Do(http.MethodTrace, "http://api.example.com/books")
+	resp, err := Do(http.MethodTrace, "http://api.example.com/books").Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
@@ -330,12 +330,12 @@ func TestGetResolvers(t *testing.T) {
 }
 
 func TestWrongUrl(t *testing.T) {
-	_, err := Patch("wrong://wrong-url.com")
+	_, err := Patch("wrong://wrong-url.com").Raw()
 	assert.NotNil(t, err)
 }
 
 func TestWrongRequest(t *testing.T) {
-	_, err := Do("?", "http://wrong-url")
+	_, err := Do("?", "http://wrong-url").Raw()
 	assert.NotNil(t, err)
 }
 
@@ -345,7 +345,7 @@ func TestNoResolverFound(t *testing.T) {
 		Path("/books").
 		Reply(200)
 
-	resp, err := Get("http://api.example.com/books", struct{}{})
+	resp, err := Get("http://api.example.com/books", struct{}{}).Raw()
 
 	assert.NotNil(t, err)
 	assert.Nil(t, resp)
@@ -365,7 +365,7 @@ func TestApply(t *testing.T) {
 
 	Apply(User{"user", "password"})
 	defer Reset()
-	resp, err := Get("http://api.example.com/books")
+	resp, err := Get("http://api.example.com/books").Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
@@ -384,7 +384,7 @@ func TestReset(t *testing.T) {
 
 	Apply(User{"user", "password"})
 	Reset()
-	resp, err := Get("http://api.example.com/books")
+	resp, err := Get("http://api.example.com/books").Raw()
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
@@ -407,7 +407,7 @@ func TestPostMultiPartWithOsFile(t *testing.T) {
 
 	f, _ := os.Open("text")
 	defer f.Close()
-	resp, err := Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f})
+	resp, err := Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f}).Raw()
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }
@@ -424,7 +424,7 @@ func TestPostPlainText(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Post("http://api.example.com/books", "bookA")
+	resp, err := Post("http://api.example.com/books", "bookA").Raw()
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }
@@ -448,7 +448,7 @@ func TestPostXml(t *testing.T) {
 		SetMatcher(matcher).
 		Reply(200)
 
-	resp, err := Post("http://api.example.com/books", Xml{`<book name="bookA"></book>`})
+	resp, err := Post("http://api.example.com/books", Xml{`<book name="bookA"></book>`}).Raw()
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }
@@ -459,7 +459,7 @@ func TestPostBadXml(t *testing.T) {
 		Post("/books").
 		Reply(200)
 
-	_, err := Post("http://api.example.com/books", Xml{make(chan int)})
+	_, err := Post("http://api.example.com/books", Xml{make(chan int)}).Raw()
 	assert.NotNil(t, err)
 }
 
@@ -474,7 +474,7 @@ func TestMap(t *testing.T) {
 			req.URL.Host = "api.example.com"
 		}
 	}})
-	resp, err := Get("http://book-service/books")
+	resp, err := Get("http://book-service/books").Raw()
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }

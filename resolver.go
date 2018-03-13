@@ -80,13 +80,13 @@ type Mapper struct {
 }
 
 type Resolver interface {
-	resolve(req *http.Request, params []interface{}, param interface{}, index int) error
+	Resolve(req *http.Request, params []interface{}, param interface{}, index int) error
 }
 
 type PathResolver struct {
 }
 
-func (r *PathResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *PathResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	for i := 0; i < len(req.URL.Path); i++ {
 		if string(req.URL.Path[i]) == ":" {
 			j := i + 1
@@ -108,7 +108,7 @@ func (r *PathResolver) resolve(req *http.Request, params []interface{}, param in
 type QueryResolver struct {
 }
 
-func (r *QueryResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *QueryResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	q := req.URL.Query()
 	for k, v := range param.(Query) {
 		switch reflect.TypeOf(v).Kind() {
@@ -127,7 +127,7 @@ func (r *QueryResolver) resolve(req *http.Request, params []interface{}, param i
 type HeaderResolver struct {
 }
 
-func (r *HeaderResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *HeaderResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	for k, v := range param.(Header) {
 		req.Header.Add(k, Encode(v))
 	}
@@ -137,7 +137,7 @@ func (r *HeaderResolver) resolve(req *http.Request, params []interface{}, param 
 type FormResolver struct {
 }
 
-func (r *FormResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *FormResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	form := url.Values{}
 	for k, v := range param.(Form) {
 		switch reflect.TypeOf(v).Kind() {
@@ -165,7 +165,7 @@ func (r *FormResolver) resolve(req *http.Request, params []interface{}, param in
 type JsonResolver struct {
 }
 
-func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *JsonResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	var b []byte
 	var err error
 	switch x := param.(Json).Payload.(type) {
@@ -191,7 +191,7 @@ func (r *JsonResolver) resolve(req *http.Request, params []interface{}, param in
 type CookieResolver struct {
 }
 
-func (r *CookieResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *CookieResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	c := param.(Cookie)
 	for k, v := range c {
 		req.AddCookie(&http.Cookie{Name: k, Value: Encode(v)})
@@ -202,7 +202,7 @@ func (r *CookieResolver) resolve(req *http.Request, params []interface{}, param 
 type BasicAuthResolver struct {
 }
 
-func (r *BasicAuthResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *BasicAuthResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	u := param.(User)
 	req.SetBasicAuth(u.Name, u.Password)
 	return nil
@@ -211,7 +211,7 @@ func (r *BasicAuthResolver) resolve(req *http.Request, params []interface{}, par
 type MultiPartResolver struct {
 }
 
-func (r *MultiPartResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *MultiPartResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	m := param.(MultiPart)
 	b := &bytes.Buffer{}
 	w := multipart.NewWriter(b)
@@ -251,7 +251,7 @@ func writeFile(w *multipart.Writer, fieldName, fileName string, file io.Reader) 
 type PlainTextResolver struct {
 }
 
-func (r *PlainTextResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *PlainTextResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	s := param.(string)
 	b := &bytes.Buffer{}
 	b.WriteString(s)
@@ -266,7 +266,7 @@ func (r *PlainTextResolver) resolve(req *http.Request, params []interface{}, par
 type XmlResolver struct {
 }
 
-func (r *XmlResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *XmlResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	var b []byte
 	var err error
 	switch x := param.(Xml).Payload.(type) {
@@ -290,7 +290,7 @@ func (r *XmlResolver) resolve(req *http.Request, params []interface{}, param int
 type MapperResolver struct {
 }
 
-func (r *MapperResolver) resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+func (r *MapperResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
 	param.(Mapper).mapper(req)
 	return nil
 }
@@ -338,15 +338,15 @@ func foreach(v interface{}, f func(interface{})) {
 }
 
 func init() {
-	Register(Path{}, &PathResolver{})
-	Register(Query{}, &QueryResolver{})
-	Register(Header{}, &HeaderResolver{})
-	Register(Json{}, &JsonResolver{})
-	Register(Xml{}, &XmlResolver{})
-	Register(Form{}, &FormResolver{})
-	Register(Cookie{}, &CookieResolver{})
-	Register(User{}, &BasicAuthResolver{})
-	Register(MultiPart{}, &MultiPartResolver{})
-	Register(string(""), &PlainTextResolver{})
-	Register(Mapper{}, &MapperResolver{})
+	RegisterResolver(Path{}, &PathResolver{})
+	RegisterResolver(Query{}, &QueryResolver{})
+	RegisterResolver(Header{}, &HeaderResolver{})
+	RegisterResolver(Json{}, &JsonResolver{})
+	RegisterResolver(Xml{}, &XmlResolver{})
+	RegisterResolver(Form{}, &FormResolver{})
+	RegisterResolver(Cookie{}, &CookieResolver{})
+	RegisterResolver(User{}, &BasicAuthResolver{})
+	RegisterResolver(MultiPart{}, &MultiPartResolver{})
+	RegisterResolver(string(""), &PlainTextResolver{})
+	RegisterResolver(Mapper{}, &MapperResolver{})
 }
