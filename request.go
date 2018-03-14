@@ -63,7 +63,8 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
 
 	params = append(c.presets, params...)
 	for i, param := range params {
-		if err := resolverGroup.Resolve(req, params, param, i); err != nil {
+		context := &RequestContext{Request: req, Params: params, Param: param, Index: i}
+		if err := resolverGroup.Resolve(context); err != nil {
 			return &Response{Error: err}
 		}
 	}
