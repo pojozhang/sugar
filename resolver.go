@@ -24,7 +24,8 @@ const (
 )
 
 var (
-	Encode = ToString
+	Encode        = ToString
+	resolverGroup ResolverGroup
 )
 
 type List []interface{}
@@ -83,10 +84,28 @@ type Resolver interface {
 	Resolve(req *http.Request, params []interface{}, param interface{}, index int) error
 }
 
+type ChainedResolver struct {
+	Resolver
+	successor Resolver
+}
+
+func (r *ChainedResolver) Next(req *http.Request, params []interface{}, param interface{}, index int) error {
+	if r.successor != nil {
+		return r.successor.Resolve(req, params, param, index)
+	}
+	return nil
+}
+
 type PathResolver struct {
+	ChainedResolver
 }
 
 func (r *PathResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	pathParams, ok := param.(Path)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
 	for i := 0; i < len(req.URL.Path); i++ {
 		if string(req.URL.Path[i]) == ":" {
 			j := i + 1
@@ -98,7 +117,7 @@ func (r *PathResolver) Resolve(req *http.Request, params []interface{}, param in
 			}
 
 			key := req.URL.Path[i+1 : j]
-			value := param.(Path)[key]
+			value := pathParams[key]
 			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], Encode(value), -1)
 		}
 	}
@@ -106,11 +125,17 @@ func (r *PathResolver) Resolve(req *http.Request, params []interface{}, param in
 }
 
 type QueryResolver struct {
+	ChainedResolver
 }
 
 func (r *QueryResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	queryParams, ok := param.(Query)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
 	q := req.URL.Query()
-	for k, v := range param.(Query) {
+	for k, v := range queryParams {
 		switch reflect.TypeOf(v).Kind() {
 		case reflect.Array, reflect.Slice:
 			foreach(v, func(i interface{}) {
@@ -125,21 +150,33 @@ func (r *QueryResolver) Resolve(req *http.Request, params []interface{}, param i
 }
 
 type HeaderResolver struct {
+	ChainedResolver
 }
 
 func (r *HeaderResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
-	for k, v := range param.(Header) {
+	headerParams, ok := param.(Header)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
+	for k, v := range headerParams {
 		req.Header.Add(k, Encode(v))
 	}
 	return nil
 }
 
 type FormResolver struct {
+	ChainedResolver
 }
 
 func (r *FormResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	formParams, ok := param.(Form)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
 	form := url.Values{}
-	for k, v := range param.(Form) {
+	for k, v := range formParams {
 		switch reflect.TypeOf(v).Kind() {
 		case reflect.Array, reflect.Slice:
 			foreach(v, func(i interface{}) {
@@ -163,12 +200,18 @@ func (r *FormResolver) Resolve(req *http.Request, params []interface{}, param in
 }
 
 type JsonResolver struct {
+	ChainedResolver
 }
 
 func (r *JsonResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	jsonParams, ok := param.(Json)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
 	var b []byte
 	var err error
-	switch x := param.(Json).Payload.(type) {
+	switch x := jsonParams.Payload.(type) {
 	case []byte:
 		b, err = json.RawMessage(x).MarshalJSON()
 	case string:
@@ -189,34 +232,49 @@ func (r *JsonResolver) Resolve(req *http.Request, params []interface{}, param in
 }
 
 type CookieResolver struct {
+	ChainedResolver
 }
 
 func (r *CookieResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
-	c := param.(Cookie)
-	for k, v := range c {
+	cookieParams, ok := param.(Cookie)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
+	for k, v := range cookieParams {
 		req.AddCookie(&http.Cookie{Name: k, Value: Encode(v)})
 	}
 	return nil
 }
 
 type BasicAuthResolver struct {
+	ChainedResolver
 }
 
 func (r *BasicAuthResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
-	u := param.(User)
-	req.SetBasicAuth(u.Name, u.Password)
+	authParams, ok := param.(User)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
+	req.SetBasicAuth(authParams.Name, authParams.Password)
 	return nil
 }
 
 type MultiPartResolver struct {
+	ChainedResolver
 }
 
 func (r *MultiPartResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
-	m := param.(MultiPart)
+	multiPartParams, ok := param.(MultiPart)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
 	b := &bytes.Buffer{}
 	w := multipart.NewWriter(b)
 	defer w.Close()
-	for k, v := range m {
+	for k, v := range multiPartParams {
 		switch x := v.(type) {
 		case *os.File:
 			if err := writeFile(w, k, x.Name(), x); err != nil {
@@ -249,12 +307,17 @@ func writeFile(w *multipart.Writer, fieldName, fileName string, file io.Reader) 
 }
 
 type PlainTextResolver struct {
+	ChainedResolver
 }
 
 func (r *PlainTextResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
-	s := param.(string)
+	textParams, ok := param.(string)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
 	b := &bytes.Buffer{}
-	b.WriteString(s)
+	b.WriteString(textParams)
 	req.Body = ioutil.NopCloser(b)
 
 	if _, ok := req.Header[ContentType]; !ok {
@@ -264,12 +327,18 @@ func (r *PlainTextResolver) Resolve(req *http.Request, params []interface{}, par
 }
 
 type XmlResolver struct {
+	ChainedResolver
 }
 
 func (r *XmlResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	xmlParams, ok := param.(Xml)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
 	var b []byte
 	var err error
-	switch x := param.(Xml).Payload.(type) {
+	switch x := xmlParams.Payload.(type) {
 	case string:
 		b = []byte(x)
 	default:
@@ -288,10 +357,16 @@ func (r *XmlResolver) Resolve(req *http.Request, params []interface{}, param int
 }
 
 type MapperResolver struct {
+	ChainedResolver
 }
 
 func (r *MapperResolver) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
-	param.(Mapper).mapper(req)
+	mapperParams, ok := param.(Mapper)
+	if !ok {
+		return r.Next(req, params, param, index)
+	}
+
+	mapperParams.mapper(req)
 	return nil
 }
 
@@ -337,16 +412,48 @@ func foreach(v interface{}, f func(interface{})) {
 	}
 }
 
+type ResolverGroup struct {
+	resolvers []*ChainedResolver
+}
+
+func (g *ResolverGroup) Add(resolvers ... Resolver) {
+	for _, resolver := range resolvers {
+		c := &ChainedResolver{Resolver: resolver}
+
+		g.resolvers = append(g.resolvers, c)
+	}
+	g.refresh()
+}
+
+func (g *ResolverGroup) refresh() {
+	for i := 0; i < len(g.resolvers)-1; i++ {
+		g.resolvers[i].successor = g.resolvers[i+1]
+	}
+}
+
+func (g *ResolverGroup) Resolve(req *http.Request, params []interface{}, param interface{}, index int) error {
+	if len(g.resolvers) < 1 {
+		return nil
+	}
+	return g.resolvers[0].Resolve(req, params, param, index)
+}
+
+func RegisterResolvers(resolvers ... Resolver) {
+	resolverGroup.Add(resolvers...)
+}
+
 func init() {
-	RegisterResolver(Path{}, &PathResolver{})
-	RegisterResolver(Query{}, &QueryResolver{})
-	RegisterResolver(Header{}, &HeaderResolver{})
-	RegisterResolver(Json{}, &JsonResolver{})
-	RegisterResolver(Xml{}, &XmlResolver{})
-	RegisterResolver(Form{}, &FormResolver{})
-	RegisterResolver(Cookie{}, &CookieResolver{})
-	RegisterResolver(User{}, &BasicAuthResolver{})
-	RegisterResolver(MultiPart{}, &MultiPartResolver{})
-	RegisterResolver(string(""), &PlainTextResolver{})
-	RegisterResolver(Mapper{}, &MapperResolver{})
+	RegisterResolvers(
+		&XmlResolver{},
+		&PathResolver{},
+		&JsonResolver{},
+		&FormResolver{},
+		&QueryResolver{},
+		&HeaderResolver{},
+		&MapperResolver{},
+		&CookieResolver{},
+		&BasicAuthResolver{},
+		&MultiPartResolver{},
+		&PlainTextResolver{},
+	)
 }
