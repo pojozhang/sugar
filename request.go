@@ -3,14 +3,8 @@ package sugar
 import (
 	"net/http"
 	"net/http/httputil"
-	"reflect"
-	"errors"
 	"os"
 	"fmt"
-)
-
-var (
-	resolvers = make(map[reflect.Type]Resolver)
 )
 
 type Client struct {
@@ -69,13 +63,8 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
 
 	params = append(c.presets, params...)
 	for i, param := range params {
-		t := reflect.TypeOf(param)
-		if r, ok := resolvers[t]; ok {
-			if err := r.Resolve(req, params, param, i); err != nil {
-				return &Response{Error: err}
-			}
-		} else {
-			return &Response{Error: errors.New("No resolvers found for " + t.String())}
+		if err := resolverGroup.Resolve(req, params, param, i); err != nil {
+			return &Response{Error: err}
 		}
 	}
 
@@ -98,12 +87,4 @@ func (c *Client) Apply(v ...interface{}) {
 
 func (c *Client) Reset(v ...interface{}) {
 	c.presets = nil
-}
-
-func Resolvers() map[reflect.Type]Resolver {
-	return resolvers
-}
-
-func RegisterResolver(v interface{}, resolver Resolver) {
-	resolvers[reflect.TypeOf(v)] = resolver
 }

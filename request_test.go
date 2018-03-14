@@ -325,10 +325,6 @@ func TestDo(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
-func TestGetResolvers(t *testing.T) {
-	assert.True(t, len(Resolvers()) > 0)
-}
-
 func TestWrongUrl(t *testing.T) {
 	_, err := Patch("wrong://wrong-url.com").Raw()
 	assert.NotNil(t, err)
