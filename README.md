@@ -12,6 +12,11 @@ Now you can send requests in just one line.
 dep ensure -add github.com/pojozhang/sugar
 ```
 
+## Import
+```go
+import . "github.com/pojozhang/sugar"
+```
+
 ## Usage
 
 ### Plain Text
