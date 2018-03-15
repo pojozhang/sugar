@@ -24,12 +24,10 @@ func TestGet(t *testing.T) {
 		Reply(200).
 		JSON(`[{"name":"bookA"},{"name":"bookB"}]`)
 
-	bytes, err := Get("http://api.example.com/books").ReadBytes()
+	var books []book
+	err := Get("http://api.example.com/books").Read(&books)
 
 	assert.Nil(t, err)
-
-	var books []book
-	json.Unmarshal(bytes, &books)
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
