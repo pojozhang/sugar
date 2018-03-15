@@ -15,14 +15,6 @@ import (
 	"encoding/xml"
 )
 
-const (
-	ContentType          = "Content-Type"
-	ContentTypeForm      = "application/x-www-form-urlencoded"
-	ContentTypeJson      = "application/json; charset=UTF-8"
-	ContentTypeXml       = "application/xml; charset=UTF-8"
-	ContentTypePlainText = "text/plain"
-)
-
 var (
 	Encode        = ToString
 	resolverGroup ResolverGroup
@@ -96,10 +88,11 @@ type ResolverChain struct {
 	successor *ResolverChain
 }
 
-func (r *ResolverChain) Next(context *RequestContext) error {
-	if r != nil {
-		return r.resolver.Resolve(context, r.successor)
+func (c *ResolverChain) Next(context *RequestContext) error {
+	if c != nil {
+		return c.resolver.Resolve(context, c.successor)
 	}
+
 	return ResolverNotFound
 }
 
@@ -123,7 +116,7 @@ func (r *PathResolver) Resolve(context *RequestContext, chain *ResolverChain) er
 				}
 			}
 
-			key := req.URL.Path[i+1: j]
+			key := req.URL.Path[i+1 : j]
 			value := pathParams[key]
 			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], Encode(value), -1)
 		}
