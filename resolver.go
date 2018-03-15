@@ -414,12 +414,19 @@ type ResolverGroup struct {
 	chain []*ResolverChain
 }
 
-func (g *ResolverGroup) Add(resolvers ... Resolver) {
+func (g *ResolverGroup) Init(resolvers ... Resolver) *ResolverGroup {
+	g.chain = []*ResolverChain{}
+	g.Add(resolvers...)
+	return g
+}
+
+func (g *ResolverGroup) Add(resolvers ... Resolver) *ResolverGroup {
 	for _, resolver := range resolvers {
 		c := &ResolverChain{resolver: resolver}
 		g.chain = append(g.chain, c)
 	}
 	g.refresh()
+	return g
 }
 
 func (g *ResolverGroup) refresh() {
