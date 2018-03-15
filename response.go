@@ -41,9 +41,11 @@ func (r *Response) Read(v interface{}) (error) {
 
 func (r *Response) ReadBytes() ([]byte, error) {
 	defer r.Close()
+
 	if r.Error != nil {
 		return nil, r.Error
 	}
+
 	return ioutil.ReadAll(r.Body)
 }
 
