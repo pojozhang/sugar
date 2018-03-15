@@ -1,4 +1,4 @@
-# Sugar2 [![Build Status](https://travis-ci.org/pojozhang/sugar.svg?branch=v2)](https://travis-ci.org/pojozhang/sugar) [![codecov](https://codecov.io/gh/pojozhang/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/pojozhang/sugar)
+# Sugar2 [![Build Status](https://travis-ci.org/pojozhang/sugar.svg?branch=v2)](https://travis-ci.org/pojozhang/sugar) [![codecov](https://codecov.io/gh/pojozhang/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/pojozhang/sugar) [![Go Report Card](https://goreportcard.com/badge/github.com/pojozhang/sugar)](https://goreportcard.com/report/github.com/pojozhang/sugar)
 
 ### [中文文档](http://www.jianshu.com/p/7ca4fa63460b)
 
