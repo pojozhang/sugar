@@ -58,14 +58,14 @@ func (c *Client) Delete(rawUrl string, params ...interface{}) (*Response) {
 func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
 	req, err := http.NewRequest(method, rawUrl, nil)
 	if err != nil {
-		return &Response{Error: err}
+		return &Response{Error: err, request: req}
 	}
 
 	params = append(c.presets, params...)
 	for i, param := range params {
 		context := &RequestContext{Request: req, Params: params, Param: param, Index: i}
 		if err := resolverGroup.Resolve(context); err != nil {
-			return &Response{Error: err}
+			return &Response{Error: err, request: req}
 		}
 	}
 
@@ -76,10 +76,10 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
 
 	resp, err := c.HttpClient.Do(req)
 	if err != nil {
-		return &Response{Error: err}
+		return &Response{Error: err, request: req}
 	}
 
-	return &Response{Response: *resp, Error: nil}
+	return &Response{Response: *resp, Error: nil, request: req}
 }
 
 func (c *Client) Apply(v ...interface{}) {

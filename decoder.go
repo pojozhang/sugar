@@ -2,58 +2,107 @@ package sugar
 
 import (
 	"net/http"
+	"strings"
+	"io/ioutil"
+	"encoding/json"
+	"encoding/xml"
 )
 
 var (
 	decoderGroup DecoderGroup
 )
 
+type ResponseContext struct {
+	Request  *http.Request
+	Response *http.Response
+	Param    interface{}
+}
+
 type Decoder interface {
-	Decode(req *http.Request, resp *http.Response, param interface{}) error
+	Decode(context *ResponseContext, chain *DecoderChain) error
 }
 
-type ChainedDecoder struct {
-	Decoder
-	successor Decoder
+type DecoderChain struct {
+	decoder   Decoder
+	successor *DecoderChain
 }
 
-func (d *ChainedDecoder) Next(req *http.Request, resp *http.Response, param interface{}) error {
-	if d.successor != nil {
-		return d.successor.Decode(req, resp, param)
+func (c *DecoderChain) Next(context *ResponseContext) error {
+	if c != nil {
+		return c.decoder.Decode(context, c.successor)
 	}
-	return nil
+	return DecoderNotFound
 }
 
 type JsonDecoder struct {
-	ChainedDecoder
 }
 
-func (d *JsonDecoder) Decode(req *http.Request, resp *http.Response, param interface{}) error {
-	return nil
+func (d *JsonDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
+	for _, contentType := range context.Response.Header[ContentType] {
+		if strings.Contains(strings.ToLower(contentType), "application/json") {
+			body, err := ioutil.ReadAll(context.Response.Body)
+			if err != nil {
+				return err
+			}
+
+			err = json.Unmarshal(body, context.Param)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		}
+	}
+
+	return chain.Next(context)
+}
+
+type XmlDecoder struct {
+}
+
+func (d *XmlDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
+	for _, contentType := range context.Response.Header[ContentType] {
+		if strings.Contains(strings.ToLower(contentType), "application/xml") {
+			body, err := ioutil.ReadAll(context.Response.Body)
+			if err != nil {
+				return err
+			}
+
+			err = xml.Unmarshal(body, context.Param)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		}
+	}
+
+	return chain.Next(context)
 }
 
 type DecoderGroup struct {
-	decoders []*ChainedDecoder
+	chain []*DecoderChain
 }
 
 func (g *DecoderGroup) Add(decoders ... Decoder) {
 	for _, decoder := range decoders {
-		g.decoders = append(g.decoders, &ChainedDecoder{Decoder: decoder})
+		c := &DecoderChain{decoder: decoder}
+		g.chain = append(g.chain, c)
 	}
 	g.refresh()
 }
 
 func (g *DecoderGroup) refresh() {
-	for i := 0; i < len(g.decoders)-1; i++ {
-		g.decoders[i].successor = g.decoders[i+1]
+	for i := 0; i < len(g.chain)-1; i++ {
+		g.chain[i].successor = g.chain[i+1]
 	}
 }
 
-func (g *DecoderGroup) Decode(req *http.Request, resp *http.Response, param interface{}) error {
-	if len(g.decoders) < 1 {
+func (g *DecoderGroup) Decode(context *ResponseContext) error {
+	if len(g.chain) < 1 {
 		return nil
 	}
-	return g.decoders[0].Decode(req, resp, param)
+	return g.chain[0].Next(context)
 }
 
 func RegisterDecoders(decoders ... Decoder) {
@@ -61,5 +110,8 @@ func RegisterDecoders(decoders ... Decoder) {
 }
 
 func init() {
-	RegisterDecoders(&JsonDecoder{})
+	RegisterDecoders(
+		&JsonDecoder{},
+		&XmlDecoder{},
+	)
 }

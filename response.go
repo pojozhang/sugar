@@ -8,7 +8,8 @@ import (
 
 type Response struct {
 	http.Response
-	Error error
+	Error   error
+	request *http.Request
 }
 
 func (r *Response) Raw() (*http.Response, error) {
@@ -20,9 +21,21 @@ func (r *Response) Raw() (*http.Response, error) {
 
 func (r *Response) Read(v interface{}) (error) {
 	defer r.Close()
+
 	if r.Error != nil {
 		return r.Error
 	}
+
+	response, err := r.Raw()
+	if err != nil {
+		return err
+	}
+
+	err = decoderGroup.Decode(&ResponseContext{Request: r.request, Response: response, Param: v})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
