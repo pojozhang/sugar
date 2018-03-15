@@ -1,4 +1,4 @@
-# Sugar  [![Build Status](https://travis-ci.org/pojozhang/sugar.svg?branch=master)](https://travis-ci.org/pojozhang/sugar) [![codecov](https://codecov.io/gh/pojozhang/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/pojozhang/sugar)
+# Sugar  [![Build Status](https://travis-ci.org/pojozhang/sugar.svg?branch=v1)](https://travis-ci.org/pojozhang/sugar) [![codecov](https://codecov.io/gh/pojozhang/sugar/branch/v1/graph/badge.svg)](https://codecov.io/gh/pojozhang/sugar)
 
 ### [中文文档](http://www.jianshu.com/p/7ca4fa63460b)
 
