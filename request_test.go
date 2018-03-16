@@ -21,7 +21,7 @@ func TestGet(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Get("/books").
-		Reply(200).
+		Reply(http.StatusOK).
 		JSON(`[{"name":"bookA"},{"name":"bookB"}]`)
 
 	var books []book
@@ -31,7 +31,7 @@ func TestGet(t *testing.T) {
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
-func TestGetWithQueryVar(t *testing.T) {
+func TestGetWithQueryPair(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
@@ -40,7 +40,7 @@ func TestGetWithQueryVar(t *testing.T) {
 	gock.New("http://api.example.com").
 		Get("/books").
 		SetMatcher(matcher).
-		Reply(200).
+		Reply(http.StatusOK).
 		JSON(`[{"name":"bookA"}]`)
 
 	bytes, err := Get("http://api.example.com/books", Query{"name": "bookA"}).ReadBytes()
@@ -62,7 +62,7 @@ func TestGetWithQueryList(t *testing.T) {
 	gock.New("http://api.example.com").
 		Get("/books").
 		SetMatcher(matcher).
-		Reply(200).
+		Reply(http.StatusOK).
 		JSON(`[{"name":"bookA"},{"name":"bookB"}]`)
 
 	bytes, err := Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}}).ReadBytes()
@@ -84,7 +84,7 @@ func TestGetWithPathVar(t *testing.T) {
 	gock.New("http://api.example.com").
 		Get("/books").
 		SetMatcher(matcher).
-		Reply(200).
+		Reply(http.StatusOK).
 		JSON(`[{"name":"bookA"}]`)
 
 	bytes, err := Get("http://api.example.com/books/:id", Path{"id": 123}).ReadBytes()
@@ -108,12 +108,12 @@ func TestPostJsonString(t *testing.T) {
 	gock.New("http://api.example.com").
 		Post("/books").
 		SetMatcher(matcher).
-		Reply(201)
+		Reply(http.StatusCreated)
 
 	resp, err := Post("http://api.example.com/books", Json{`{"name":"bookA"}`}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 201, resp.StatusCode)
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 }
 
 func TestPostJsonMap(t *testing.T) {
@@ -128,12 +128,12 @@ func TestPostJsonMap(t *testing.T) {
 	gock.New("http://api.example.com").
 		Post("/books").
 		SetMatcher(matcher).
-		Reply(201)
+		Reply(http.StatusCreated)
 
 	resp, err := Post("http://api.example.com/books", Json{Map{"name": "bookA"}}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 201, resp.StatusCode)
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 }
 
 func TestPostJsonList(t *testing.T) {
@@ -148,19 +148,19 @@ func TestPostJsonList(t *testing.T) {
 	gock.New("http://api.example.com").
 		Post("/books").
 		SetMatcher(matcher).
-		Reply(201)
+		Reply(http.StatusCreated)
 
 	resp, err := Post("http://api.example.com/books", Json{List{Map{"name": "bookA"}}}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 201, resp.StatusCode)
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 }
 
 func TestPostBadJson(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Post("/books").
-		Reply(200)
+		Reply(http.StatusOK)
 
 	badValue := make(chan int)
 	_, err := Post("http://api.example.com/books", Json{badValue}).Raw()
@@ -177,12 +177,12 @@ func TestPostForm(t *testing.T) {
 	gock.New("http://api.example.com").
 		Post("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	resp, err := Post("http://api.example.com/books", Form{"name": "bookA"}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostFormList(t *testing.T) {
@@ -194,19 +194,19 @@ func TestPostFormList(t *testing.T) {
 	gock.New("http://api.example.com").
 		Post("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	resp, err := Post("http://api.example.com/books", Form{"name": List{"bookA", "bookB"}}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostFormWithBadUrl(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Post("/books").
-		Reply(200)
+		Reply(http.StatusOK)
 
 	_, err := Post("http://api.example.com/books?%%", Form{"name": "bookA"}).Raw()
 
@@ -223,12 +223,12 @@ func TestWriteCookies(t *testing.T) {
 	gock.New("http://api.example.com").
 		Get("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	resp, err := Get("http://api.example.com/books", Cookie{"name": "bookA"}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestWriteHeaders(t *testing.T) {
@@ -240,12 +240,12 @@ func TestWriteHeaders(t *testing.T) {
 	gock.New("http://api.example.com").
 		Get("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	resp, err := Get("http://api.example.com/books", Header{"name": "bookA"}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestDelete(t *testing.T) {
@@ -257,36 +257,36 @@ func TestDelete(t *testing.T) {
 	gock.New("http://api.example.com").
 		Delete("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	resp, err := Delete("http://api.example.com/books/:id", Path{"id": 123}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPut(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Put("/books/123").
-		Reply(204)
+		Reply(http.StatusNoContent)
 
 	resp, err := Put("http://api.example.com/books/:id", Path{"id": 123}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 204, resp.StatusCode)
+	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
 }
 
 func TestPatch(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Path("/books/123").
-		Reply(204)
+		Reply(http.StatusNoContent)
 
 	resp, err := Patch("http://api.example.com/books/:id", Path{"id": 123}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 204, resp.StatusCode)
+	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
 }
 
 func TestBasicAuth(t *testing.T) {
@@ -299,12 +299,12 @@ func TestBasicAuth(t *testing.T) {
 	gock.New("http://api.example.com").
 		Delete("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	resp, err := Delete("http://api.example.com/books", User{"user", "password"}).Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestDo(t *testing.T) {
@@ -315,12 +315,12 @@ func TestDo(t *testing.T) {
 	})
 	gock.New("http://api.example.com").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	resp, err := Do(http.MethodTrace, "http://api.example.com/books").Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestWrongUrl(t *testing.T) {
@@ -337,7 +337,7 @@ func TestNoResolverFound(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Path("/books").
-		Reply(200)
+		Reply(http.StatusOK)
 
 	resp, err := Get("http://api.example.com/books", struct{}{}).Raw()
 
@@ -355,14 +355,14 @@ func TestApply(t *testing.T) {
 	gock.New("http://api.example.com").
 		Get("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	Apply(User{"user", "password"})
 	defer Reset()
 	resp, err := Get("http://api.example.com/books").Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestReset(t *testing.T) {
@@ -374,14 +374,14 @@ func TestReset(t *testing.T) {
 	gock.New("http://api.example.com").
 		Get("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	Apply(User{"user", "password"})
 	Reset()
 	resp, err := Get("http://api.example.com/books").Raw()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostMultiPartWithOsFile(t *testing.T) {
@@ -397,13 +397,13 @@ func TestPostMultiPartWithOsFile(t *testing.T) {
 	gock.New("http://api.example.com").
 		Post("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	f, _ := os.Open("text")
 	defer f.Close()
 	resp, err := Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f}).Raw()
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostPlainText(t *testing.T) {
@@ -416,11 +416,11 @@ func TestPostPlainText(t *testing.T) {
 	gock.New("http://api.example.com").
 		Post("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	resp, err := Post("http://api.example.com/books", "bookA").Raw()
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostXml(t *testing.T) {
@@ -440,18 +440,18 @@ func TestPostXml(t *testing.T) {
 	gock.New("http://api.example.com").
 		Post("/books").
 		SetMatcher(matcher).
-		Reply(200)
+		Reply(http.StatusOK)
 
 	resp, err := Post("http://api.example.com/books", Xml{`<book name="bookA"></book>`}).Raw()
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostBadXml(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Post("/books").
-		Reply(200)
+		Reply(http.StatusOK)
 
 	_, err := Post("http://api.example.com/books", Xml{make(chan int)}).Raw()
 	assert.NotNil(t, err)
@@ -461,7 +461,7 @@ func TestMap(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Get("/books").
-		Reply(200)
+		Reply(http.StatusOK)
 
 	Apply(Mapper{func(req *http.Request) {
 		if req.URL.Host == "book-service" {
@@ -470,5 +470,5 @@ func TestMap(t *testing.T) {
 	}})
 	resp, err := Get("http://book-service/books").Raw()
 	assert.Nil(t, err)
-	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
