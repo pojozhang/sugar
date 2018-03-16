@@ -73,10 +73,11 @@ type Mapper struct {
 }
 
 type RequestContext struct {
-	Request *http.Request
-	Params  []interface{}
-	Param   interface{}
-	Index   int
+	Request    *http.Request
+	Response   *http.Response
+	Params     []interface{}
+	Param      interface{}
+	ParamIndex int
 }
 
 type Resolver interface {
@@ -434,11 +435,19 @@ func (g *ResolverGroup) refresh() {
 	}
 }
 
-func (g *ResolverGroup) Resolve(context *RequestContext) error {
+func (g *ResolverGroup) Resolve(c *Context) error {
 	if len(g.chain) < 1 {
 		return nil
 	}
-	return g.chain[0].Next(context)
+
+	for i, param := range c.Params {
+		context := &RequestContext{Request: c.Request, Params: c.Params, Param: param, ParamIndex: i}
+		if err := g.chain[0].Next(context); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func RegisterResolvers(resolvers ... Resolver) {

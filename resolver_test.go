@@ -31,7 +31,7 @@ func TestToString(t *testing.T) {
 
 func TestResolvePath(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://github.com/:id/", nil)
-	new(PathResolver).Resolve(&RequestContext{Request: req, Params: L{P{"id": "golang"}}, Param: P{"id": "golang"}, Index: 0}, nil)
+	new(PathResolver).Resolve(&RequestContext{Request: req, Params: L{P{"id": "golang"}}, Param: P{"id": "golang"}, ParamIndex: 0}, nil)
 	assert.Equal(t, "http://github.com/golang/", req.URL.String())
 }
 
@@ -39,7 +39,7 @@ func TestResolveJsonBytes(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://github.com", nil)
 	m := map[string]string{"k": "v"}
 	b, _ := json.Marshal(m)
-	new(JsonResolver).Resolve(&RequestContext{Request: req, Params: L{J{b}}, Param: J{b}, Index: 0}, nil)
+	new(JsonResolver).Resolve(&RequestContext{Request: req, Params: L{J{b}}, Param: J{b}, ParamIndex: 0}, nil)
 	b, _ = ioutil.ReadAll(req.Body)
 	var n map[string]*json.RawMessage
 	json.Unmarshal(b, n)
@@ -48,7 +48,7 @@ func TestResolveJsonBytes(t *testing.T) {
 
 func TestResolveJsonList(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://github.com", nil)
-	new(JsonResolver).Resolve(&RequestContext{Request: req, Params: L{J{L{1, 2, 3}}}, Param: J{L{1, 2, 3}}, Index: 0}, nil)
+	new(JsonResolver).Resolve(&RequestContext{Request: req, Params: L{J{L{1, 2, 3}}}, Param: J{L{1, 2, 3}}, ParamIndex: 0}, nil)
 	b, _ := ioutil.ReadAll(req.Body)
 	n := make([]int, 0)
 	json.Unmarshal(b, &n)

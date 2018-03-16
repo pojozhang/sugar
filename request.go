@@ -8,9 +8,10 @@ import (
 )
 
 type Client struct {
-	HttpClient *http.Client
-	Log        func(string)
-	presets    []interface{}
+	HttpClient     *http.Client
+	Log            func(string)
+	presets        []interface{}
+	requestPlugins []Plugin
 }
 
 var (
@@ -23,6 +24,7 @@ var (
 	Do            = DefaultClient.Do
 	Apply         = DefaultClient.Apply
 	Reset         = DefaultClient.Reset
+	Use           = DefaultClient.Use
 	DefaultLog    = func(s string) {
 		os.Stdout.WriteString(fmt.Sprintf("%s\n", s))
 	}
@@ -62,11 +64,10 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
 	}
 
 	params = append(c.presets, params...)
-	for i, param := range params {
-		context := &RequestContext{Request: req, Params: params, Param: param, Index: i}
-		if err := resolverGroup.Resolve(context); err != nil {
-			return &Response{Error: err, request: req}
-		}
+
+	context := &Context{Request: req, Response: nil, Params: params, Plugins: nil}
+	if err := resolverGroup.Resolve(context); err != nil {
+		return &Response{Error: err, request: req}
 	}
 
 	if c.Log != nil {
@@ -88,4 +89,8 @@ func (c *Client) Apply(v ...interface{}) {
 
 func (c *Client) Reset(v ...interface{}) {
 	c.presets = nil
+}
+
+func (c *Client) Use(plugins ... Plugin) {
+
 }
