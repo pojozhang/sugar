@@ -61,6 +61,25 @@ func TestGetJson(t *testing.T) {
 	assert.Equal(t, "bookA", books[0].Name)
 }
 
+func TestGetXml(t *testing.T) {
+	type book struct {
+		XMLName xml.Name `xml:"book"`
+		Name    string   `xml:"name,attr"`
+	}
+
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Get("/books").
+		Reply(http.StatusOK).
+		XML(`<book name="bookA"></book>`)
+
+	var b book
+	_, err := Get("http://api.example.com/books").Read(&b)
+
+	assert.Nil(t, err)
+	assert.Equal(t, "bookA", b.Name)
+}
+
 func TestGetWithQueryPair(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
