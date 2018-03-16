@@ -75,7 +75,7 @@ func TestGetWithQueryList(t *testing.T) {
 	assert.Equal(t, "bookB", books[1].Name)
 }
 
-func TestGetWithPathVar(t *testing.T) {
+func TestGetWithPathVariable(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
@@ -116,7 +116,7 @@ func TestPostJsonString(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 }
 
-func TestPostJsonMap(t *testing.T) {
+func TestPostJsonPair(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
@@ -168,7 +168,7 @@ func TestPostBadJson(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestPostForm(t *testing.T) {
+func TestPostFormPair(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
@@ -200,17 +200,6 @@ func TestPostFormList(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPostFormWithBadUrl(t *testing.T) {
-	defer gock.Off()
-	gock.New("http://api.example.com").
-		Post("/books").
-		Reply(http.StatusOK)
-
-	_, err := Post("http://api.example.com/books?%%", Form{"name": "bookA"}).Raw()
-
-	assert.NotNil(t, err)
 }
 
 func TestWriteCookies(t *testing.T) {
@@ -323,12 +312,12 @@ func TestDo(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestWrongUrl(t *testing.T) {
+func TestBadUrl(t *testing.T) {
 	_, err := Patch("wrong://wrong-url.com").Raw()
 	assert.NotNil(t, err)
 }
 
-func TestWrongRequest(t *testing.T) {
+func TestBadRequest(t *testing.T) {
 	_, err := Do("?", "http://wrong-url").Raw()
 	assert.NotNil(t, err)
 }
@@ -384,7 +373,7 @@ func TestReset(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostMultiPartWithOsFile(t *testing.T) {
+func TestPostMultiPart(t *testing.T) {
 	defer gock.Off()
 	matcher := gock.NewBasicMatcher()
 	matcher.Add(func(request *http.Request, request2 *gock.Request) (bool, error) {
@@ -457,7 +446,7 @@ func TestPostBadXml(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestMap(t *testing.T) {
+func TestMapper(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Get("/books").
