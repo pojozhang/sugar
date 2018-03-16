@@ -39,7 +39,7 @@ type JsonDecoder struct {
 
 func (d *JsonDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
 	for _, contentType := range context.Response.Header[ContentType] {
-		if strings.Contains(strings.ToLower(contentType), "application/json") {
+		if strings.Contains(strings.ToLower(contentType), ContentTypeJson) {
 			body, err := ioutil.ReadAll(context.Response.Body)
 			if err != nil {
 				return err
@@ -62,7 +62,7 @@ type XmlDecoder struct {
 
 func (d *XmlDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
 	for _, contentType := range context.Response.Header[ContentType] {
-		if strings.Contains(strings.ToLower(contentType), "application/xml") {
+		if strings.Contains(strings.ToLower(contentType), ContentTypeXml) {
 			body, err := ioutil.ReadAll(context.Response.Body)
 			if err != nil {
 				return err
@@ -78,6 +78,30 @@ func (d *XmlDecoder) Decode(context *ResponseContext, chain *DecoderChain) error
 	}
 
 	return chain.Next(context)
+}
+
+type PlainTextDecoder struct {
+}
+
+func (d *PlainTextDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
+	if contentTypes, ok := context.Response.Header[ContentType]; ok {
+		for _, contentType := range contentTypes {
+			if strings.Contains(strings.ToLower(contentType), ContentTypePlainText) {
+				goto DECODE
+			}
+		}
+
+		return chain.Next(context)
+	}
+
+DECODE:
+	body, err := ioutil.ReadAll(context.Response.Body)
+	if err != nil {
+		return err
+	}
+
+	*(context.Param.(*string)) = string(body)
+	return nil
 }
 
 type DecoderGroup struct {
@@ -113,5 +137,6 @@ func init() {
 	RegisterDecoders(
 		&JsonDecoder{},
 		&XmlDecoder{},
+		&PlainTextDecoder{},
 	)
 }

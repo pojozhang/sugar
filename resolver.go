@@ -226,7 +226,7 @@ func (r *JsonResolver) Resolve(context *RequestContext, chain *ResolverChain) er
 	req.Body = ioutil.NopCloser(bytes.NewReader(b))
 
 	if _, ok := req.Header[ContentType]; !ok {
-		req.Header.Set(ContentType, ContentTypeJson)
+		req.Header.Set(ContentType, ContentTypeJsonUtf8)
 	}
 	return nil
 }
@@ -350,7 +350,7 @@ func (r *XmlResolver) Resolve(context *RequestContext, chain *ResolverChain) err
 	req.Body = ioutil.NopCloser(bytes.NewReader(b))
 
 	if _, ok := req.Header[ContentType]; !ok {
-		req.Header.Set(ContentType, ContentTypeXml)
+		req.Header.Set(ContentType, ContentTypeXmlUtf8)
 	}
 	return nil
 }
@@ -414,9 +414,8 @@ type ResolverGroup struct {
 	chain []*ResolverChain
 }
 
-func (g *ResolverGroup) Init(resolvers ... Resolver) *ResolverGroup {
+func (g *ResolverGroup) Clean() *ResolverGroup {
 	g.chain = []*ResolverChain{}
-	g.Add(resolvers...)
 	return g
 }
 

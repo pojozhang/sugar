@@ -17,7 +17,37 @@ type book struct {
 	Name string
 }
 
-func TestGet(t *testing.T) {
+func TestGetText(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Get("/echo").
+		Reply(http.StatusOK).
+		BodyString("sugar")
+
+	var text = new(string)
+	_, err := Get("http://api.example.com/echo").Read(text)
+
+	assert.Nil(t, err)
+	assert.Equal(t, "sugar", *text)
+}
+
+func TestGetPlainText(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Get("/echo").
+		Reply(http.StatusOK).
+		AddHeader(ContentType, ContentTypePlainText).
+		BodyString("sugar")
+
+	var text = new(string)
+	resp, err := Get("http://api.example.com/echo").Read(text)
+
+	assert.Nil(t, err)
+	assert.Contains(t, resp.Header[ContentType], ContentTypePlainText)
+	assert.Equal(t, "sugar", *text)
+}
+
+func TestGetJson(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Get("/books").
@@ -25,7 +55,7 @@ func TestGet(t *testing.T) {
 		JSON(`[{"name":"bookA"},{"name":"bookB"}]`)
 
 	var books []book
-	err := Get("http://api.example.com/books").Read(&books)
+	_, err := Get("http://api.example.com/books").Read(&books)
 
 	assert.Nil(t, err)
 	assert.Equal(t, "bookA", books[0].Name)
@@ -43,7 +73,7 @@ func TestGetWithQueryPair(t *testing.T) {
 		Reply(http.StatusOK).
 		JSON(`[{"name":"bookA"}]`)
 
-	bytes, err := Get("http://api.example.com/books", Query{"name": "bookA"}).ReadBytes()
+	bytes, _, err := Get("http://api.example.com/books", Query{"name": "bookA"}).ReadBytes()
 
 	assert.Nil(t, err)
 
@@ -65,7 +95,7 @@ func TestGetWithQueryList(t *testing.T) {
 		Reply(http.StatusOK).
 		JSON(`[{"name":"bookA"},{"name":"bookB"}]`)
 
-	bytes, err := Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}}).ReadBytes()
+	bytes, _, err := Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}}).ReadBytes()
 
 	assert.Nil(t, err)
 
@@ -87,7 +117,7 @@ func TestGetWithPathVariable(t *testing.T) {
 		Reply(http.StatusOK).
 		JSON(`[{"name":"bookA"}]`)
 
-	bytes, err := Get("http://api.example.com/books/:id", Path{"id": 123}).ReadBytes()
+	bytes, _, err := Get("http://api.example.com/books/:id", Path{"id": 123}).ReadBytes()
 
 	assert.Nil(t, err)
 
@@ -103,7 +133,7 @@ func TestPostJsonString(t *testing.T) {
 		b, _ := ioutil.ReadAll(request.Body)
 		var book book
 		json.Unmarshal(b, &book)
-		return request.Header[ContentType][0] == ContentTypeJson && book.Name == "bookA", nil
+		return request.Header[ContentType][0] == ContentTypeJsonUtf8 && book.Name == "bookA", nil
 	})
 	gock.New("http://api.example.com").
 		Post("/books").
@@ -123,7 +153,7 @@ func TestPostJsonPair(t *testing.T) {
 		b, _ := ioutil.ReadAll(request.Body)
 		var book book
 		json.Unmarshal(b, &book)
-		return request.Header[ContentType][0] == ContentTypeJson && book.Name == "bookA", nil
+		return request.Header[ContentType][0] == ContentTypeJsonUtf8 && book.Name == "bookA", nil
 	})
 	gock.New("http://api.example.com").
 		Post("/books").
@@ -143,7 +173,7 @@ func TestPostJsonList(t *testing.T) {
 		b, _ := ioutil.ReadAll(request.Body)
 		var book []book
 		json.Unmarshal(b, &book)
-		return request.Header[ContentType][0] == ContentTypeJson && book[0].Name == "bookA", nil
+		return request.Header[ContentType][0] == ContentTypeJsonUtf8 && book[0].Name == "bookA", nil
 	})
 	gock.New("http://api.example.com").
 		Post("/books").
@@ -424,7 +454,7 @@ func TestPostXml(t *testing.T) {
 		b, _ := ioutil.ReadAll(request.Body)
 		var book book
 		xml.Unmarshal(b, &book)
-		return request.Header[ContentType][0] == ContentTypeXml && book.Name == "bookA", nil
+		return request.Header[ContentType][0] == ContentTypeXmlUtf8 && book.Name == "bookA", nil
 	})
 	gock.New("http://api.example.com").
 		Post("/books").
