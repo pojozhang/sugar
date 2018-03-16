@@ -19,32 +19,32 @@ func (r *Response) Raw() (*http.Response, error) {
 	return (*http.Response)(unsafe.Pointer(r)), nil
 }
 
-func (r *Response) Read(v interface{}) (*Response, error) {
+func (r *Response) Read(v interface{}) (*http.Response, error) {
 	defer r.Close()
 
-	response, err := r.Raw()
+	resp, err := r.Raw()
 	if err != nil {
-		return r, err
+		return resp, err
 	}
 
-	err = decoderGroup.Decode(&ResponseContext{Request: r.request, Response: response, Param: v})
+	err = decoderGroup.Decode(&ResponseContext{Request: r.request, Response: resp, Param: v})
 	if err != nil {
-		return r, err
+		return resp, err
 	}
 
-	return r, err
+	return resp, err
 }
 
-func (r *Response) ReadBytes() ([]byte, *Response, error) {
+func (r *Response) ReadBytes() ([]byte, *http.Response, error) {
 	defer r.Close()
 
-	_, err := r.Raw()
+	resp, err := r.Raw()
 	if err != nil {
-		return nil, r, err
+		return nil, resp, err
 	}
 
 	bytes, err := ioutil.ReadAll(r.Body)
-	return bytes, r, err
+	return bytes, resp, err
 }
 
 func (r *Response) Close() {
