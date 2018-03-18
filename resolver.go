@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	Encode        = ToString
-	resolverGroup ResolverGroup
+	Encode           = ToString
+	DefaultResolvers []Resolver
 )
 
 type List []interface{}
@@ -85,16 +85,43 @@ type Resolver interface {
 }
 
 type ResolverChain struct {
-	resolver  Resolver
-	successor *ResolverChain
+	resolvers []Resolver
+	index     int
 }
 
 func (c *ResolverChain) Next(context *RequestContext) error {
-	if c != nil {
-		return c.resolver.Resolve(context, c.successor)
+	if c.index < len(c.resolvers) {
+		defer func() { c.index++ }()
+		return c.resolvers[c.index].Resolve(context, c)
 	}
-
 	return ResolverNotFound
+}
+
+func (c *ResolverChain) Reset() *ResolverChain {
+	c.resolvers = []Resolver{}
+	c.index = 0
+	return c
+}
+
+func (c *ResolverChain) Add(resolvers ... Resolver) *ResolverChain {
+	for _, resolver := range resolvers {
+		c.resolvers = append(c.resolvers, resolver)
+	}
+	return c
+}
+
+func (c *ResolverChain) First() Resolver {
+	if len(c.resolvers) > 0 {
+		return c.resolvers[0]
+	}
+	return nil
+}
+
+func NewResolverChain(resolvers ... Resolver) *ResolverChain {
+	chain := &ResolverChain{}
+	chain.Reset()
+	chain.Add(resolvers...)
+	return chain
 }
 
 type PathResolver struct {
@@ -117,7 +144,7 @@ func (r *PathResolver) Resolve(context *RequestContext, chain *ResolverChain) er
 				}
 			}
 
-			key := req.URL.Path[i+1 : j]
+			key := req.URL.Path[i+1: j]
 			value := pathParams[key]
 			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], Encode(value), -1)
 		}
@@ -411,47 +438,8 @@ func foreach(v interface{}, f func(interface{})) {
 	}
 }
 
-type ResolverGroup struct {
-	chain []*ResolverChain
-}
-
-func (g *ResolverGroup) Clean() *ResolverGroup {
-	g.chain = []*ResolverChain{}
-	return g
-}
-
-func (g *ResolverGroup) Add(resolvers ... Resolver) *ResolverGroup {
-	for _, resolver := range resolvers {
-		c := &ResolverChain{resolver: resolver}
-		g.chain = append(g.chain, c)
-	}
-	g.refresh()
-	return g
-}
-
-func (g *ResolverGroup) refresh() {
-	for i := 0; i < len(g.chain)-1; i++ {
-		g.chain[i].successor = g.chain[i+1]
-	}
-}
-
-func (g *ResolverGroup) Resolve(c *Context) error {
-	if len(g.chain) < 1 {
-		return nil
-	}
-
-	for i, param := range c.Params {
-		context := &RequestContext{Request: c.Request, Params: c.Params, Param: param, ParamIndex: i}
-		if err := g.chain[0].Next(context); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func RegisterResolvers(resolvers ... Resolver) {
-	resolverGroup.Add(resolvers...)
+	DefaultResolvers = append(DefaultResolvers, resolvers...)
 }
 
 func init() {

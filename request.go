@@ -8,10 +8,11 @@ import (
 )
 
 type Client struct {
-	HttpClient     *http.Client
-	Log            func(string)
-	presets        []interface{}
-	requestPlugins []Plugin
+	HttpClient *http.Client
+	Log        func(string)
+	Resolvers  []Resolver
+	Plugins    []Plugin
+	Presets    []interface{}
 }
 
 var (
@@ -34,6 +35,7 @@ func NewClient() *Client {
 	return &Client{
 		HttpClient: &http.Client{},
 		Log:        DefaultLog,
+		Resolvers:  DefaultResolvers,
 	}
 }
 
@@ -58,39 +60,34 @@ func (c *Client) Delete(rawUrl string, params ...interface{}) (*Response) {
 }
 
 func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
-	req, err := http.NewRequest(method, rawUrl, nil)
-	if err != nil {
-		return &Response{Error: err, request: req}
+	context := &Context{
+		method:        method,
+		rawUrl:        rawUrl,
+		params:        append(c.Presets, params...),
+		plugins:       nil,
+		resolverChain: NewResolverChain(),
+		httpClient:    c.HttpClient,
 	}
-
-	params = append(c.presets, params...)
-
-	context := &Context{Request: req, Response: nil, Params: params, Plugins: nil}
-	if err := resolverGroup.Resolve(context); err != nil {
-		return &Response{Error: err, request: req}
+	if err := context.Next(); err != nil {
+		return &Response{Error: err, request: context.Request}
 	}
 
 	if c.Log != nil {
-		b, _ := httputil.DumpRequest(req, true)
+		b, _ := httputil.DumpRequest(context.Request, true)
 		c.Log(string(b))
 	}
 
-	resp, err := c.HttpClient.Do(req)
-	if err != nil {
-		return &Response{Error: err, request: req}
-	}
-
-	return &Response{Response: *resp, Error: nil, request: req}
+	return &Response{Response: *context.Response, Error: nil, request: context.Request}
 }
 
 func (c *Client) Apply(v ...interface{}) {
-	c.presets = append(c.presets, v...)
+	c.Presets = append(c.Presets, v...)
 }
 
 func (c *Client) Reset(v ...interface{}) {
-	c.presets = nil
+	c.Presets = nil
 }
 
 func (c *Client) Use(plugins ... Plugin) {
-
+	c.Plugins = append(c.Plugins, plugins...)
 }
