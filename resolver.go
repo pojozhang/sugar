@@ -17,7 +17,6 @@ import (
 
 var (
 	Encode           = ToString
-	DefaultResolvers []Resolver
 )
 
 type List []interface{}
@@ -436,24 +435,4 @@ func foreach(v interface{}, f func(interface{})) {
 	for i := 0; i < a.Len(); i++ {
 		f(a.Index(i).Elem().Interface())
 	}
-}
-
-func RegisterResolvers(resolvers ... Resolver) {
-	DefaultResolvers = append(DefaultResolvers, resolvers...)
-}
-
-func init() {
-	RegisterResolvers(
-		&XmlResolver{},
-		&PathResolver{},
-		&JsonResolver{},
-		&FormResolver{},
-		&QueryResolver{},
-		&HeaderResolver{},
-		&MapperResolver{},
-		&CookieResolver{},
-		&BasicAuthResolver{},
-		&MultiPartResolver{},
-		&PlainTextResolver{},
-	)
 }

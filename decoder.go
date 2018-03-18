@@ -8,10 +8,6 @@ import (
 	"encoding/xml"
 )
 
-var (
-	decoderGroup DecoderGroup
-)
-
 type ResponseContext struct {
 	Request  *http.Request
 	Response *http.Response
@@ -23,15 +19,36 @@ type Decoder interface {
 }
 
 type DecoderChain struct {
-	decoder   Decoder
-	successor *DecoderChain
+	decoders []Decoder
+	index    int
 }
 
 func (c *DecoderChain) Next(context *ResponseContext) error {
-	if c != nil {
-		return c.decoder.Decode(context, c.successor)
+	if c.index < len(c.decoders) {
+		defer func() { c.index++ }()
+		return c.decoders[c.index].Decode(context, c)
 	}
 	return DecoderNotFound
+}
+
+func (c *DecoderChain) Reset() *DecoderChain {
+	c.decoders = []Decoder{}
+	c.index = 0
+	return c
+}
+
+func (c *DecoderChain) Add(decoders ... Decoder) *DecoderChain {
+	for _, decoder := range decoders {
+		c.decoders = append(c.decoders, decoder)
+	}
+	return c
+}
+
+func NewDecoderChain(decoders ... Decoder) *DecoderChain {
+	chain := &DecoderChain{}
+	chain.Reset()
+	chain.Add(decoders...)
+	return chain
 }
 
 type JsonDecoder struct {
@@ -102,41 +119,4 @@ DECODE:
 
 	*(context.Param.(*string)) = string(body)
 	return nil
-}
-
-type DecoderGroup struct {
-	chain []*DecoderChain
-}
-
-func (g *DecoderGroup) Add(decoders ... Decoder) {
-	for _, decoder := range decoders {
-		c := &DecoderChain{decoder: decoder}
-		g.chain = append(g.chain, c)
-	}
-	g.refresh()
-}
-
-func (g *DecoderGroup) refresh() {
-	for i := 0; i < len(g.chain)-1; i++ {
-		g.chain[i].successor = g.chain[i+1]
-	}
-}
-
-func (g *DecoderGroup) Decode(context *ResponseContext) error {
-	if len(g.chain) < 1 {
-		return nil
-	}
-	return g.chain[0].Next(context)
-}
-
-func RegisterDecoders(decoders ... Decoder) {
-	decoderGroup.Add(decoders...)
-}
-
-func init() {
-	RegisterDecoders(
-		&JsonDecoder{},
-		&XmlDecoder{},
-		&PlainTextDecoder{},
-	)
 }

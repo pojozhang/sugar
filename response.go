@@ -8,8 +8,9 @@ import (
 
 type Response struct {
 	http.Response
-	Error   error
-	request *http.Request
+	Error    error
+	request  *http.Request
+	decoders []Decoder
 }
 
 func (r *Response) Raw() (*http.Response, error) {
@@ -27,7 +28,7 @@ func (r *Response) Read(v interface{}) (*http.Response, error) {
 		return resp, err
 	}
 
-	err = decoderGroup.Decode(&ResponseContext{Request: r.request, Response: resp, Param: v})
+	err = NewDecoderChain(r.decoders...).Next(&ResponseContext{Request: r.request, Response: resp, Param: v})
 	if err != nil {
 		return resp, err
 	}

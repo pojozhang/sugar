@@ -11,11 +11,15 @@ type Client struct {
 	HttpClient *http.Client
 	Log        func(string)
 	Resolvers  []Resolver
+	Decoders   []Decoder
 	Plugins    []Plugin
 	Presets    []interface{}
 }
 
 var (
+	DefaultResolvers []Resolver
+	DefaultDecoders  []Decoder
+
 	DefaultClient = NewClient()
 	Get           = DefaultClient.Get
 	Post          = DefaultClient.Post
@@ -36,6 +40,7 @@ func NewClient() *Client {
 		HttpClient: &http.Client{},
 		Log:        DefaultLog,
 		Resolvers:  DefaultResolvers,
+		Decoders:   DefaultDecoders,
 	}
 }
 
@@ -65,11 +70,11 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
 		rawUrl:        rawUrl,
 		params:        append(c.Presets, params...),
 		plugins:       nil,
-		resolverChain: NewResolverChain(),
+		resolverChain: NewResolverChain(c.Resolvers...),
 		httpClient:    c.HttpClient,
 	}
 	if err := context.Next(); err != nil {
-		return &Response{Error: err, request: context.Request}
+		return &Response{Error: err, request: context.Request, decoders: c.Decoders}
 	}
 
 	if c.Log != nil {
@@ -77,7 +82,7 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
 		c.Log(string(b))
 	}
 
-	return &Response{Response: *context.Response, Error: nil, request: context.Request}
+	return &Response{Response: *context.Response, Error: nil, request: context.Request, decoders: c.Decoders}
 }
 
 func (c *Client) Apply(v ...interface{}) {
@@ -90,4 +95,34 @@ func (c *Client) Reset(v ...interface{}) {
 
 func (c *Client) Use(plugins ... Plugin) {
 	c.Plugins = append(c.Plugins, plugins...)
+}
+
+func RegisterResolvers(resolvers ... Resolver) {
+	DefaultResolvers = append(DefaultResolvers, resolvers...)
+}
+
+func RegisterDecoders(decoders ... Decoder) {
+	DefaultDecoders = append(DefaultDecoders, decoders...)
+}
+
+func init() {
+	RegisterResolvers(
+		&XmlResolver{},
+		&PathResolver{},
+		&JsonResolver{},
+		&FormResolver{},
+		&QueryResolver{},
+		&HeaderResolver{},
+		&MapperResolver{},
+		&CookieResolver{},
+		&BasicAuthResolver{},
+		&MultiPartResolver{},
+		&PlainTextResolver{},
+	)
+
+	RegisterDecoders(
+		&JsonDecoder{},
+		&XmlDecoder{},
+		&PlainTextDecoder{},
+	)
 }
