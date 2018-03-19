@@ -80,20 +80,20 @@ type Encoder interface {
 }
 
 type EncoderChain struct {
+	context  *RequestContext
 	encoders []Encoder
 	index    int
 }
 
-func (c *EncoderChain) Next(context *RequestContext) error {
+func (c *EncoderChain) Next() error {
 	if c.index < len(c.encoders) {
 		c.index++
-		return c.encoders[c.index-1].Encode(context, c)
+		return c.encoders[c.index-1].Encode(c.context, c)
 	}
 	return EncoderNotFound
 }
 
-func (c *EncoderChain) Reset() *EncoderChain {
-	c.encoders = []Encoder{}
+func (c *EncoderChain) reset() *EncoderChain {
 	c.index = 0
 	return c
 }
@@ -112,10 +112,9 @@ func (c *EncoderChain) First() Encoder {
 	return nil
 }
 
-func NewEncoderChain(encoders ... Encoder) *EncoderChain {
-	chain := &EncoderChain{}
-	chain.Reset()
-	chain.Add(encoders...)
+func NewEncoderChain(context *RequestContext, encoders ... Encoder) *EncoderChain {
+	chain := &EncoderChain{context: context, index: 0}
+	chain.reset().Add(encoders...)
 	return chain
 }
 
@@ -125,7 +124,7 @@ type PathEncoder struct {
 func (r *PathEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	pathParams, ok := context.Param.(Path)
 	if !ok {
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 	req := context.Request
@@ -153,7 +152,7 @@ type QueryEncoder struct {
 func (r *QueryEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	queryParams, ok := context.Param.(Query)
 	if !ok {
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 	req := context.Request
@@ -178,7 +177,7 @@ type HeaderEncoder struct {
 func (r *HeaderEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	headerParams, ok := context.Param.(Header)
 	if !ok {
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 	for k, v := range headerParams {
@@ -193,7 +192,7 @@ type FormEncoder struct {
 func (r *FormEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	formParams, ok := context.Param.(Form)
 	if !ok {
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 	form := url.Values{}
@@ -227,7 +226,7 @@ type JsonEncoder struct {
 func (r *JsonEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	jsonParams, ok := context.Param.(Json)
 	if !ok {
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 	var b []byte
@@ -260,7 +259,7 @@ type CookieEncoder struct {
 func (r *CookieEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	cookieParams, ok := context.Param.(Cookie)
 	if !ok {
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 	for k, v := range cookieParams {
@@ -275,7 +274,7 @@ type BasicAuthEncoder struct {
 func (r *BasicAuthEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	authParams, ok := context.Param.(User)
 	if !ok {
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 	context.Request.SetBasicAuth(authParams.Name, authParams.Password)
@@ -288,7 +287,7 @@ type MultiPartEncoder struct {
 func (r *MultiPartEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	multiPartParams, ok := context.Param.(MultiPart)
 	if !ok {
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 	b := &bytes.Buffer{}
@@ -333,7 +332,7 @@ type PlainTextEncoder struct {
 func (r *PlainTextEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	textParams, ok := context.Param.(string)
 	if !ok {
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 	b := &bytes.Buffer{}
@@ -353,7 +352,7 @@ type XmlEncoder struct {
 func (r *XmlEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	xmlParams, ok := context.Param.(Xml)
 	if !ok {
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 	var b []byte

@@ -58,12 +58,12 @@ func (c *Client) Delete(rawUrl string, params ...interface{}) (*Response) {
 
 func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
 	context := &Context{
-		method:       method,
-		rawUrl:       rawUrl,
-		params:       append(c.Presets, params...),
-		encoderChain: NewEncoderChain(c.Encoders...),
-		plugins:      c.Plugins,
-		httpClient:   c.HttpClient,
+		method:     method,
+		rawUrl:     rawUrl,
+		params:     append(c.Presets, params...),
+		encoders:   c.Encoders,
+		plugins:    c.Plugins,
+		httpClient: c.HttpClient,
 	}
 	if err := context.Next(); err != nil {
 		return &Response{Error: err, request: context.Request, decoders: c.Decoders}

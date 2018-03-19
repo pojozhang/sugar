@@ -32,8 +32,7 @@ func (c *DecoderChain) Next() error {
 	return DecoderNotFound
 }
 
-func (c *DecoderChain) Reset() *DecoderChain {
-	c.decoders = []Decoder{}
+func (c *DecoderChain) reset() *DecoderChain {
 	c.index = 0
 	return c
 }
@@ -47,7 +46,7 @@ func (c *DecoderChain) Add(decoders ... Decoder) *DecoderChain {
 
 func NewDecoderChain(context *ResponseContext, decoders ... Decoder) *DecoderChain {
 	chain := &DecoderChain{context: context, index: 0}
-	chain.Reset().Add(decoders...)
+	chain.Add(decoders...)
 	return chain
 }
 

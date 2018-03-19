@@ -3,15 +3,15 @@ package sugar
 import "net/http"
 
 type Context struct {
-	Request      *http.Request
-	Response     *http.Response
-	method       string
-	rawUrl       string
-	params       []interface{}
-	plugins      []Plugin
-	index        int
-	encoderChain *EncoderChain
-	httpClient   *http.Client
+	Request    *http.Request
+	Response   *http.Response
+	method     string
+	rawUrl     string
+	params     []interface{}
+	plugins    []Plugin
+	index      int
+	encoders   []Encoder
+	httpClient *http.Client
 }
 
 func (c *Context) Next() error {
@@ -48,8 +48,8 @@ func (c *Context) prepareRequest() error {
 
 func (c *Context) encodeRequest() error {
 	for i, param := range c.params {
-		context := &RequestContext{Request: c.Request, Params: c.params, Param: param, ParamIndex: i}
-		if err := c.encoderChain.Next(context); err != nil {
+		chain := NewEncoderChain(&RequestContext{Request: c.Request, Params: c.params, Param: param, ParamIndex: i}, c.encoders...)
+		if err := chain.Next(); err != nil {
 			return err
 		}
 	}
