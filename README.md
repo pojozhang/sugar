@@ -3,7 +3,7 @@
 ### [中文文档](README.zh-cn.md)
 
 Sugar is a **DECLARATIVE** http client providing elegant APIs for Golang.
-V2 is a big update which brings some useful features.
+V2 is a big update which brings useful features.
 
 ## Features
 - Elegant APIs
@@ -21,7 +21,7 @@ Firstly you need to import the package.
 ```go
 import . "github.com/pojozhang/sugar"
 ```
-And now you have the power to easily send any request to any corner on this blue planet.
+And now you are ready to easily send any request to any corner on this blue planet.
 
 ### Request
 #### Plain Text
@@ -146,14 +146,12 @@ Post("http://api.example.com/books", MP{"name": "bookA", "file": f})
 
 #### Mix
 Due to Sugar's flexible design, different types of parameters can be freely combined.
-
 ```go
 Patch("http://api.example.com/books/:id", Path{"id": 123}, Json{`{"name":"bookA"}`}, User{"user", "password"})
 ```
 
 #### Apply
 You can use Apply() function to preset some values which will be attached to every following request. Call Reset() function to clean preset values.
-
 ```go
 Apply(User{"user", "password"})
 Get("http://api.example.com/books")
@@ -168,26 +166,9 @@ Get("http://api.example.com/books")
 ```
 The latter is equal to the former.
 
-#### Mapper(@Deprecated)
-This method allows you to change your request directly.
-For example, if your project is running as a micro service, you may want to call a remote API via service name, like
-```go
-Get("http://book-service/books")
-```
-
-The problem is that `book-service` is not the real host and I'm sure you'll get an error.
-The following codes show a good solution.
-```go
-Apply(Mapper{func(req *http.Request) {
-    if req.URL.Host == "book-service" {
-        req.URL.Host = "api.example.com"
-    }
-}})
-resp, err := Get("http://book-service/books")
-```
 
 ### Response
-Request APIs will return a value of type *Response which also providing some nice APIs.
+A request API always returns a value of type *Response which also provides some nice APIs.
 
 #### Raw
 Raw() method will return a value of type *http.Response and an error which is similar with standard go API.
@@ -205,11 +186,14 @@ bytes, err := Get("http://api.example.com/books").ReadBytes()
 ```
 
 #### Read
-This method reads different types of response via decoder chain.
+This method reads different types of response via decoder API. 
+The following two examples read response body as plain text/JSON according to content type. 
 ```go
+// plain text
 var text = new(string)
 _, err := Get("http://api.example.com/text").Read(text)
 
+// json
 var books []book
 _, err := Get("http://api.example.com/json").Read(&books)
 ```
@@ -229,18 +213,22 @@ type MyEncoder struct {
 func (r *MyEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
     myParams, ok := context.Param.(MyParam)
     if !ok {
-	return chain.Next(context)
+	return chain.Next()
     }
     ...
     req := context.Request
     ...
     return nil
 }
+
 RegisterEncoders(&MyEncoder{})
+
 Get("http://api.example.com/books", MyParam{})
 ```
 
 ### Decoder
+You can implement `Decoder` interface so that you can convert a response body to a specific struct.
+It is very convenient to get converted value via `func (r *Response) Read(v interface{}) (*http.Response, error)` API.
 ```go
 type MyDecoder struct {
 }
@@ -253,18 +241,19 @@ func (d *MyDecoder) Decode(context *ResponseContext, chain *DecoderChain) error 
 	    if err != nil {
 		return err
 	    }
+	    json.Unmarshal(body, context.Param)
 	    ...
 	    return nil
 	}
     }
-    return chain.Next(context)
+    return chain.Next()
 }
 
 RegisterDecoders(&MyDecoder{})
 ```
 
 ### Plugin
-Plugin is a new feature in V2. You can do anything as you like before the request is sent or after the response is received.
+Plugin is a new feature since V2. You can do anything as you like before the request is sent or after the response is received.
 ```go
 // Implementation of builtin Logger plugin
 Use(func(c *Context) error {
