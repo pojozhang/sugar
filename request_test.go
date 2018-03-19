@@ -371,7 +371,7 @@ func TestBadRequest(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestNoResolverFound(t *testing.T) {
+func TestNoEncoderFound(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
 		Path("/books").

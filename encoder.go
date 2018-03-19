@@ -79,54 +79,54 @@ type RequestContext struct {
 	ParamIndex int
 }
 
-type Resolver interface {
-	Resolve(context *RequestContext, chain *ResolverChain) error
+type Encoder interface {
+	Encode(context *RequestContext, chain *EncoderChain) error
 }
 
-type ResolverChain struct {
-	resolvers []Resolver
-	index     int
+type EncoderChain struct {
+	encoders []Encoder
+	index    int
 }
 
-func (c *ResolverChain) Next(context *RequestContext) error {
-	if c.index < len(c.resolvers) {
+func (c *EncoderChain) Next(context *RequestContext) error {
+	if c.index < len(c.encoders) {
 		c.index++
-		return c.resolvers[c.index-1].Resolve(context, c)
+		return c.encoders[c.index-1].Encode(context, c)
 	}
-	return ResolverNotFound
+	return EncoderNotFound
 }
 
-func (c *ResolverChain) Reset() *ResolverChain {
-	c.resolvers = []Resolver{}
+func (c *EncoderChain) Reset() *EncoderChain {
+	c.encoders = []Encoder{}
 	c.index = 0
 	return c
 }
 
-func (c *ResolverChain) Add(resolvers ... Resolver) *ResolverChain {
-	for _, resolver := range resolvers {
-		c.resolvers = append(c.resolvers, resolver)
+func (c *EncoderChain) Add(Encoders ... Encoder) *EncoderChain {
+	for _, Encoder := range Encoders {
+		c.encoders = append(c.encoders, Encoder)
 	}
 	return c
 }
 
-func (c *ResolverChain) First() Resolver {
-	if len(c.resolvers) > 0 {
-		return c.resolvers[0]
+func (c *EncoderChain) First() Encoder {
+	if len(c.encoders) > 0 {
+		return c.encoders[0]
 	}
 	return nil
 }
 
-func NewResolverChain(resolvers ... Resolver) *ResolverChain {
-	chain := &ResolverChain{}
+func NewEncoderChain(encoders ... Encoder) *EncoderChain {
+	chain := &EncoderChain{}
 	chain.Reset()
-	chain.Add(resolvers...)
+	chain.Add(encoders...)
 	return chain
 }
 
-type PathResolver struct {
+type PathEncoder struct {
 }
 
-func (r *PathResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *PathEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	pathParams, ok := context.Param.(Path)
 	if !ok {
 		return chain.Next(context)
@@ -151,10 +151,10 @@ func (r *PathResolver) Resolve(context *RequestContext, chain *ResolverChain) er
 	return nil
 }
 
-type QueryResolver struct {
+type QueryEncoder struct {
 }
 
-func (r *QueryResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *QueryEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	queryParams, ok := context.Param.(Query)
 	if !ok {
 		return chain.Next(context)
@@ -176,10 +176,10 @@ func (r *QueryResolver) Resolve(context *RequestContext, chain *ResolverChain) e
 	return nil
 }
 
-type HeaderResolver struct {
+type HeaderEncoder struct {
 }
 
-func (r *HeaderResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *HeaderEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	headerParams, ok := context.Param.(Header)
 	if !ok {
 		return chain.Next(context)
@@ -191,10 +191,10 @@ func (r *HeaderResolver) Resolve(context *RequestContext, chain *ResolverChain) 
 	return nil
 }
 
-type FormResolver struct {
+type FormEncoder struct {
 }
 
-func (r *FormResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *FormEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	formParams, ok := context.Param.(Form)
 	if !ok {
 		return chain.Next(context)
@@ -225,10 +225,10 @@ func (r *FormResolver) Resolve(context *RequestContext, chain *ResolverChain) er
 	return nil
 }
 
-type JsonResolver struct {
+type JsonEncoder struct {
 }
 
-func (r *JsonResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *JsonEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	jsonParams, ok := context.Param.(Json)
 	if !ok {
 		return chain.Next(context)
@@ -258,10 +258,10 @@ func (r *JsonResolver) Resolve(context *RequestContext, chain *ResolverChain) er
 	return nil
 }
 
-type CookieResolver struct {
+type CookieEncoder struct {
 }
 
-func (r *CookieResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *CookieEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	cookieParams, ok := context.Param.(Cookie)
 	if !ok {
 		return chain.Next(context)
@@ -273,10 +273,10 @@ func (r *CookieResolver) Resolve(context *RequestContext, chain *ResolverChain) 
 	return nil
 }
 
-type BasicAuthResolver struct {
+type BasicAuthEncoder struct {
 }
 
-func (r *BasicAuthResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *BasicAuthEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	authParams, ok := context.Param.(User)
 	if !ok {
 		return chain.Next(context)
@@ -286,10 +286,10 @@ func (r *BasicAuthResolver) Resolve(context *RequestContext, chain *ResolverChai
 	return nil
 }
 
-type MultiPartResolver struct {
+type MultiPartEncoder struct {
 }
 
-func (r *MultiPartResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *MultiPartEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	multiPartParams, ok := context.Param.(MultiPart)
 	if !ok {
 		return chain.Next(context)
@@ -331,10 +331,10 @@ func writeFile(w *multipart.Writer, fieldName, fileName string, file io.Reader) 
 	return nil
 }
 
-type PlainTextResolver struct {
+type PlainTextEncoder struct {
 }
 
-func (r *PlainTextResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *PlainTextEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	textParams, ok := context.Param.(string)
 	if !ok {
 		return chain.Next(context)
@@ -351,10 +351,10 @@ func (r *PlainTextResolver) Resolve(context *RequestContext, chain *ResolverChai
 	return nil
 }
 
-type XmlResolver struct {
+type XmlEncoder struct {
 }
 
-func (r *XmlResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *XmlEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	xmlParams, ok := context.Param.(Xml)
 	if !ok {
 		return chain.Next(context)
@@ -382,10 +382,10 @@ func (r *XmlResolver) Resolve(context *RequestContext, chain *ResolverChain) err
 	return nil
 }
 
-type MapperResolver struct {
+type MapperEncoder struct {
 }
 
-func (r *MapperResolver) Resolve(context *RequestContext, chain *ResolverChain) error {
+func (r *MapperEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	mapperParams, ok := context.Param.(Mapper)
 	if !ok {
 		return chain.Next(context)

@@ -10,15 +10,15 @@ import (
 type Client struct {
 	HttpClient *http.Client
 	Log        func(string)
-	Resolvers  []Resolver
+	Encoders   []Encoder
 	Decoders   []Decoder
 	Plugins    []Plugin
 	Presets    []interface{}
 }
 
 var (
-	Resolvers []Resolver
-	Decoders  []Decoder
+	Encoders []Encoder
+	Decoders []Decoder
 
 	DefaultClient = NewClient()
 	Get           = DefaultClient.Get
@@ -39,7 +39,7 @@ func NewClient() *Client {
 	return &Client{
 		HttpClient: &http.Client{},
 		Log:        DefaultLog,
-		Resolvers:  Resolvers,
+		Encoders:   Encoders,
 		Decoders:   Decoders,
 	}
 }
@@ -66,12 +66,12 @@ func (c *Client) Delete(rawUrl string, params ...interface{}) (*Response) {
 
 func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
 	context := &Context{
-		method:        method,
-		rawUrl:        rawUrl,
-		params:        append(c.Presets, params...),
-		plugins:       nil,
-		resolverChain: NewResolverChain(c.Resolvers...),
-		httpClient:    c.HttpClient,
+		method:       method,
+		rawUrl:       rawUrl,
+		params:       append(c.Presets, params...),
+		plugins:      nil,
+		encoderChain: NewEncoderChain(c.Encoders...),
+		httpClient:   c.HttpClient,
 	}
 	if err := context.Next(); err != nil {
 		return &Response{Error: err, request: context.Request, decoders: c.Decoders}
@@ -97,8 +97,8 @@ func (c *Client) Use(plugins ... Plugin) {
 	c.Plugins = append(c.Plugins, plugins...)
 }
 
-func RegisterResolvers(resolvers ... Resolver) {
-	Resolvers = append(Resolvers, resolvers...)
+func RegisterEncoders(encoders ... Encoder) {
+	Encoders = append(Encoders, encoders...)
 }
 
 func RegisterDecoders(decoders ... Decoder) {
@@ -106,18 +106,18 @@ func RegisterDecoders(decoders ... Decoder) {
 }
 
 func init() {
-	RegisterResolvers(
-		&XmlResolver{},
-		&PathResolver{},
-		&JsonResolver{},
-		&FormResolver{},
-		&QueryResolver{},
-		&HeaderResolver{},
-		&MapperResolver{},
-		&CookieResolver{},
-		&BasicAuthResolver{},
-		&MultiPartResolver{},
-		&PlainTextResolver{},
+	RegisterEncoders(
+		&XmlEncoder{},
+		&PathEncoder{},
+		&JsonEncoder{},
+		&FormEncoder{},
+		&QueryEncoder{},
+		&HeaderEncoder{},
+		&MapperEncoder{},
+		&CookieEncoder{},
+		&BasicAuthEncoder{},
+		&MultiPartEncoder{},
+		&PlainTextEncoder{},
 	)
 
 	RegisterDecoders(
@@ -126,6 +126,6 @@ func init() {
 		&PlainTextDecoder{},
 	)
 
-	DefaultClient.Resolvers = Resolvers
+	DefaultClient.Encoders = Encoders
 	DefaultClient.Decoders = Decoders
 }
