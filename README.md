@@ -202,15 +202,14 @@ type MyEncoder struct {
 }
 
 func (r *MyEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
-	myParams, ok := context.Param.(MyParam)
-	if !ok {
-		return chain.Next(context)
-	}
-
+    myParams, ok := context.Param.(MyParam)
+    if !ok {
+	return chain.Next(context)
+    }
     ...
-	req := context.Request
-	...
-	return nil
+    req := context.Request
+    ...
+    return nil
 }
 RegisterEncoders(&MyEncoder{})
 Get("http://api.example.com/books", MyParam{})
@@ -223,17 +222,17 @@ type MyDecoder struct {
 
 func (d *MyDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
     // decode data from body if a content type named `my-content-type` is set in header
-	for _, contentType := range context.Response.Header[ContentType] {
-		if strings.Contains(strings.ToLower(contentType), "my-content-type") {
-			body, err := ioutil.ReadAll(context.Response.Body)
-			if err != nil {
-				return err
-			}
-		    ...
-			return nil
-		}
+    for _, contentType := range context.Response.Header[ContentType] {
+	if strings.Contains(strings.ToLower(contentType), "my-content-type") {
+	    body, err := ioutil.ReadAll(context.Response.Body)
+	    if err != nil {
+		return err
+	    }
+	    ...
+	    return nil
 	}
-	return chain.Next(context)
+    }
+    return chain.Next(context)
 }
 
 RegisterDecoders(&MyDecoder{})
@@ -244,16 +243,16 @@ Plugin is a new feature in V2. You can do anything as you like before the reques
 ```go
 // Implementation of builtin Logger plugin
 Use(func(c *Context) error {
-		b, _ := httputil.DumpRequest(c.Request, true)
+    b, _ := httputil.DumpRequest(c.Request, true)
+	log.Println(string(b))
+	defer func() {
+	    if c.Response != nil {
+		b, _ := httputil.DumpResponse(c.Response, true)
 		log.Println(string(b))
-		defer func() {
-			if c.Response != nil {
-				b, _ := httputil.DumpResponse(c.Response, true)
-				log.Println(string(b))
-			}
-		}()
-		return c.Next()
-	})
+	    }
+        }()
+	return c.Next()
+})
 ```
 
 ## License
