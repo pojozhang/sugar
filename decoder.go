@@ -19,14 +19,15 @@ type Decoder interface {
 }
 
 type DecoderChain struct {
+	context  *ResponseContext
 	decoders []Decoder
 	index    int
 }
 
-func (c *DecoderChain) Next(context *ResponseContext) error {
+func (c *DecoderChain) Next() error {
 	if c.index < len(c.decoders) {
 		c.index++
-		return c.decoders[c.index-1].Decode(context, c)
+		return c.decoders[c.index-1].Decode(c.context, c)
 	}
 	return DecoderNotFound
 }
@@ -44,10 +45,9 @@ func (c *DecoderChain) Add(decoders ... Decoder) *DecoderChain {
 	return c
 }
 
-func NewDecoderChain(decoders ... Decoder) *DecoderChain {
-	chain := &DecoderChain{}
-	chain.Reset()
-	chain.Add(decoders...)
+func NewDecoderChain(context *ResponseContext, decoders ... Decoder) *DecoderChain {
+	chain := &DecoderChain{context: context, index: 0}
+	chain.Reset().Add(decoders...)
 	return chain
 }
 
@@ -71,7 +71,7 @@ func (d *JsonDecoder) Decode(context *ResponseContext, chain *DecoderChain) erro
 		}
 	}
 
-	return chain.Next(context)
+	return chain.Next()
 }
 
 type XmlDecoder struct {
@@ -94,7 +94,7 @@ func (d *XmlDecoder) Decode(context *ResponseContext, chain *DecoderChain) error
 		}
 	}
 
-	return chain.Next(context)
+	return chain.Next()
 }
 
 type PlainTextDecoder struct {
@@ -108,7 +108,7 @@ func (d *PlainTextDecoder) Decode(context *ResponseContext, chain *DecoderChain)
 			}
 		}
 
-		return chain.Next(context)
+		return chain.Next()
 	}
 
 DECODE:
