@@ -187,7 +187,32 @@ resp, err := Get("http://book-service/books")
 ```
 
 ### Response
-####
+Request APIs will return a value of type *Response which also providing some nice APIs.
+
+#### Raw
+Raw() method will return a value of type *http.Response and an error which is similar with standard go API.
+```go
+resp, err := Post("http://api.example.com/books", "bookA").Raw()
+...
+```
+
+#### ReadBytes
+ReadBytes() is another syntax sugar to read bytes from response body.
+Notice that this method will close body after reading.
+```go
+bytes, err := Get("http://api.example.com/books").ReadBytes()
+...
+```
+
+#### Read
+This method reads different types of response via decoder chain.
+```go
+var text = new(string)
+_, err := Get("http://api.example.com/text").Read(text)
+
+var books []book
+_, err := Get("http://api.example.com/json").Read(&books)
+```
 
 ## Extension
 There are three major components in Sugar: **Encoder**, **Decoder** and **Plugin**.
