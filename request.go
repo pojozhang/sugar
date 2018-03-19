@@ -100,7 +100,6 @@ func init() {
 		&FormEncoder{},
 		&QueryEncoder{},
 		&HeaderEncoder{},
-		&MapperEncoder{},
 		&CookieEncoder{},
 		&BasicAuthEncoder{},
 		&MultiPartEncoder{},

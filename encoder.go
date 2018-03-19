@@ -67,10 +67,6 @@ type Xml struct {
 	Payload interface{}
 }
 
-type Mapper struct {
-	mapper func(*http.Request)
-}
-
 type RequestContext struct {
 	Request    *http.Request
 	Response   *http.Response
@@ -379,19 +375,6 @@ func (r *XmlEncoder) Encode(context *RequestContext, chain *EncoderChain) error 
 	if _, ok := req.Header[ContentType]; !ok {
 		req.Header.Set(ContentType, ContentTypeXmlUtf8)
 	}
-	return nil
-}
-
-type MapperEncoder struct {
-}
-
-func (r *MapperEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
-	mapperParams, ok := context.Param.(Mapper)
-	if !ok {
-		return chain.Next(context)
-	}
-
-	mapperParams.mapper(context.Request)
 	return nil
 }
 

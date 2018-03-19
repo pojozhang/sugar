@@ -498,19 +498,3 @@ func TestPostBadXml(t *testing.T) {
 	_, err := Post("http://api.example.com/books", Xml{make(chan int)}).Raw()
 	assert.NotNil(t, err)
 }
-
-func TestMapper(t *testing.T) {
-	defer gock.Off()
-	gock.New("http://api.example.com").
-		Get("/books").
-		Reply(http.StatusOK)
-
-	Apply(Mapper{func(req *http.Request) {
-		if req.URL.Host == "book-service" {
-			req.URL.Host = "api.example.com"
-		}
-	}})
-	resp, err := Get("http://book-service/books").Raw()
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
