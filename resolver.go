@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	Encode           = ToString
+	Encode = ToString
 )
 
 type List []interface{}
@@ -90,8 +90,8 @@ type ResolverChain struct {
 
 func (c *ResolverChain) Next(context *RequestContext) error {
 	if c.index < len(c.resolvers) {
-		defer func() { c.index++ }()
-		return c.resolvers[c.index].Resolve(context, c)
+		c.index++
+		return c.resolvers[c.index-1].Resolve(context, c)
 	}
 	return ResolverNotFound
 }

@@ -17,8 +17,8 @@ type Client struct {
 }
 
 var (
-	DefaultResolvers []Resolver
-	DefaultDecoders  []Decoder
+	Resolvers []Resolver
+	Decoders  []Decoder
 
 	DefaultClient = NewClient()
 	Get           = DefaultClient.Get
@@ -39,8 +39,8 @@ func NewClient() *Client {
 	return &Client{
 		HttpClient: &http.Client{},
 		Log:        DefaultLog,
-		Resolvers:  DefaultResolvers,
-		Decoders:   DefaultDecoders,
+		Resolvers:  Resolvers,
+		Decoders:   Decoders,
 	}
 }
 
@@ -98,11 +98,11 @@ func (c *Client) Use(plugins ... Plugin) {
 }
 
 func RegisterResolvers(resolvers ... Resolver) {
-	DefaultResolvers = append(DefaultResolvers, resolvers...)
+	Resolvers = append(Resolvers, resolvers...)
 }
 
 func RegisterDecoders(decoders ... Decoder) {
-	DefaultDecoders = append(DefaultDecoders, decoders...)
+	Decoders = append(Decoders, decoders...)
 }
 
 func init() {
@@ -125,4 +125,7 @@ func init() {
 		&XmlDecoder{},
 		&PlainTextDecoder{},
 	)
+
+	DefaultClient.Resolvers = Resolvers
+	DefaultClient.Decoders = Decoders
 }

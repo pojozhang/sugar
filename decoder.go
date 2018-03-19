@@ -25,8 +25,8 @@ type DecoderChain struct {
 
 func (c *DecoderChain) Next(context *ResponseContext) error {
 	if c.index < len(c.decoders) {
-		defer func() { c.index++ }()
-		return c.decoders[c.index].Decode(context, c)
+		c.index++
+		return c.decoders[c.index-1].Decode(context, c)
 	}
 	return DecoderNotFound
 }
