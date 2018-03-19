@@ -1,3 +1,3 @@
 package sugar
 
-type Plugin func(c *Context)
+type Plugin func(c *Context) error

@@ -19,16 +19,15 @@ func (c *Context) Next() error {
 		if err := c.prepareRequest(); err != nil {
 			return err
 		}
+
+		if err := c.encodeRequest(); err != nil {
+			return err
+		}
 	}
 
 	if c.index < len(c.plugins) {
-		c.plugins[c.index](c)
 		c.index++
-		return c.Next()
-	}
-
-	if err := c.encodeRequest(); err != nil {
-		return err
+		return c.plugins[c.index-1](c)
 	}
 
 	if err := c.doRequest(); err != nil {
