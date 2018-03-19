@@ -2,14 +2,10 @@ package sugar
 
 import (
 	"net/http"
-	"net/http/httputil"
-	"os"
-	"fmt"
 )
 
 type Client struct {
 	HttpClient *http.Client
-	Log        func(string)
 	Encoders   []Encoder
 	Decoders   []Decoder
 	Plugins    []Plugin
@@ -30,15 +26,11 @@ var (
 	Apply         = DefaultClient.Apply
 	Reset         = DefaultClient.Reset
 	Use           = DefaultClient.Use
-	DefaultLog    = func(s string) {
-		os.Stdout.WriteString(fmt.Sprintf("%s\n", s))
-	}
 )
 
 func NewClient() *Client {
 	return &Client{
 		HttpClient: &http.Client{},
-		Log:        DefaultLog,
 		Encoders:   Encoders,
 		Decoders:   Decoders,
 	}
@@ -69,17 +61,12 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
 		method:       method,
 		rawUrl:       rawUrl,
 		params:       append(c.Presets, params...),
-		plugins:      nil,
 		encoderChain: NewEncoderChain(c.Encoders...),
+		plugins:      c.Plugins,
 		httpClient:   c.HttpClient,
 	}
 	if err := context.Next(); err != nil {
 		return &Response{Error: err, request: context.Request, decoders: c.Decoders}
-	}
-
-	if c.Log != nil {
-		b, _ := httputil.DumpRequest(context.Request, true)
-		c.Log(string(b))
 	}
 
 	return &Response{Response: *context.Response, Error: nil, request: context.Request, decoders: c.Decoders}

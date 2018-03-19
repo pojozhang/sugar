@@ -17,6 +17,10 @@ type book struct {
 	Name string
 }
 
+func init() {
+	Use(Logger)
+}
+
 func TestGetText(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
