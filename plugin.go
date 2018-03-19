@@ -1,8 +1,8 @@
 package sugar
 
 import (
-	"net/http/httputil"
 	"log"
+	"net/http/httputil"
 )
 
 type Plugin func(c *Context) error

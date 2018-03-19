@@ -1,11 +1,11 @@
 package sugar
 
 import (
-	"net/http"
-	"strings"
-	"io/ioutil"
 	"encoding/json"
 	"encoding/xml"
+	"io/ioutil"
+	"net/http"
+	"strings"
 )
 
 type ResponseContext struct {
@@ -37,14 +37,14 @@ func (c *DecoderChain) reset() *DecoderChain {
 	return c
 }
 
-func (c *DecoderChain) Add(decoders ... Decoder) *DecoderChain {
+func (c *DecoderChain) Add(decoders ...Decoder) *DecoderChain {
 	for _, decoder := range decoders {
 		c.decoders = append(c.decoders, decoder)
 	}
 	return c
 }
 
-func NewDecoderChain(context *ResponseContext, decoders ... Decoder) *DecoderChain {
+func NewDecoderChain(context *ResponseContext, decoders ...Decoder) *DecoderChain {
 	chain := &DecoderChain{context: context, index: 0}
 	chain.Add(decoders...)
 	return chain

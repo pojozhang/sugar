@@ -36,27 +36,27 @@ func NewClient() *Client {
 	}
 }
 
-func (c *Client) Get(rawUrl string, params ...interface{}) (*Response) {
+func (c *Client) Get(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodGet, rawUrl, params...)
 }
 
-func (c *Client) Post(rawUrl string, params ...interface{}) (*Response) {
+func (c *Client) Post(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodPost, rawUrl, params...)
 }
 
-func (c *Client) Put(rawUrl string, params ...interface{}) (*Response) {
+func (c *Client) Put(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodPut, rawUrl, params...)
 }
 
-func (c *Client) Patch(rawUrl string, params ...interface{}) (*Response) {
+func (c *Client) Patch(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodPatch, rawUrl, params...)
 }
 
-func (c *Client) Delete(rawUrl string, params ...interface{}) (*Response) {
+func (c *Client) Delete(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodDelete, rawUrl, params...)
 }
 
-func (c *Client) Do(method, rawUrl string, params ...interface{}) (*Response) {
+func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
 	context := &Context{
 		method:     method,
 		rawUrl:     rawUrl,
@@ -80,15 +80,15 @@ func (c *Client) Reset(v ...interface{}) {
 	c.Presets = nil
 }
 
-func (c *Client) Use(plugins ... Plugin) {
+func (c *Client) Use(plugins ...Plugin) {
 	c.Plugins = append(c.Plugins, plugins...)
 }
 
-func RegisterEncoders(encoders ... Encoder) {
+func RegisterEncoders(encoders ...Encoder) {
 	Encoders = append(Encoders, encoders...)
 }
 
-func RegisterDecoders(decoders ... Decoder) {
+func RegisterDecoders(decoders ...Decoder) {
 	Decoders = append(Decoders, decoders...)
 }
 

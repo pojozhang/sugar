@@ -1,14 +1,14 @@
 package sugar
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"net/http"
 	"encoding/json"
+	"errors"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"mime/multipart"
+	"net/http"
 	"os"
-	"errors"
+	"testing"
 )
 
 func TestToString(t *testing.T) {

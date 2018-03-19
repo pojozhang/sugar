@@ -1,8 +1,8 @@
 package sugar
 
 import (
-	"net/http"
 	"io/ioutil"
+	"net/http"
 	"unsafe"
 )
 

@@ -1,16 +1,16 @@
 package sugar
 
 import (
-	"testing"
-	"encoding/json"
-	"gopkg.in/h2non/gock.v1"
-	"github.com/stretchr/testify/assert"
-	"net/http"
-	"strings"
-	"io/ioutil"
 	"encoding/base64"
-	"os"
+	"encoding/json"
 	"encoding/xml"
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/h2non/gock.v1"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"strings"
+	"testing"
 )
 
 type book struct {

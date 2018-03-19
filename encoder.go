@@ -1,18 +1,18 @@
 package sugar
 
 import (
-	"net/http"
-	"strconv"
-	"encoding/json"
 	"bytes"
-	"io/ioutil"
-	"strings"
-	"reflect"
-	"net/url"
-	"mime/multipart"
-	"os"
-	"io"
+	"encoding/json"
 	"encoding/xml"
+	"io"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
+	"net/url"
+	"os"
+	"reflect"
+	"strconv"
+	"strings"
 )
 
 var (
@@ -98,7 +98,7 @@ func (c *EncoderChain) reset() *EncoderChain {
 	return c
 }
 
-func (c *EncoderChain) Add(Encoders ... Encoder) *EncoderChain {
+func (c *EncoderChain) Add(Encoders ...Encoder) *EncoderChain {
 	for _, Encoder := range Encoders {
 		c.encoders = append(c.encoders, Encoder)
 	}
@@ -112,7 +112,7 @@ func (c *EncoderChain) First() Encoder {
 	return nil
 }
 
-func NewEncoderChain(context *RequestContext, encoders ... Encoder) *EncoderChain {
+func NewEncoderChain(context *RequestContext, encoders ...Encoder) *EncoderChain {
 	chain := &EncoderChain{context: context, index: 0}
 	chain.reset().Add(encoders...)
 	return chain
@@ -138,7 +138,7 @@ func (r *PathEncoder) Encode(context *RequestContext, chain *EncoderChain) error
 				}
 			}
 
-			key := req.URL.Path[i+1: j]
+			key := req.URL.Path[i+1 : j]
 			value := pathParams[key]
 			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], Encode(value), -1)
 		}
