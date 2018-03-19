@@ -3,25 +3,28 @@
 ### [中文文档](README.zh-cn.md)
 
 Sugar is a **DECLARATIVE** http client providing elegant APIs for Golang.
+V2 is a big update which brings some useful features.
 
 ## Features
 - Elegant APIs
+- New plugin API
 - Chained invocations
 - Highly extensible
 
-## Set Up
+## Download
 ```bash
 dep ensure -add github.com/pojozhang/sugar
 ```
 
-## Import
+## Usage
+Firstly you need to import the package.
 ```go
 import . "github.com/pojozhang/sugar"
 ```
+And now you have the power to easily send any request to any corner on this blue planet.
 
-## Usage
-
-### Plain Text
+### Request
+#### Plain Text
 ```go
 // POST /books HTTP/1.1
 // Host: api.example.com
@@ -29,7 +32,7 @@ import . "github.com/pojozhang/sugar"
 Post("http://api.example.com/books", "bookA")
 ```
 
-### Path
+#### Path
 ```go
 // GET /books/123 HTTP/1.1
 // Host: api.example.com
@@ -37,7 +40,7 @@ Get("http://api.example.com/books/:id", Path{"id": 123})
 Get("http://api.example.com/books/:id", P{"id": 123})
 ```
 
-### Query
+#### Query
 ```go
 // GET /books?name=bookA HTTP/1.1
 // Host: api.example.com
@@ -51,7 +54,7 @@ Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}})
 Get("http://api.example.com/books", Q{"name": L{"bookA", "bookB"}})
 ```
 
-### Cookie
+#### Cookie
 ```go
 // GET /books HTTP/1.1
 // Host: api.example.com
@@ -60,7 +63,7 @@ Get("http://api.example.com/books", Cookie{"name": "bookA"})
 Get("http://api.example.com/books", C{"name": "bookA"})
 ```
 
-### Header
+#### Header
 ```go
 // GET /books HTTP/1.1
 // Host: api.example.com
@@ -69,7 +72,7 @@ Get("http://api.example.com/books", Header{"name": "bookA"})
 Get("http://api.example.com/books", H{"name": "bookA"})
 ```
 
-### Json
+#### Json
 ```go
 // POST /books HTTP/1.1
 // Host: api.example.com
@@ -87,7 +90,7 @@ Post("http://api.example.com/books", Json{List{Map{"name": "bookA"}}})
 Post("http://api.example.com/books", J{L{M{"name": "bookA"}}})
 ```
 
-### Xml
+#### Xml
 ```go
 // POST /books HTTP/1.1
 // Host: api.example.com
@@ -98,7 +101,7 @@ Post("http://api.example.com/books", Xml{`<book name="bookA"></book>`})
 Post("http://api.example.com/books", X{`<book name="bookA"></book>`})
 ```
 
-### Form
+#### Form
 ```go
 // POST /books HTTP/1.1
 // Host: api.example.com
@@ -111,7 +114,7 @@ Post("http://api.example.com/books", Form{"name": List{"bookA", "bookB"}})
 Post("http://api.example.com/books", F{"name": L{"bookA", "bookB"}})
 ```
 
-### Basic Auth
+#### Basic Auth
 ```go
 // DELETE /books HTTP/1.1
 // Host: api.example.com
@@ -120,7 +123,7 @@ Delete("http://api.example.com/books", User{"user", "password"})
 Delete("http://api.example.com/books", U{"user", "password"})
 ```
 
-### Multipart
+#### Multipart
 ```go
 // POST /books HTTP/1.1
 // Host: api.example.com
@@ -138,30 +141,34 @@ Delete("http://api.example.com/books", U{"user", "password"})
 // --19b8acc2469f1914a24fc6e0152aac72f1f92b6f5104b57477262816ab0f--
 f, _ := os.Open("text")
 Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f})
+Post("http://api.example.com/books", MP{"name": "bookA", "file": f})
 ```
 
-### Mix
+#### Mix
 Due to Sugar's flexible design, different types of parameters can be freely combined.
 
 ```go
 Patch("http://api.example.com/books/:id", Path{"id": 123}, Json{`{"name":"bookA"}`}, User{"user", "password"})
 ```
 
-### Apply
-You can use Apply() to preset some values which will be attached to every following request. Call Reset() to clean preset values.
+#### Apply
+You can use Apply() function to preset some values which will be attached to every following request. Call Reset() function to clean preset values.
 
 ```go
 Apply(User{"user", "password"})
 Get("http://api.example.com/books")
 Get("http://api.example.com/books")
+Reset()
+Get("http://api.example.com/books")
 ```
 ```go
 Get("http://api.example.com/books", User{"user", "password"})
 Get("http://api.example.com/books", User{"user", "password"})
+Get("http://api.example.com/books")
 ```
 The latter is equal to the former.
 
-### Mapper
+#### Mapper(@Deprecated)
 This method allows you to change your request directly.
 For example, if your project is running as a micro service, you may want to call a remote API via service name, like
 ```go
@@ -179,11 +186,74 @@ Apply(Mapper{func(req *http.Request) {
 resp, err := Get("http://book-service/books")
 ```
 
-### Extension
-You can register your custom resolver which should implement interface `Resolver` and bind it to the target type.  
+### Response
+####
+
+## Extension
+There are three major components in Sugar: **Encoder**, **Decoder** and **Plugin**.
+- A encoder is used to encode your parameters and assemble requests.
+- A decoder is used to decode the data from response body.
+- A plugin is designed to work as an interceptor.
+
+### Encoder
+You can register your custom encoder which should implement `Encoder` interface.
 ```go
-Register(Custom{}, &CustomResolver{})
-Get("http://api.example.com/books", Custom{})
+type MyEncoder struct {
+}
+
+func (r *MyEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+	myParams, ok := context.Param.(MyParam)
+	if !ok {
+		return chain.Next(context)
+	}
+
+    ...
+	req := context.Request
+	...
+	return nil
+}
+RegisterEncoders(&MyEncoder{})
+Get("http://api.example.com/books", MyParam{})
+```
+
+### Decoder
+```go
+type MyDecoder struct {
+}
+
+func (d *MyDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
+    // decode data from body if a content type named `my-content-type` is set in header
+	for _, contentType := range context.Response.Header[ContentType] {
+		if strings.Contains(strings.ToLower(contentType), "my-content-type") {
+			body, err := ioutil.ReadAll(context.Response.Body)
+			if err != nil {
+				return err
+			}
+		    ...
+			return nil
+		}
+	}
+	return chain.Next(context)
+}
+
+RegisterDecoders(&MyDecoder{})
+```
+
+### Plugin
+Plugin is a new feature in V2. You can do anything as you like before the request is sent or after the response is received.
+```go
+// Implementation of builtin Logger plugin
+Use(func(c *Context) error {
+		b, _ := httputil.DumpRequest(c.Request, true)
+		log.Println(string(b))
+		defer func() {
+			if c.Response != nil {
+				b, _ := httputil.DumpResponse(c.Response, true)
+				log.Println(string(b))
+			}
+		}()
+		return c.Next()
+	})
 ```
 
 ## License
