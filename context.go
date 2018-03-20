@@ -30,11 +30,7 @@ func (c *Context) Next() error {
 		return c.plugins[c.index-1](c)
 	}
 
-	if err := c.doRequest(); err != nil {
-		return err
-	}
-
-	return nil
+	return c.doRequest()
 }
 
 func (c *Context) prepareRequest() error {
