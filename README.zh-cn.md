@@ -253,13 +253,13 @@ RegisterDecoders(&MyDecoder{})
 // 内置Logger插件的实现
 Use(func(c *Context) error {
     b, _ := httputil.DumpRequest(c.Request, true)
-	log.Println(string(b))
-	defer func() {
-	    if c.Response != nil {
-		b, _ := httputil.DumpResponse(c.Response, true)
-		log.Println(string(b))
-	    }
-        }()
-	return c.Next()
+    log.Println(string(b))
+    defer func() {
+        if c.Response != nil {
+	    b, _ := httputil.DumpResponse(c.Response, true)
+	    log.Println(string(b))
+	}
+    }()
+    return c.Next()
 })
 ```
