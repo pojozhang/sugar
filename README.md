@@ -168,10 +168,10 @@ The latter is equal to the former.
 
 
 ### Response
-A request API always returns a value of type *Response which also provides some nice APIs.
+A request API always returns a value of type `*Response` which also provides some nice APIs.
 
 #### Raw
-Raw() method will return a value of type *http.Response and an error which is similar with standard go API.
+Raw() method will return a value of type `*http.Response` and an `error` which is similar with standard go API.
 ```go
 resp, err := Post("http://api.example.com/books", "bookA").Raw()
 ...
@@ -268,6 +268,3 @@ Use(func(c *Context) error {
 	return c.Next()
 })
 ```
-
-## License
-Apache License, Version 2.0

@@ -1,25 +1,27 @@
-# Sugar2 [![Build Status](https://travis-ci.org/pojozhang/svg?branch=master)](https://travis-ci.org/pojozhang/sugar) [![codecov](https://codecov.io/gh/pojozhang/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/pojozhang/sugar) [![Go Report Card](https://goreportcard.com/badge/github.com/pojozhang/sugar)](https://goreportcard.com/report/github.com/pojozhang/sugar)
+# Sugar2 [![Build Status](https://travis-ci.org/pojozhang/sugar.svg?branch=master)](https://travis-ci.org/pojozhang/sugar) [![codecov](https://codecov.io/gh/pojozhang/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/pojozhang/sugar) [![Go Report Card](https://goreportcard.com/badge/github.com/pojozhang/sugar)](https://goreportcard.com/report/github.com/pojozhang/sugar) [![GoDoc](https://godoc.org/github.com/pojozhang/sugar?status.svg)](https://godoc.org/github.com/pojozhang/sugar)
 
-### [中文文档](http://www.jianshu.com/p/7ca4fa63460b)
+Sugar是一个Go语言编写的响应式Http客户端，提供了一些优雅的接口，目的是减少冗余的拼装代码。
 
-Sugar is a **DECLARATIVE** http client providing elegant APIs for Golang.
+## 特性
+- 优雅的接口
+- 插件接口
+- 链式调用
+- 高度可定制
 
-Now you can send requests in just one line.
-
-
-## Set Up
+## 下载
 ```bash
 dep ensure -add github.com/pojozhang/sugar
 ```
 
-## Import
+## 使用
+首先导入包，为了看起来更简洁，此处用省略包名的方式导入。
 ```go
 import . "github.com/pojozhang/sugar"
 ```
+一切就绪！
 
-## Usage
-
-### Plain Text
+### 发送请求
+#### Plain Text
 ```go
 // POST /books HTTP/1.1
 // Host: api.example.com
@@ -27,7 +29,7 @@ import . "github.com/pojozhang/sugar"
 Post("http://api.example.com/books", "bookA")
 ```
 
-### Path
+#### Path
 ```go
 // GET /books/123 HTTP/1.1
 // Host: api.example.com
@@ -35,7 +37,7 @@ Get("http://api.example.com/books/:id", Path{"id": 123})
 Get("http://api.example.com/books/:id", P{"id": 123})
 ```
 
-### Query
+#### Query
 ```go
 // GET /books?name=bookA HTTP/1.1
 // Host: api.example.com
@@ -49,7 +51,7 @@ Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}})
 Get("http://api.example.com/books", Q{"name": L{"bookA", "bookB"}})
 ```
 
-### Cookie
+#### Cookie
 ```go
 // GET /books HTTP/1.1
 // Host: api.example.com
@@ -58,7 +60,7 @@ Get("http://api.example.com/books", Cookie{"name": "bookA"})
 Get("http://api.example.com/books", C{"name": "bookA"})
 ```
 
-### Header
+#### Header
 ```go
 // GET /books HTTP/1.1
 // Host: api.example.com
@@ -67,7 +69,7 @@ Get("http://api.example.com/books", Header{"name": "bookA"})
 Get("http://api.example.com/books", H{"name": "bookA"})
 ```
 
-### Json
+#### Json
 ```go
 // POST /books HTTP/1.1
 // Host: api.example.com
@@ -85,7 +87,7 @@ Post("http://api.example.com/books", Json{List{Map{"name": "bookA"}}})
 Post("http://api.example.com/books", J{L{M{"name": "bookA"}}})
 ```
 
-### Xml
+#### Xml
 ```go
 // POST /books HTTP/1.1
 // Host: api.example.com
@@ -96,7 +98,7 @@ Post("http://api.example.com/books", Xml{`<book name="bookA"></book>`})
 Post("http://api.example.com/books", X{`<book name="bookA"></book>`})
 ```
 
-### Form
+#### Form
 ```go
 // POST /books HTTP/1.1
 // Host: api.example.com
@@ -109,7 +111,7 @@ Post("http://api.example.com/books", Form{"name": List{"bookA", "bookB"}})
 Post("http://api.example.com/books", F{"name": L{"bookA", "bookB"}})
 ```
 
-### Basic Auth
+#### Basic Auth
 ```go
 // DELETE /books HTTP/1.1
 // Host: api.example.com
@@ -118,7 +120,7 @@ Delete("http://api.example.com/books", User{"user", "password"})
 Delete("http://api.example.com/books", U{"user", "password"})
 ```
 
-### Multipart
+#### Multipart
 ```go
 // POST /books HTTP/1.1
 // Host: api.example.com
@@ -136,53 +138,128 @@ Delete("http://api.example.com/books", U{"user", "password"})
 // --19b8acc2469f1914a24fc6e0152aac72f1f92b6f5104b57477262816ab0f--
 f, _ := os.Open("text")
 Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f})
+Post("http://api.example.com/books", MP{"name": "bookA", "file": f})
 ```
 
-### Mix
-Due to Sugar's flexible design, different types of parameters can be freely combined.
-
+#### Mix
+你可以任意组合参数。
 ```go
 Patch("http://api.example.com/books/:id", Path{"id": 123}, Json{`{"name":"bookA"}`}, User{"user", "password"})
 ```
 
-### Apply
-You can use Apply() to preset some values which will be attached to every following request. Call Reset() to clean preset values.
-
+#### Apply
+Apply方法传入的参数会被应用到之后所有的请求中，可以使用Reset()方法重置。
 ```go
 Apply(User{"user", "password"})
 Get("http://api.example.com/books")
 Get("http://api.example.com/books")
+Reset()
+Get("http://api.example.com/books")
 ```
 ```go
 Get("http://api.example.com/books", User{"user", "password"})
 Get("http://api.example.com/books", User{"user", "password"})
+Get("http://api.example.com/books")
 ```
-The latter is equal to the former.
+以上两段代码是等价的。
 
-### Mapper
-This method allows you to change your request directly.
-For example, if your project is running as a micro service, you may want to call a remote API via service name, like
+
+### 解析响应
+一个请求发送后会返回`*Response`类型的返回值，其中包含了一些有用的语法糖。
+
+#### Raw
+Raw()会返回一个`*http.Response`和一个`error`，就和Go自带的SDK一样（所以叫Raw）。
 ```go
-Get("http://book-service/books")
+resp, err := Post("http://api.example.com/books", "bookA").Raw()
+...
 ```
 
-The problem is that `book-service` is not the real host and I'm sure you'll get an error.
-The following codes show a good solution.
+#### ReadBytes
+ReadBytes()可以直接从返回的`body`读取字节切片。需要注意的是，该方法返回前会自动释放`body`资源。
 ```go
-Apply(Mapper{func(req *http.Request) {
-    if req.URL.Host == "book-service" {
-        req.URL.Host = "api.example.com"
+bytes, err := Get("http://api.example.com/books").ReadBytes()
+...
+```
+
+#### Read
+Read()方法通过注册在系统中的`Decoder`对返回值进行解析。
+以下两个例子是在不通的情况下分别解析成字符串或者JSON，解析过程对调用者来说是透明的。
+```go
+// plain text
+var text = new(string)
+_, err := Get("http://api.example.com/text").Read(text)
+
+// json
+var books []book
+_, err := Get("http://api.example.com/json").Read(&books)
+```
+
+## 自定义
+Sugar中有三大组件 **Encoder**, **Decoder** 和 **Plugin**.
+- **Encoder**负责把调用者传入参数组装成一个请求体。
+- **Decoder**负责把服务器返回的数据解析成一个结构体。
+- **Plugin**起到拦截器的作用。
+
+### Encoder
+你可以通过实现`Encoder`接口来实现自己的编码器。
+```go
+type MyEncoder struct {
+}
+
+func (r *MyEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+    myParams, ok := context.Param.(MyParam)
+    if !ok {
+	return chain.Next()
     }
-}})
-resp, err := Get("http://book-service/books")
+    ...
+    req := context.Request
+    ...
+    return nil
+}
+
+RegisterEncoders(&MyEncoder{})
+
+Get("http://api.example.com/books", MyParam{})
 ```
 
-### Extension
-You can register your custom resolver which should implement interface `Resolver` and bind it to the target type.  
+### Decoder
+你可以实现`Decoder`接口来实现自己的解码器。`Read()`方法会使用解码器去解析返回值。
 ```go
-Register(Custom{}, &CustomResolver{})
-Get("http://api.example.com/books", Custom{})
+type MyDecoder struct {
+}
+
+func (d *MyDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
+    // decode data from body if a content type named `my-content-type` is set in header
+    for _, contentType := range context.Response.Header[ContentType] {
+	if strings.Contains(strings.ToLower(contentType), "my-content-type") {
+	    body, err := ioutil.ReadAll(context.Response.Body)
+	    if err != nil {
+		return err
+	    }
+	    json.Unmarshal(body, context.Out)
+	    ...
+	    return nil
+	}
+    }
+    return chain.Next()
+}
+
+RegisterDecoders(&MyDecoder{})
 ```
 
-## License
-Apache License, Version 2.0
+### Plugin
+插件是一个特殊的组件，你可以在请求发送前或收到响应后进行一些额外的处理。
+```go
+// 内置Logger插件的实现
+Use(func(c *Context) error {
+    b, _ := httputil.DumpRequest(c.Request, true)
+	log.Println(string(b))
+	defer func() {
+	    if c.Response != nil {
+		b, _ := httputil.DumpResponse(c.Response, true)
+		log.Println(string(b))
+	    }
+        }()
+	return c.Next()
+})
+```
