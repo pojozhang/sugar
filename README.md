@@ -181,7 +181,7 @@ resp, err := Post("http://api.example.com/books", "bookA").Raw()
 ReadBytes() is another syntax sugar to read bytes from response body.
 Notice that this method will close body after reading.
 ```go
-bytes, err := Get("http://api.example.com/books").ReadBytes()
+bytes, resp, err := Get("http://api.example.com/books").ReadBytes()
 ...
 ```
 
@@ -191,11 +191,11 @@ The following two examples read response body as plain text/JSON according to co
 ```go
 // plain text
 var text = new(string)
-_, err := Get("http://api.example.com/text").Read(text)
+resp, err := Get("http://api.example.com/text").Read(text)
 
 // json
 var books []book
-_, err := Get("http://api.example.com/json").Read(&books)
+resp, err := Get("http://api.example.com/json").Read(&books)
 ```
 
 ## Extension

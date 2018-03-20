@@ -177,7 +177,7 @@ resp, err := Post("http://api.example.com/books", "bookA").Raw()
 #### ReadBytes
 ReadBytes()可以直接从返回的`body`读取字节切片。需要注意的是，该方法返回前会自动释放`body`资源。
 ```go
-bytes, err := Get("http://api.example.com/books").ReadBytes()
+bytes, resp, err := Get("http://api.example.com/books").ReadBytes()
 ...
 ```
 
@@ -187,11 +187,11 @@ Read()方法通过注册在系统中的`Decoder`对返回值进行解析。
 ```go
 // plain text
 var text = new(string)
-_, err := Get("http://api.example.com/text").Read(text)
+resp, err := Get("http://api.example.com/text").Read(text)
 
 // json
 var books []book
-_, err := Get("http://api.example.com/json").Read(&books)
+resp, err := Get("http://api.example.com/json").Read(&books)
 ```
 
 ## 自定义
