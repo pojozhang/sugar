@@ -32,11 +32,6 @@ func (c *DecoderChain) Next() error {
 	return DecoderNotFound
 }
 
-func (c *DecoderChain) reset() *DecoderChain {
-	c.index = 0
-	return c
-}
-
 func (c *DecoderChain) Add(decoders ...Decoder) *DecoderChain {
 	for _, decoder := range decoders {
 		c.decoders = append(c.decoders, decoder)
