@@ -258,13 +258,13 @@ Plugin is a new feature since V2. You can do anything as you like before the req
 // Implementation of builtin Logger plugin
 Use(func(c *Context) error {
     b, _ := httputil.DumpRequest(c.Request, true)
-	log.Println(string(b))
-	defer func() {
-	    if c.Response != nil {
-		b, _ := httputil.DumpResponse(c.Response, true)
-		log.Println(string(b))
-	    }
-        }()
-	return c.Next()
+    log.Println(string(b))
+    defer func() {
+        if c.Response != nil {
+	    b, _ := httputil.DumpResponse(c.Response, true)
+	    log.Println(string(b))
+	}
+    }()
+    return c.Next()
 })
 ```
