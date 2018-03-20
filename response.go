@@ -49,7 +49,7 @@ func (r *Response) ReadBytes() ([]byte, *http.Response, error) {
 }
 
 func (r *Response) Close() {
-	if r != nil {
+	if r != nil && r.Body != nil {
 		r.Body.Close()
 	}
 }
