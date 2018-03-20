@@ -2,6 +2,9 @@ package sugar
 
 import "net/http"
 
+// Context is the core of Sugar.
+// It keeps all necessary params to build a request,
+// and it allows us to pass params between plugins and encoders.
 type Context struct {
 	Request    *http.Request
 	Response   *http.Response
@@ -14,6 +17,9 @@ type Context struct {
 	httpClient *http.Client
 }
 
+// Next is the core method of Context.
+// It encodes request params via encodes, invokes plugins
+// and then send the request via *http.Client
 func (c *Context) Next() error {
 	if c.index == 0 {
 		if err := c.prepareRequest(); err != nil {
