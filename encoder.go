@@ -21,51 +21,64 @@ var (
 
 type List []interface{}
 
+// L is an alias for List
 type L = List
 
 type Map map[string]interface{}
 
+// M is an alias for Map
 type M = Map
 
 type Header Map
 
+// H is an alias for Header
 type H = Header
+
+type Cookie Map
+
+// C is an alias for Cookie
+type C = Cookie
 
 type Path Map
 
+// P is an alias for Path
 type P = Path
 
 type Query Map
 
+// Q is an alias for Query
 type Q = Query
 
 type Form Map
 
+// F is an alias for Form
 type F = Form
 
 type Json struct {
 	Payload interface{}
 }
 
+// J is an alias for Json
 type J = Json
 
-type Cookie Map
+type Xml struct {
+	Payload interface{}
+}
 
-type C = Cookie
+// X is an alias for Xml
+type X = Xml
 
 type User struct {
 	Name, Password string
 }
 
+// U is an alias for User
 type U = User
 
 type MultiPart Map
 
+// MP is an alias for MultiPart
 type MP = MultiPart
-
-type Xml struct {
-	Payload interface{}
-}
 
 type RequestContext struct {
 	Request    *http.Request
@@ -75,6 +88,9 @@ type RequestContext struct {
 	ParamIndex int
 }
 
+// Encoder converts a request context into request params.
+// It returns an error if any error occurs during encoding.
+// Call chain.Next() to propagate context.
 type Encoder interface {
 	Encode(context *RequestContext, chain *EncoderChain) error
 }
