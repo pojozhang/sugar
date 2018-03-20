@@ -121,13 +121,6 @@ func (c *EncoderChain) Add(Encoders ...Encoder) *EncoderChain {
 	return c
 }
 
-func (c *EncoderChain) First() Encoder {
-	if len(c.encoders) > 0 {
-		return c.encoders[0]
-	}
-	return nil
-}
-
 func NewEncoderChain(context *RequestContext, encoders ...Encoder) *EncoderChain {
 	chain := &EncoderChain{context: context, index: 0}
 	chain.reset().Add(encoders...)
