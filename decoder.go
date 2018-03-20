@@ -11,7 +11,7 @@ import (
 type ResponseContext struct {
 	Request  *http.Request
 	Response *http.Response
-	Param    interface{}
+	Out      interface{}
 }
 
 type Decoder interface {
@@ -61,7 +61,7 @@ func (d *JsonDecoder) Decode(context *ResponseContext, chain *DecoderChain) erro
 				return err
 			}
 
-			err = json.Unmarshal(body, context.Param)
+			err = json.Unmarshal(body, context.Out)
 			if err != nil {
 				return err
 			}
@@ -84,7 +84,7 @@ func (d *XmlDecoder) Decode(context *ResponseContext, chain *DecoderChain) error
 				return err
 			}
 
-			err = xml.Unmarshal(body, context.Param)
+			err = xml.Unmarshal(body, context.Out)
 			if err != nil {
 				return err
 			}
@@ -116,6 +116,6 @@ DECODE:
 		return err
 	}
 
-	*(context.Param.(*string)) = string(body)
+	*(context.Out.(*string)) = string(body)
 	return nil
 }
