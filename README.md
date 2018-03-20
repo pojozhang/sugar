@@ -241,7 +241,7 @@ func (d *MyDecoder) Decode(context *ResponseContext, chain *DecoderChain) error 
 	    if err != nil {
 		return err
 	    }
-	    json.Unmarshal(body, context.Param)
+	    json.Unmarshal(body, context.Out)
 	    ...
 	    return nil
 	}
