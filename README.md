@@ -171,7 +171,7 @@ The latter is equal to the former.
 A request API always returns a value of type `*Response` which also provides some nice APIs.
 
 #### Raw
-Raw() method will return a value of type `*http.Response` and an `error` which is similar with standard go API.
+Raw() returns a value of type `*http.Response` and an `error` which is similar with standard go API.
 ```go
 resp, err := Post("http://api.example.com/books", "bookA").Raw()
 ...
@@ -186,7 +186,7 @@ bytes, resp, err := Get("http://api.example.com/books").ReadBytes()
 ```
 
 #### Read
-This method reads different types of response via decoder API. 
+Read() reads different types of response via decoder API.
 The following two examples read response body as plain text/JSON according to content type. 
 ```go
 // plain text
