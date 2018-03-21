@@ -1,8 +1,8 @@
 package sugar
 
 import (
+	"errors"
 	"github.com/stretchr/testify/assert"
-	"io/errors"
 	"testing"
 )
 
