@@ -64,30 +64,32 @@ func (c *Client) Delete(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodDelete, rawUrl, params...)
 }
 
+// Do builds a context and then sends a request via the context
 func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
 	context := &Context{
 		method:     method,
 		rawUrl:     rawUrl,
 		params:     append(c.Presets, params...),
 		encoders:   c.Encoders,
+		decoders:   c.Decoders,
 		plugins:    c.Plugins,
 		httpClient: c.HttpClient,
 	}
-	if err := context.Next(); err != nil {
-		return &Response{Error: err, request: context.Request, decoders: c.Decoders}
-	}
-
-	return &Response{Response: *context.Response, Error: nil, request: context.Request, decoders: c.Decoders}
+	return context.Execute()
 }
 
+// Apply attaches params to every following request.
+// Call Reset() to clean.
 func (c *Client) Apply(v ...interface{}) {
 	c.Presets = append(c.Presets, v...)
 }
 
+// Reset cleans all params added by Apply().
 func (c *Client) Reset(v ...interface{}) {
 	c.Presets = nil
 }
 
+// Use applies plugins.
 func (c *Client) Use(plugins ...Plugin) {
 	c.Plugins = append(c.Plugins, plugins...)
 }
