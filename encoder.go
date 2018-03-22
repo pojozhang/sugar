@@ -80,6 +80,7 @@ type MultiPart Map
 // MP is an alias for MultiPart.
 type MP = MultiPart
 
+// RequestContext keeps values for an encoder.
 type RequestContext struct {
 	Request    *http.Request
 	Response   *http.Response
@@ -95,12 +96,15 @@ type Encoder interface {
 	Encode(context *RequestContext, chain *EncoderChain) error
 }
 
+// EncoderChain keeps a set of encoders.
 type EncoderChain struct {
 	context  *RequestContext
 	encoders []Encoder
 	index    int
 }
 
+// Next propagates context to next encoder.
+// It returns EncoderNotFound if current encoder is last one.
 func (c *EncoderChain) Next() error {
 	if c.index < len(c.encoders) {
 		c.index++
@@ -114,6 +118,7 @@ func (c *EncoderChain) reset() *EncoderChain {
 	return c
 }
 
+// Add adds encoders to a encoder chain
 func (c *EncoderChain) Add(Encoders ...Encoder) *EncoderChain {
 	for _, Encoder := range Encoders {
 		c.encoders = append(c.encoders, Encoder)
@@ -121,15 +126,18 @@ func (c *EncoderChain) Add(Encoders ...Encoder) *EncoderChain {
 	return c
 }
 
+// NewEncoderChain initialize a new encoder chain.
 func NewEncoderChain(context *RequestContext, encoders ...Encoder) *EncoderChain {
 	chain := &EncoderChain{context: context, index: 0}
 	chain.reset().Add(encoders...)
 	return chain
 }
 
+// PathEncoder encodes Path{} params.
 type PathEncoder struct {
 }
 
+// Encode encodes Path{} params.
 func (r *PathEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	pathParams, ok := context.Param.(Path)
 	if !ok {
@@ -155,9 +163,11 @@ func (r *PathEncoder) Encode(context *RequestContext, chain *EncoderChain) error
 	return nil
 }
 
+// QueryEncoder encodes Query{} params.
 type QueryEncoder struct {
 }
 
+// Encode encodes Query{} params.
 func (r *QueryEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	queryParams, ok := context.Param.(Query)
 	if !ok {
@@ -180,9 +190,11 @@ func (r *QueryEncoder) Encode(context *RequestContext, chain *EncoderChain) erro
 	return nil
 }
 
+// HeaderEncoder encodes Header{} params.
 type HeaderEncoder struct {
 }
 
+// Encode encodes Header{} params.
 func (r *HeaderEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	headerParams, ok := context.Param.(Header)
 	if !ok {
@@ -195,9 +207,11 @@ func (r *HeaderEncoder) Encode(context *RequestContext, chain *EncoderChain) err
 	return nil
 }
 
+// FormEncoder encodes Form{} params.
 type FormEncoder struct {
 }
 
+// Encode encodes Form{} params.
 func (r *FormEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	formParams, ok := context.Param.(Form)
 	if !ok {
@@ -229,9 +243,11 @@ func (r *FormEncoder) Encode(context *RequestContext, chain *EncoderChain) error
 	return nil
 }
 
+// JsonEncoder encodes Json{} params.
 type JsonEncoder struct {
 }
 
+// Encode encodes Json{} params.
 func (r *JsonEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	jsonParams, ok := context.Param.(Json)
 	if !ok {
@@ -262,9 +278,11 @@ func (r *JsonEncoder) Encode(context *RequestContext, chain *EncoderChain) error
 	return nil
 }
 
+// CookieEncoder encodes Cookie{} params.
 type CookieEncoder struct {
 }
 
+// Encode encodes Cookie{} params.
 func (r *CookieEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	cookieParams, ok := context.Param.(Cookie)
 	if !ok {
@@ -277,9 +295,11 @@ func (r *CookieEncoder) Encode(context *RequestContext, chain *EncoderChain) err
 	return nil
 }
 
+// BasicAuthEncoder encodes User{} params.
 type BasicAuthEncoder struct {
 }
 
+// Encode encodes User{} params.
 func (r *BasicAuthEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	authParams, ok := context.Param.(User)
 	if !ok {
@@ -290,9 +310,11 @@ func (r *BasicAuthEncoder) Encode(context *RequestContext, chain *EncoderChain) 
 	return nil
 }
 
+// MultiPartEncoder encodes MultiPart{} params.
 type MultiPartEncoder struct {
 }
 
+// Encode encodes MultiPart{} params.
 func (r *MultiPartEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	multiPartParams, ok := context.Param.(MultiPart)
 	if !ok {
@@ -335,9 +357,11 @@ func writeFile(w *multipart.Writer, fieldName, fileName string, file io.Reader) 
 	return nil
 }
 
+// PlainTextEncoder encodes string params.
 type PlainTextEncoder struct {
 }
 
+// Encode encodes string params.
 func (r *PlainTextEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	textParams, ok := context.Param.(string)
 	if !ok {
@@ -355,9 +379,11 @@ func (r *PlainTextEncoder) Encode(context *RequestContext, chain *EncoderChain) 
 	return nil
 }
 
+// XmlEncoder encodes Xml{} params.
 type XmlEncoder struct {
 }
 
+// Encode encodes Xml{} params.
 func (r *XmlEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	xmlParams, ok := context.Param.(Xml)
 	if !ok {
