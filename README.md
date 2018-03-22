@@ -177,7 +177,7 @@ The latter is equal to the former.
 A request API always returns a value of type `*Response` which also provides some nice APIs.
 
 #### Raw
-Raw() returns a value of type `*http.Response` and an `error` which is similar with standard go API.
+Raw() returns a value of type `*http.Response` and an `error` which is similar to standard go API.
 ```go
 resp, err := Post("http://api.example.com/books", "bookA").Raw()
 ...
