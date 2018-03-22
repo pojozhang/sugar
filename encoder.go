@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	Encode = ToString
+	Stringify = ToString
 )
 
 type List []interface{}
@@ -157,7 +157,7 @@ func (r *PathEncoder) Encode(context *RequestContext, chain *EncoderChain) error
 
 			key := req.URL.Path[i+1 : j]
 			value := pathParams[key]
-			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], Encode(value), -1)
+			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], Stringify(value), -1)
 		}
 	}
 	return nil
@@ -180,10 +180,10 @@ func (r *QueryEncoder) Encode(context *RequestContext, chain *EncoderChain) erro
 		switch reflect.TypeOf(v).Kind() {
 		case reflect.Array, reflect.Slice:
 			foreach(v, func(i interface{}) {
-				q.Add(k, Encode(i))
+				q.Add(k, Stringify(i))
 			})
 		default:
-			q.Add(k, Encode(v))
+			q.Add(k, Stringify(v))
 		}
 	}
 	req.URL.RawQuery = q.Encode()
@@ -202,7 +202,7 @@ func (r *HeaderEncoder) Encode(context *RequestContext, chain *EncoderChain) err
 	}
 
 	for k, v := range headerParams {
-		context.Request.Header.Add(k, Encode(v))
+		context.Request.Header.Add(k, Stringify(v))
 	}
 	return nil
 }
@@ -223,10 +223,10 @@ func (r *FormEncoder) Encode(context *RequestContext, chain *EncoderChain) error
 		switch reflect.TypeOf(v).Kind() {
 		case reflect.Array, reflect.Slice:
 			foreach(v, func(i interface{}) {
-				form.Add(k, Encode(i))
+				form.Add(k, Stringify(i))
 			})
 		default:
-			form.Add(k, Encode(v))
+			form.Add(k, Stringify(v))
 		}
 	}
 
@@ -290,7 +290,7 @@ func (r *CookieEncoder) Encode(context *RequestContext, chain *EncoderChain) err
 	}
 
 	for k, v := range cookieParams {
-		context.Request.AddCookie(&http.Cookie{Name: k, Value: Encode(v)})
+		context.Request.AddCookie(&http.Cookie{Name: k, Value: Stringify(v)})
 	}
 	return nil
 }
@@ -331,7 +331,7 @@ func (r *MultiPartEncoder) Encode(context *RequestContext, chain *EncoderChain) 
 				return err
 			}
 		default:
-			w.WriteField(k, Encode(v))
+			w.WriteField(k, Stringify(v))
 		}
 	}
 
