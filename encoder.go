@@ -21,63 +21,63 @@ var (
 
 type List []interface{}
 
-// L is an alias for List
+// L is an alias for List.
 type L = List
 
 type Map map[string]interface{}
 
-// M is an alias for Map
+// M is an alias for Map.
 type M = Map
 
 type Header Map
 
-// H is an alias for Header
+// H is an alias for Header.
 type H = Header
 
 type Cookie Map
 
-// C is an alias for Cookie
+// C is an alias for Cookie.
 type C = Cookie
 
 type Path Map
 
-// P is an alias for Path
+// P is an alias for Path.
 type P = Path
 
 type Query Map
 
-// Q is an alias for Query
+// Q is an alias for Query.
 type Q = Query
 
 type Form Map
 
-// F is an alias for Form
+// F is an alias for Form.
 type F = Form
 
 type Json struct {
 	Payload interface{}
 }
 
-// J is an alias for Json
+// J is an alias for Json.
 type J = Json
 
 type Xml struct {
 	Payload interface{}
 }
 
-// X is an alias for Xml
+// X is an alias for Xml.
 type X = Xml
 
 type User struct {
 	Name, Password string
 }
 
-// U is an alias for User
+// U is an alias for User.
 type U = User
 
 type MultiPart Map
 
-// MP is an alias for MultiPart
+// MP is an alias for MultiPart.
 type MP = MultiPart
 
 type RequestContext struct {

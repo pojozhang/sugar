@@ -19,7 +19,7 @@ type Context struct {
 
 // Next is the core method of Context.
 // It encodes request params via encodes, invokes plugins
-// and then send the request via *http.Client
+// and then send the request via *http.Client.
 func (c *Context) Next() error {
 	if c.index == 0 {
 		if err := c.prepareRequest(); err != nil {

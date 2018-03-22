@@ -6,6 +6,7 @@ import (
 	"unsafe"
 )
 
+// Response represents a context of response
 type Response struct {
 	http.Response
 	Error    error
@@ -13,6 +14,7 @@ type Response struct {
 	decoders []Decoder
 }
 
+// Raw returns a raw response and en error.
 func (r *Response) Raw() (*http.Response, error) {
 	if r.Error != nil {
 		return nil, r.Error
@@ -20,6 +22,7 @@ func (r *Response) Raw() (*http.Response, error) {
 	return (*http.Response)(unsafe.Pointer(r)), nil
 }
 
+// Read decodes response data via decoders.
 func (r *Response) Read(v interface{}) (*http.Response, error) {
 	defer r.Close()
 
@@ -36,6 +39,7 @@ func (r *Response) Read(v interface{}) (*http.Response, error) {
 	return resp, err
 }
 
+// ReadBytes reads response body into a byte slice.
 func (r *Response) ReadBytes() ([]byte, *http.Response, error) {
 	defer r.Close()
 
@@ -48,6 +52,7 @@ func (r *Response) ReadBytes() ([]byte, *http.Response, error) {
 	return bytes, resp, err
 }
 
+// Close closes response body.
 func (r *Response) Close() {
 	if r != nil && r.Body != nil {
 		r.Body.Close()

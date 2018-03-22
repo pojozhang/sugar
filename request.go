@@ -5,7 +5,7 @@ import (
 )
 
 // Client is a entrance to Sugar.
-// It keeps important components for building requests and parsing responses
+// It keeps important components for building requests and parsing responses.
 type Client struct {
 	HttpClient *http.Client
 	Encoders   []Encoder
@@ -39,27 +39,27 @@ func NewClient() *Client {
 	}
 }
 
-// Get is a shortcut for client.Do("Get", url, params)
+// Get is a shortcut for client.Do("Get", url, params).
 func (c *Client) Get(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodGet, rawUrl, params...)
 }
 
-// Post is a shortcut for client.Do("Post", url, params)
+// Post is a shortcut for client.Do("Post", url, params).
 func (c *Client) Post(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodPost, rawUrl, params...)
 }
 
-// Put is a shortcut for client.Do("Put", url, params)
+// Put is a shortcut for client.Do("Put", url, params).
 func (c *Client) Put(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodPut, rawUrl, params...)
 }
 
-// Patch is a shortcut for client.Do("Patch", url, params)
+// Patch is a shortcut for client.Do("Patch", url, params).
 func (c *Client) Patch(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodPatch, rawUrl, params...)
 }
 
-// Delete is a shortcut for client.Do("Delete", url, params)
+// Delete is a shortcut for client.Do("Delete", url, params).
 func (c *Client) Delete(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodDelete, rawUrl, params...)
 }
@@ -92,12 +92,12 @@ func (c *Client) Use(plugins ...Plugin) {
 	c.Plugins = append(c.Plugins, plugins...)
 }
 
-// RegisterEncoders registers global encoders
+// RegisterEncoders registers global encoders.
 func RegisterEncoders(encoders ...Encoder) {
 	Encoders = append(Encoders, encoders...)
 }
 
-// RegisterDecoders registers global decoders
+// RegisterDecoders registers global decoders.
 func RegisterDecoders(decoders ...Decoder) {
 	Decoders = append(Decoders, decoders...)
 }
