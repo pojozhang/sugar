@@ -193,7 +193,7 @@ bytes, resp, err := Get("http://api.example.com/books").ReadBytes()
 
 #### Read
 Read() reads different types of response via decoder API.
-The following two examples read response body as plain text/JSON according to content type. 
+The following two examples read response body as plain text/JSON according to different content types.
 ```go
 // plain text
 var text = new(string)
