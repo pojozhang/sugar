@@ -15,7 +15,10 @@ type Client struct {
 }
 
 var (
+	// Global encoders.
 	Encoders []Encoder
+
+	// Global decoders.
 	Decoders []Decoder
 
 	DefaultClient = NewClient()

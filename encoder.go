@@ -104,7 +104,7 @@ type EncoderChain struct {
 }
 
 // Next propagates context to next encoder.
-// It returns EncoderNotFound if current encoder is last one.
+// It returns EncoderNotFound if current encoder is the last one.
 func (c *EncoderChain) Next() error {
 	if c.index < len(c.encoders) {
 		c.index++
@@ -118,7 +118,7 @@ func (c *EncoderChain) reset() *EncoderChain {
 	return c
 }
 
-// Add adds encoders to a encoder chain
+// Add adds encoders to a encoder chain.
 func (c *EncoderChain) Add(Encoders ...Encoder) *EncoderChain {
 	for _, Encoder := range Encoders {
 		c.encoders = append(c.encoders, Encoder)
@@ -126,7 +126,7 @@ func (c *EncoderChain) Add(Encoders ...Encoder) *EncoderChain {
 	return c
 }
 
-// NewEncoderChain initialize a new encoder chain.
+// NewEncoderChain initializes a new encoder chain with given request context and encoders.
 func NewEncoderChain(context *RequestContext, encoders ...Encoder) *EncoderChain {
 	chain := &EncoderChain{context: context, index: 0}
 	chain.reset().Add(encoders...)
