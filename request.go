@@ -15,12 +15,13 @@ type Client struct {
 }
 
 var (
-	// Global encoders.
+	// Encoders stores global encoders.
 	Encoders []Encoder
 
-	// Global decoders.
+	// Decoders stores global decoders.
 	Decoders []Decoder
 
+	// DefaultClient is the default client.
 	DefaultClient = NewClient()
 	Get           = DefaultClient.Get
 	Post          = DefaultClient.Post
