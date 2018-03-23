@@ -43,6 +43,13 @@ func TestPlainTextDecoder_Decode_Returns_Error_If_Fail_To_Read_Body(t *testing.T
 	assert.NotNil(t, decoder.Decode(context, nil))
 }
 
+func TestFileDecoder_Decode_Returns_Error_If_Out_Is_Not_Ptr_Of_OsFile(t *testing.T) {
+	context := &ResponseContext{Out: "string"}
+	chain := &DecoderChain{}
+	decoder := &FileDecoder{}
+	assert.Equal(t, DecoderNotFound, decoder.Decode(context, chain))
+}
+
 type readErrorBody struct {
 }
 
