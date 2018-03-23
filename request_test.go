@@ -552,3 +552,9 @@ func TestDownloadFileWithUnknownExt(t *testing.T) {
 	expectedStat, _ := expected.Stat()
 	assert.Equal(t, expectedStat.Size(), actualStat.Size())
 }
+
+func TestClient_NewRequest(t *testing.T) {
+	req, err := NewRequest(http.MethodGet, "http://api.example.com/books/:id", Path{"id": 1})
+	assert.Nil(t, err)
+	assert.Equal(t, "http://api.example.com/books/1", req.URL.String())
+}

@@ -32,6 +32,7 @@ var (
 	Apply         = DefaultClient.Apply
 	Reset         = DefaultClient.Reset
 	Use           = DefaultClient.Use
+	NewRequest    = DefaultClient.NewRequest
 )
 
 // NewClient returns a new Client given a http client, encoders and decoders.
