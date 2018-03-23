@@ -7,8 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -497,4 +499,56 @@ func TestPostBadXml(t *testing.T) {
 
 	_, err := Post("http://api.example.com/books", Xml{make(chan int)}).Raw()
 	assert.NotNil(t, err)
+}
+
+func TestDownloadFile(t *testing.T) {
+	defer gock.Off()
+	fileName := "logo.png"
+	gock.New("http://api.example.com").
+		Get("/"+fileName).
+		Reply(http.StatusOK).
+		File(fileName).
+		AddHeader(ContentType, mime.TypeByExtension(filepath.Ext(fileName)))
+
+	f, _ := os.Create("tmp.png")
+	defer func() {
+		f.Close()
+		os.Remove("tmp.png")
+	}()
+
+	_, err := Get("http://api.example.com/:file", P{"file": fileName}).Read(f)
+	assert.Nil(t, err)
+
+	actualStat, _ := f.Stat()
+	assert.True(t, actualStat.Size() > 0)
+
+	expected, _ := os.Open(fileName)
+	expectedStat, _ := expected.Stat()
+	assert.Equal(t, expectedStat.Size(), actualStat.Size())
+}
+
+func TestDownloadFileWithUnknownExt(t *testing.T) {
+	defer gock.Off()
+	fileName := "logo.png"
+	gock.New("http://api.example.com").
+		Get("/"+fileName).
+		Reply(http.StatusOK).
+		File(fileName).
+		AddHeader(ContentType, ContentTypeOctetStream)
+
+	f, _ := os.Create("tmp.image")
+	defer func() {
+		f.Close()
+		os.Remove("tmp.image")
+	}()
+
+	_, err := Get("http://api.example.com/:file", P{"file": fileName}).Read(f)
+	assert.Nil(t, err)
+
+	actualStat, _ := f.Stat()
+	assert.True(t, actualStat.Size() > 0)
+
+	expected, _ := os.Open(fileName)
+	expectedStat, _ := expected.Stat()
+	assert.Equal(t, expectedStat.Size(), actualStat.Size())
 }

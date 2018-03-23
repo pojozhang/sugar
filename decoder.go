@@ -3,8 +3,12 @@ package sugar
 import (
 	"encoding/json"
 	"encoding/xml"
+	"io"
 	"io/ioutil"
+	"mime"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -129,4 +133,30 @@ DECODE:
 
 	*(context.Out.(*string)) = string(body)
 	return nil
+}
+
+// FileDecoder parses binary-encoded data.
+type FileDecoder struct {
+}
+
+// Decode decodes response body by writing data to a file.
+func (d *FileDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
+	f, ok := context.Out.(*os.File)
+	if !ok {
+		return chain.Next()
+	}
+
+	targetMime := mime.TypeByExtension(filepath.Ext(f.Name()))
+	if targetMime == "" {
+		targetMime = ContentTypeOctetStream
+	}
+
+	for _, contentType := range context.Response.Header[ContentType] {
+		if strings.Contains(strings.ToLower(contentType), targetMime) {
+			_, err := io.Copy(f, context.Response.Body)
+			return err
+		}
+	}
+
+	return chain.Next()
 }

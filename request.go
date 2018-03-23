@@ -126,6 +126,7 @@ func init() {
 		&JsonDecoder{},
 		&XmlDecoder{},
 		&PlainTextDecoder{},
+		&FileDecoder{},
 	)
 
 	DefaultClient.Encoders = Encoders
