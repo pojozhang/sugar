@@ -75,11 +75,34 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
 		rawUrl:     rawUrl,
 		params:     append(c.Presets, params...),
 		encoders:   c.Encoders,
-		decoders:   c.Decoders,
 		plugins:    c.Plugins,
 		httpClient: c.HttpClient,
 	}
-	return context.Execute()
+
+	req, err := context.BuildRequest()
+	if err != nil {
+		return &Response{Error: err, request: req, decoders: c.Decoders}
+	}
+
+	context.Request = req
+	context.reset()
+	if err := context.Next(); err != nil {
+		return &Response{Error: err, request: req, decoders: c.Decoders}
+	}
+
+	return &Response{Response: *context.Response, Error: nil, request: context.Request, decoders: c.Decoders}
+}
+
+// NewRequest builds a request via context.
+func (c *Client) NewRequest(method, rawUrl string, params ...interface{}) (*http.Request, error) {
+	context := &Context{
+		method:   method,
+		rawUrl:   rawUrl,
+		params:   append(c.Presets, params...),
+		encoders: c.Encoders,
+	}
+
+	return context.BuildRequest()
 }
 
 // Apply attaches params to every following request.
@@ -101,11 +124,13 @@ func (c *Client) Use(plugins ...Plugin) {
 // RegisterEncoders registers global encoders.
 func RegisterEncoders(encoders ...Encoder) {
 	Encoders = append(Encoders, encoders...)
+	DefaultClient.Encoders = Encoders
 }
 
 // RegisterDecoders registers global decoders.
 func RegisterDecoders(decoders ...Decoder) {
 	Decoders = append(Decoders, decoders...)
+	DefaultClient.Decoders = Decoders
 }
 
 func init() {
@@ -128,7 +153,4 @@ func init() {
 		&PlainTextDecoder{},
 		&FileDecoder{},
 	)
-
-	DefaultClient.Encoders = Encoders
-	DefaultClient.Decoders = Decoders
 }
