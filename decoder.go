@@ -12,10 +12,9 @@ import (
 	"strings"
 )
 
-// ResponseContext keeps values for an decoder.
+// ResponseContext is a wrapper of *http.Response.
 // Out should be the pointer of the object you want to assign.
 type ResponseContext struct {
-	Request  *http.Request
 	Response *http.Response
 	Out      interface{}
 }
