@@ -203,7 +203,7 @@ resp, err := Get("http://api.example.com/json").Read(&books)
 ```
 
 #### Download files
-We can still use Read() to download files.
+We can also use Read() to download files.
 ```go
 f,_ := os.Create("tmp.png")
 defer f.Close()
