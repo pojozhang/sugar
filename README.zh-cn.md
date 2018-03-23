@@ -186,7 +186,7 @@ bytes, resp, err := Get("http://api.example.com/books").ReadBytes()
 
 #### Read
 Read()方法通过注册在系统中的`Decoder`对返回值进行解析。
-以下两个例子是在不通的情况下分别解析成字符串或者JSON，解析过程对调用者来说是透明的。
+以下两个例子是在不同的情况下分别解析成字符串或者JSON，解析过程对调用者来说是透明的。
 ```go
 // plain text
 var text = new(string)
