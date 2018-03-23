@@ -72,12 +72,7 @@ func (d *JsonDecoder) Decode(context *ResponseContext, chain *DecoderChain) erro
 				return err
 			}
 
-			err = json.Unmarshal(body, context.Out)
-			if err != nil {
-				return err
-			}
-
-			return nil
+			return json.Unmarshal(body, context.Out)
 		}
 	}
 
@@ -97,12 +92,7 @@ func (d *XmlDecoder) Decode(context *ResponseContext, chain *DecoderChain) error
 				return err
 			}
 
-			err = xml.Unmarshal(body, context.Out)
-			if err != nil {
-				return err
-			}
-
-			return nil
+			return xml.Unmarshal(body, context.Out)
 		}
 	}
 
