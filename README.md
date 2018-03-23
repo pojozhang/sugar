@@ -202,6 +202,14 @@ var books []book
 resp, err := Get("http://api.example.com/json").Read(&books)
 ```
 
+#### Download files
+We can still use Read() to download files.
+```go
+f,_ := os.Create("tmp.png")
+defer f.Close()
+resp, err := Get("http://api.example.com/logo.png").Read(f)
+```
+
 ## Extension
 There are three major components in Sugar: **Encoder**, **Decoder** and **Plugin**.
 - A encoder is used to encode your parameters and assemble requests.

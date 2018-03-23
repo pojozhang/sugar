@@ -197,6 +197,14 @@ var books []book
 resp, err := Get("http://api.example.com/json").Read(&books)
 ```
 
+#### 文件下载
+我们也可以通过`Read()`方法下载文件。
+```go
+f,_ := os.Create("tmp.png")
+defer f.Close()
+resp, err := Get("http://api.example.com/logo.png").Read(f)
+```
+
 ## 自定义
 Sugar中有三大组件 **Encoder**, **Decoder** 和 **Plugin**.
 - **Encoder**负责把调用者传入参数组装成一个请求体。
