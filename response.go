@@ -32,9 +32,6 @@ func (r *Response) Read(v interface{}) (*http.Response, error) {
 	}
 
 	err = NewDecoderChain(&ResponseContext{Request: r.request, Response: resp, Out: v}, r.decoders...).Next()
-	if err != nil {
-		return resp, err
-	}
 
 	return resp, err
 }

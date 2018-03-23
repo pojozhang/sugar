@@ -68,7 +68,7 @@ func (c *Client) Delete(rawUrl string, params ...interface{}) *Response {
 	return c.Do(http.MethodDelete, rawUrl, params...)
 }
 
-// Do builds a context and then sends a request via the context
+// Do builds a context and then sends a request via the context.
 func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
 	context := &Context{
 		method:     method,

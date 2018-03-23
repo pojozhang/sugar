@@ -240,6 +240,7 @@ func (r *FormEncoder) Encode(context *RequestContext, chain *EncoderChain) error
 	if _, ok := req.Header[ContentType]; !ok {
 		req.Header.Set(ContentType, ContentTypeForm)
 	}
+
 	return nil
 }
 
