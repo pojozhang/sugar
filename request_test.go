@@ -558,3 +558,11 @@ func TestClient_NewRequest(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "http://api.example.com/books/1", req.URL.String())
 }
+
+func TestNewClient(t *testing.T) {
+	client := NewClient()
+
+	assert.NotNil(t, client.HttpClient)
+	assert.Equal(t, defaultClient.Encoders, client.Encoders)
+	assert.Equal(t, defaultClient.Decoders, client.Decoders)
+}
