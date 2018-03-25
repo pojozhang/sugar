@@ -15,32 +15,27 @@ type Client struct {
 }
 
 var (
-	// Encoders stores global encoders.
-	Encoders []Encoder
-
-	// Decoders stores global decoders.
-	Decoders []Decoder
-
-	// DefaultClient is the default client.
-	DefaultClient = NewClient()
-	Get           = DefaultClient.Get
-	Post          = DefaultClient.Post
-	Put           = DefaultClient.Put
-	Patch         = DefaultClient.Patch
-	Delete        = DefaultClient.Delete
-	Do            = DefaultClient.Do
-	Apply         = DefaultClient.Apply
-	Reset         = DefaultClient.Reset
-	Use           = DefaultClient.Use
-	NewRequest    = DefaultClient.NewRequest
+	defaultClient = &Client{
+		HttpClient: &http.Client{},
+	}
+	Get        = defaultClient.Get
+	Post       = defaultClient.Post
+	Put        = defaultClient.Put
+	Patch      = defaultClient.Patch
+	Delete     = defaultClient.Delete
+	Do         = defaultClient.Do
+	Apply      = defaultClient.Apply
+	Reset      = defaultClient.Reset
+	Use        = defaultClient.Use
+	NewRequest = defaultClient.NewRequest
 )
 
 // NewClient returns a new Client given a http client, encoders and decoders.
 func NewClient() *Client {
 	return &Client{
 		HttpClient: &http.Client{},
-		Encoders:   Encoders,
-		Decoders:   Decoders,
+		Encoders:   defaultClient.Encoders,
+		Decoders:   defaultClient.Decoders,
 	}
 }
 
@@ -124,14 +119,12 @@ func (c *Client) Use(plugins ...Plugin) {
 
 // RegisterEncoders registers global encoders.
 func RegisterEncoders(encoders ...Encoder) {
-	Encoders = append(Encoders, encoders...)
-	DefaultClient.Encoders = Encoders
+	defaultClient.Encoders = append(defaultClient.Encoders, encoders...)
 }
 
 // RegisterDecoders registers global decoders.
 func RegisterDecoders(decoders ...Decoder) {
-	Decoders = append(Decoders, decoders...)
-	DefaultClient.Decoders = Decoders
+	defaultClient.Decoders = append(defaultClient.Decoders, decoders...)
 }
 
 func init() {
