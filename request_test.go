@@ -563,6 +563,6 @@ func TestNewClient(t *testing.T) {
 	client := NewClient()
 
 	assert.NotNil(t, client.HttpClient)
-	assert.Equal(t, defaultClient.Encoders, client.Encoders)
-	assert.Equal(t, defaultClient.Decoders, client.Decoders)
+	assert.Equal(t, Default.Encoders, client.Encoders)
+	assert.Equal(t, Default.Decoders, client.Decoders)
 }
