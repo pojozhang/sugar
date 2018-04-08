@@ -4,12 +4,24 @@ import (
 	"net/http"
 )
 
+type Encoders []Encoder
+
+func (e *Encoders) Add(encoders ...Encoder) {
+	*e = append(*e, encoders...)
+}
+
+type Decoders []Decoder
+
+func (d *Decoders) Add(decoders ...Decoder) {
+	*d = append(*d, decoders...)
+}
+
 // Client is a entrance to Sugar.
 // It keeps important components for building requests and parsing responses.
 type Client struct {
 	HttpClient *http.Client
-	Encoders   []Encoder
-	Decoders   []Decoder
+	Encoders   Encoders
+	Decoders   Decoders
 	Plugins    []Plugin
 	Presets    []interface{}
 }
@@ -18,16 +30,17 @@ var (
 	defaultClient = &Client{
 		HttpClient: &http.Client{},
 	}
-	Get        = defaultClient.Get
-	Post       = defaultClient.Post
-	Put        = defaultClient.Put
-	Patch      = defaultClient.Patch
-	Delete     = defaultClient.Delete
-	Do         = defaultClient.Do
-	Apply      = defaultClient.Apply
-	Reset      = defaultClient.Reset
-	Use        = defaultClient.Use
-	NewRequest = defaultClient.NewRequest
+	Default    = defaultClient
+	Get        = Default.Get
+	Post       = Default.Post
+	Put        = Default.Put
+	Patch      = Default.Patch
+	Delete     = Default.Delete
+	Do         = Default.Do
+	Apply      = Default.Apply
+	Reset      = Default.Reset
+	Use        = Default.Use
+	NewRequest = Default.NewRequest
 )
 
 // NewClient returns a new Client given a http client, encoders and decoders.
@@ -117,18 +130,8 @@ func (c *Client) Use(plugins ...Plugin) {
 	c.Plugins = append(c.Plugins, plugins...)
 }
 
-// RegisterEncoders registers global encoders.
-func RegisterEncoders(encoders ...Encoder) {
-	defaultClient.Encoders = append(defaultClient.Encoders, encoders...)
-}
-
-// RegisterDecoders registers global decoders.
-func RegisterDecoders(decoders ...Decoder) {
-	defaultClient.Decoders = append(defaultClient.Decoders, decoders...)
-}
-
 func init() {
-	RegisterEncoders(
+	Default.Encoders.Add(
 		&XmlEncoder{},
 		&PathEncoder{},
 		&JsonEncoder{},
@@ -141,7 +144,7 @@ func init() {
 		&PlainTextEncoder{},
 	)
 
-	RegisterDecoders(
+	Default.Decoders.Add(
 		&JsonDecoder{},
 		&XmlDecoder{},
 		&PlainTextDecoder{},
