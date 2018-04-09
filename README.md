@@ -155,7 +155,7 @@ Patch("http://api.example.com/books/:id", Path{"id": 123}, Json{`{"name":"bookA"
 ```
 
 #### Apply
-You can use Apply() function to preset some values which will be attached to every following request. Call Reset() function to clean preset values.
+You can use Apply() to preset some values which will be attached to every following request. Call Reset() to clean preset values.
 ```go
 Apply(User{"user", "password"})
 Get("http://api.example.com/books")
@@ -203,7 +203,7 @@ resp, err := Get("http://api.example.com/json").Read(&books)
 ```
 
 #### Download files
-We can also use Read() to download files.
+You can also use Read() to download files.
 ```go
 f,_ := os.Create("tmp.png")
 defer f.Close()
@@ -233,7 +233,7 @@ func (r *MyEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
     return nil
 }
 
-RegisterEncoders(&MyEncoder{})
+Default.Encoders.Add(&MyEncoder{})
 
 Get("http://api.example.com/books", MyParam{})
 ```
@@ -261,7 +261,7 @@ func (d *MyDecoder) Decode(context *ResponseContext, chain *DecoderChain) error 
     return chain.Next()
 }
 
-RegisterDecoders(&MyDecoder{})
+Default.Decoders.Add(&MyDecoder{})
 ```
 
 ### Plugin
