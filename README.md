@@ -233,7 +233,7 @@ func (r *MyEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
     return nil
 }
 
-Default.Encoders.Add(&MyEncoder{})
+Encoders.Add(&MyEncoder{})
 
 Get("http://api.example.com/books", MyParam{})
 ```
@@ -261,7 +261,7 @@ func (d *MyDecoder) Decode(context *ResponseContext, chain *DecoderChain) error 
     return chain.Next()
 }
 
-Default.Decoders.Add(&MyDecoder{})
+Decoders.Add(&MyDecoder{})
 ```
 
 ### Plugin

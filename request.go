@@ -4,15 +4,15 @@ import (
 	"net/http"
 )
 
-type Encoders []Encoder
+type EncoderGroup []Encoder
 
-func (e *Encoders) Add(encoders ...Encoder) {
+func (e *EncoderGroup) Add(encoders ...Encoder) {
 	*e = append(*e, encoders...)
 }
 
-type Decoders []Decoder
+type DecoderGroup []Decoder
 
-func (d *Decoders) Add(decoders ...Decoder) {
+func (d *DecoderGroup) Add(decoders ...Decoder) {
 	*d = append(*d, decoders...)
 }
 
@@ -20,8 +20,8 @@ func (d *Decoders) Add(decoders ...Decoder) {
 // It keeps important components for building requests and parsing responses.
 type Client struct {
 	HttpClient *http.Client
-	Encoders   Encoders
-	Decoders   Decoders
+	Encoders   EncoderGroup
+	Decoders   DecoderGroup
 	Plugins    []Plugin
 	Presets    []interface{}
 }
@@ -29,18 +29,21 @@ type Client struct {
 var (
 	defaultClient = &Client{
 		HttpClient: &http.Client{},
+		Encoders:   EncoderGroup{},
+		Decoders:   DecoderGroup{},
 	}
-	Default    = defaultClient
-	Get        = Default.Get
-	Post       = Default.Post
-	Put        = Default.Put
-	Patch      = Default.Patch
-	Delete     = Default.Delete
-	Do         = Default.Do
-	Apply      = Default.Apply
-	Reset      = Default.Reset
-	Use        = Default.Use
-	NewRequest = Default.NewRequest
+	Get        = defaultClient.Get
+	Post       = defaultClient.Post
+	Put        = defaultClient.Put
+	Patch      = defaultClient.Patch
+	Delete     = defaultClient.Delete
+	Do         = defaultClient.Do
+	Apply      = defaultClient.Apply
+	Reset      = defaultClient.Reset
+	Use        = defaultClient.Use
+	NewRequest = defaultClient.NewRequest
+	Encoders   = &defaultClient.Encoders
+	Decoders   = &defaultClient.Decoders
 )
 
 // NewClient returns a new Client given a http client, encoders and decoders.
@@ -121,7 +124,7 @@ func (c *Client) Apply(v ...interface{}) {
 }
 
 // Reset cleans all params added by Apply().
-func (c *Client) Reset(v ...interface{}) {
+func (c *Client) Reset() {
 	c.Presets = nil
 }
 
@@ -131,7 +134,7 @@ func (c *Client) Use(plugins ...Plugin) {
 }
 
 func init() {
-	Default.Encoders.Add(
+	Encoders.Add(
 		&XmlEncoder{},
 		&PathEncoder{},
 		&JsonEncoder{},
@@ -144,7 +147,7 @@ func init() {
 		&PlainTextEncoder{},
 	)
 
-	Default.Decoders.Add(
+	Decoders.Add(
 		&JsonDecoder{},
 		&XmlDecoder{},
 		&PlainTextDecoder{},
