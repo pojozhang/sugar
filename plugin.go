@@ -2,7 +2,9 @@ package sugar
 
 import (
 	"log"
+	"net"
 	"net/http/httputil"
+	"time"
 )
 
 // Plugin works as an interceptor.
@@ -33,4 +35,30 @@ func Logger(c *Context) error {
 		}
 	}()
 	return c.Next()
+}
+
+func Retryer(attempts int, delay time.Duration, multiplier float32, maxDelay time.Duration) func(c *Context) error {
+	return func(c *Context) (err error) {
+		for d, i := delay, 0; i < attempts; i++ {
+			err = c.Next()
+			if c.Response != nil && c.Response.StatusCode < 500 {
+				return
+			}
+
+			if _, ok := err.(net.Error); err == nil || !ok {
+				return
+			}
+
+			if i < attempts-1 {
+				time.Sleep(d)
+				if t := d * time.Duration(multiplier); maxDelay < t {
+					d = maxDelay
+				} else {
+					d = t
+				}
+			}
+		}
+
+		return
+	}
 }
