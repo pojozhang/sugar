@@ -268,7 +268,7 @@ Decoders.Add(&MyDecoder{})
 Plugin is a new feature since V2. You can do anything as you like before the request is sent or after the response is received.
 ```go
 // Implementation of builtin Logger plugin
-Use(func(c *Context) error {
+UseFunc(func(c *Context) error {
     b, _ := httputil.DumpRequest(c.Request, true)
     log.Println(string(b))
     defer func() {

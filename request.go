@@ -138,7 +138,7 @@ func (c *Client) Use(plugins ...Plugin) {
 	c.Plugins = append(c.Plugins, plugins...)
 }
 
-// Use applies plugins.
+// UseFunc applies plugins.
 func (c *Client) UseFunc(plugins ...func(c *Context) error) {
 	for _, p := range plugins {
 		c.Plugins = append(c.Plugins, PluginFunc(p))

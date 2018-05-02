@@ -262,7 +262,7 @@ Decoders.Add(&MyDecoder{})
 插件是一个特殊的组件，你可以在请求发送前或收到响应后进行一些额外的处理。
 ```go
 // 内置Logger插件的实现
-Use(func(c *Context) error {
+UseFunc(func(c *Context) error {
     b, _ := httputil.DumpRequest(c.Request, true)
     log.Println(string(b))
     defer func() {
