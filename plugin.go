@@ -3,6 +3,7 @@ package sugar
 import (
 	"log"
 	"net"
+	"net/http"
 	"net/http/httputil"
 	"time"
 )
@@ -41,7 +42,7 @@ func Retryer(attempts int, delay time.Duration, multiplier float32, maxDelay tim
 	return func(c *Context) (err error) {
 		for d, i := delay, 0; i < attempts; i++ {
 			err = c.Next()
-			if c.Response != nil && c.Response.StatusCode < 500 {
+			if c.Response != nil && c.Response.StatusCode < http.StatusInternalServerError {
 				return
 			}
 
