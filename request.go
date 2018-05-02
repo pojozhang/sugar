@@ -23,18 +23,18 @@ func (d *DecoderGroup) Add(decoders ...Decoder) {
 // Client is a entrance to Sugar.
 // It keeps important components for building requests and parsing responses.
 type Client struct {
-	HttpClient *http.Client
-	Encoders   EncoderGroup
-	Decoders   DecoderGroup
-	Plugins    []Plugin
-	Presets    []interface{}
+	Transporter Transporter
+	Encoders    EncoderGroup
+	Decoders    DecoderGroup
+	Plugins     []Plugin
+	Presets     []interface{}
 }
 
 var (
 	defaultClient = &Client{
-		HttpClient: &http.Client{},
-		Encoders:   EncoderGroup{},
-		Decoders:   DecoderGroup{},
+		Transporter: &http.Client{},
+		Encoders:    EncoderGroup{},
+		Decoders:    DecoderGroup{},
 	}
 	Get        = defaultClient.Get
 	Post       = defaultClient.Post
@@ -54,9 +54,9 @@ var (
 // NewClient returns a new Client given a http client, encoders and decoders.
 func NewClient() *Client {
 	return &Client{
-		HttpClient: &http.Client{},
-		Encoders:   defaultClient.Encoders,
-		Decoders:   defaultClient.Decoders,
+		Transporter: &http.Client{},
+		Encoders:    defaultClient.Encoders,
+		Decoders:    defaultClient.Decoders,
 	}
 }
 
@@ -88,12 +88,12 @@ func (c *Client) Delete(rawUrl string, params ...interface{}) *Response {
 // Do builds a context and then sends a request via the context.
 func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
 	context := &Context{
-		method:     method,
-		rawUrl:     rawUrl,
-		params:     append(c.Presets, params...),
-		encoders:   c.Encoders,
-		plugins:    c.Plugins,
-		httpClient: c.HttpClient,
+		method:      method,
+		rawUrl:      rawUrl,
+		params:      append(c.Presets, params...),
+		encoders:    c.Encoders,
+		plugins:     c.Plugins,
+		transporter: c.Transporter,
 	}
 
 	req, err := context.BuildRequest()
@@ -102,7 +102,7 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
 	}
 
 	context.Request = req
-	context.Reset()
+	context.reset()
 	if err := context.Next(); err != nil {
 		return &Response{Error: err, request: req, decoders: c.Decoders}
 	}

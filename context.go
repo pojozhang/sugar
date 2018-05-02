@@ -5,15 +5,15 @@ import "net/http"
 // Context keeps all necessary params to build a request,
 // and it allows us to pass params between plugins and encoders.
 type Context struct {
-	Request    *http.Request
-	Response   *http.Response
-	method     string
-	rawUrl     string
-	params     []interface{}
-	plugins    []Plugin
-	index      int
-	encoders   []Encoder
-	httpClient *http.Client
+	Request     *http.Request
+	Response    *http.Response
+	method      string
+	rawUrl      string
+	params      []interface{}
+	plugins     []Plugin
+	index       int
+	encoders    []Encoder
+	transporter Transporter
 }
 
 // BuildRequest initializes a new request and encodes params via encoders.
@@ -33,8 +33,7 @@ func (c *Context) BuildRequest() (*http.Request, error) {
 	return req, nil
 }
 
-// Reset resets current context.
-func (c *Context) Reset() {
+func (c *Context) reset() {
 	c.index = 0
 }
 
@@ -45,7 +44,7 @@ func (c *Context) Next() error {
 		return c.plugins[c.index-1].Handle(c)
 	}
 
-	resp, err := c.httpClient.Do(c.Request)
+	resp, err := c.transporter.Do(c.Request)
 	c.Response = resp
 	return err
 }
