@@ -4,18 +4,18 @@ import (
 	"net/http"
 )
 
-// EncoderGroup is a set of encoders
+// EncoderGroup is a set of encoders.
 type EncoderGroup []Encoder
 
-// Add appends encoders to the encoder group
+// Add appends encoders to the encoder group.
 func (e *EncoderGroup) Add(encoders ...Encoder) {
 	*e = append(*e, encoders...)
 }
 
-// DecoderGroup is a set of decoders
+// DecoderGroup is a set of decoders.
 type DecoderGroup []Decoder
 
-// Add appends decoders to the decoder group
+// Add appends decoders to the decoder group.
 func (d *DecoderGroup) Add(decoders ...Decoder) {
 	*d = append(*d, decoders...)
 }
@@ -45,6 +45,7 @@ var (
 	Apply      = defaultClient.Apply
 	Reset      = defaultClient.Reset
 	Use        = defaultClient.Use
+	UseFunc    = defaultClient.UseFunc
 	NewRequest = defaultClient.NewRequest
 	Encoders   = &defaultClient.Encoders
 	Decoders   = &defaultClient.Decoders
@@ -101,7 +102,7 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
 	}
 
 	context.Request = req
-	context.reset()
+	context.Reset()
 	if err := context.Next(); err != nil {
 		return &Response{Error: err, request: req, decoders: c.Decoders}
 	}
@@ -135,6 +136,13 @@ func (c *Client) Reset() {
 // Use applies plugins.
 func (c *Client) Use(plugins ...Plugin) {
 	c.Plugins = append(c.Plugins, plugins...)
+}
+
+// Use applies plugins.
+func (c *Client) UseFunc(plugins ...func(c *Context) error) {
+	for _, p := range plugins {
+		c.Plugins = append(c.Plugins, PluginFunc(p))
+	}
 }
 
 func init() {

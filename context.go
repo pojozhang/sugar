@@ -33,7 +33,8 @@ func (c *Context) BuildRequest() (*http.Request, error) {
 	return req, nil
 }
 
-func (c *Context) reset() {
+// Reset resets current context.
+func (c *Context) Reset() {
 	c.index = 0
 }
 
@@ -41,7 +42,7 @@ func (c *Context) reset() {
 func (c *Context) Next() error {
 	if c.index < len(c.plugins) {
 		c.index++
-		return c.plugins[c.index-1](c)
+		return c.plugins[c.index-1].Handle(c)
 	}
 
 	resp, err := c.httpClient.Do(c.Request)

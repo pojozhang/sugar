@@ -20,7 +20,7 @@ type book struct {
 }
 
 func init() {
-	Use(Logger)
+	UseFunc(Logger)
 }
 
 func TestGetText(t *testing.T) {
