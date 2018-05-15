@@ -104,6 +104,11 @@ type PlainTextDecoder struct {
 
 // Decode reads a byte slice from response body via ioutil.ReadAll and then converts it to a string.
 func (d *PlainTextDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
+	out, ok := context.Out.(*string)
+	if !ok {
+		return chain.Next()
+	}
+
 	if contentTypes, ok := context.Response.Header[ContentType]; ok {
 		for _, contentType := range contentTypes {
 			if strings.Contains(strings.ToLower(contentType), ContentTypePlainText) {
@@ -120,7 +125,7 @@ DECODE:
 		return err
 	}
 
-	*(context.Out.(*string)) = string(body)
+	*out = string(body)
 	return nil
 }
 

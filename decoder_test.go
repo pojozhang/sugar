@@ -38,9 +38,28 @@ func TestXmlDecoder_Decode_Returns_Error_If_Fail_To_Unmarshal(t *testing.T) {
 }
 
 func TestPlainTextDecoder_Decode_Returns_Error_If_Fail_To_Read_Body(t *testing.T) {
-	context := &ResponseContext{Response: &http.Response{Header: http.Header{ContentType: []string{ContentTypePlainText}}, Body: readErrorBody{}}}
+	var out string
+	context := &ResponseContext{Response: &http.Response{Header: http.Header{ContentType: []string{ContentTypePlainText}}, Body: readErrorBody{}}, Out: &out}
 	decoder := &PlainTextDecoder{}
 	assert.NotNil(t, decoder.Decode(context, nil))
+}
+
+type mockDecoder struct {
+	Called bool
+}
+
+func (d *mockDecoder) Decode(context *ResponseContext, chain *DecoderChain) error {
+	d.Called = true
+	return chain.Next()
+}
+
+func TestPlainTextDecoder_Will_Propagate_If_Out_Is_Not_Type_Of_String_Pointer(t *testing.T) {
+	var out int
+	context := &ResponseContext{Response: &http.Response{Header: http.Header{ContentType: []string{ContentTypePlainText}}, Body: readErrorBody{}}, Out: &out}
+	decoder := &PlainTextDecoder{}
+	nextDecoder := &mockDecoder{Called: false}
+	decoder.Decode(context, NewDecoderChain(&ResponseContext{Response: nil, Out: nil}, nextDecoder))
+	assert.True(t, nextDecoder.Called)
 }
 
 func TestFileDecoder_Decode_Returns_Error_If_Out_Is_Not_Ptr_Of_OsFile(t *testing.T) {
