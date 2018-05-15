@@ -1,4 +1,6 @@
-<img align="middle" height="200px" src="logo.png">
+<p align="center">
+    <img align="middle" height="200px" src="logo.png">
+</p>
 
 ![GitHub (pre-)release](https://img.shields.io/github/release/pojozhang/sugar/all.svg)
 [![Build Status](https://travis-ci.org/pojozhang/sugar.svg?branch=master)](https://travis-ci.org/pojozhang/sugar) [![codecov](https://codecov.io/gh/pojozhang/sugar/branch/master/graph/badge.svg)](https://codecov.io/gh/pojozhang/sugar) [![Go Report Card](https://goreportcard.com/badge/github.com/pojozhang/sugar)](https://goreportcard.com/report/github.com/pojozhang/sugar) [![GoDoc](https://godoc.org/github.com/pojozhang/sugar?status.svg)](https://godoc.org/github.com/pojozhang/sugar) 
