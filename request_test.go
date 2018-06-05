@@ -566,3 +566,26 @@ func TestNewClient(t *testing.T) {
 	assert.Equal(t, *Encoders, client.Encoders)
 	assert.Equal(t, *Decoders, client.Decoders)
 }
+
+type mockPlugin struct {
+	count int
+}
+
+func (p *mockPlugin) Handle(c *Context) error {
+	p.count++
+	return c.Next()
+}
+
+func TestClient_Use(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Post("/books").
+		Reply(http.StatusOK)
+
+	plugin := &mockPlugin{}
+	client := NewClient()
+	client.Use(plugin)
+	client.Get("http://api.example.com/books")
+
+	assert.Equal(t, 1, plugin.count)
+}
