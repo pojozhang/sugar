@@ -186,7 +186,7 @@ func (r *QueryEncoder) Encode(context *RequestContext, chain *EncoderChain) erro
 			q.Add(k, Stringify(v))
 		}
 	}
-	req.URL.RawQuery = q.Encode()
+	req.URL.RawQuery = strings.Replace(q.Encode(), "+", "%20", -1)
 	return nil
 }
 
