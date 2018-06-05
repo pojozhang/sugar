@@ -64,7 +64,21 @@ func (r *mockReader) Read(p []byte) (n int, err error) {
 	return 0, errors.New("mock reader error")
 }
 
-func TestWriteFileErrorWhenFileReaderReturnError(t *testing.T) {
+func TestWriteFile_Returns_Error_When_File_Reader_Returns_Error(t *testing.T) {
 	err := writeFile(multipart.NewWriter(os.Stdout), "file", "file", &mockReader{})
+
+	assert.NotNil(t, err)
+}
+
+type mockWriter struct {
+}
+
+func (w *mockWriter) Write(p []byte) (n int, err error) {
+	return -1, os.ErrClosed
+}
+
+func TestWriteFile_Returns_Error_When_Fails_To_Create_File_Writer(t *testing.T) {
+	err := writeFile(multipart.NewWriter(&mockWriter{}), "file", "file", nil)
+
 	assert.NotNil(t, err)
 }
