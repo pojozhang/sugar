@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
+	"os"
 	"testing"
 )
 
@@ -68,6 +69,16 @@ func TestPlainTextDecoder_Will_Propagate_If_Out_Is_Not_Type_Of_String_Pointer(t 
 	decoder.Decode(context, NewDecoderChain(&ResponseContext{Response: nil, Out: nil}, nextDecoder))
 
 	assert.True(t, nextDecoder.Called)
+}
+
+func TestFileDecoder_Decode_Returns_Error_If_Header_Is_Wrong(t *testing.T) {
+	f, _ := os.Create("tmp.pdf")
+	defer func() { os.Remove("tmp.pdf") }()
+	context := &ResponseContext{Response: &http.Response{Header: http.Header{}}, Out: f}
+	chain := &DecoderChain{}
+	decoder := &FileDecoder{}
+
+	assert.Equal(t, DecoderNotFound, decoder.Decode(context, chain))
 }
 
 func TestFileDecoder_Decode_Returns_Error_If_Out_Is_Not_Ptr_Of_OsFile(t *testing.T) {
