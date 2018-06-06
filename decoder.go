@@ -66,6 +66,11 @@ func (d *DecoderGroup) Add(decoders ...Decoder) {
 	*d = append(*d, decoders...)
 }
 
+// Decode decodes response via decoders.
+func (d *DecoderGroup) Decode(response *http.Response, out interface{}) error {
+	return NewDecoderChain(&ResponseContext{Response: response, Out: out}, []Decoder(*d)...).Next()
+}
+
 // JsonDecoder parses JSON-encoded data.
 type JsonDecoder struct {
 }

@@ -11,7 +11,7 @@ type Response struct {
 	http.Response
 	Error    error
 	request  *http.Request
-	decoders []Decoder
+	decoders DecoderGroup
 }
 
 // Raw returns a raw response and en error.
@@ -23,7 +23,7 @@ func (r *Response) Raw() (*http.Response, error) {
 }
 
 // Read decodes response data via decoders.
-func (r *Response) Read(v interface{}) (*http.Response, error) {
+func (r *Response) Read(out interface{}) (*http.Response, error) {
 	defer r.Close()
 
 	resp, err := r.Raw()
@@ -31,9 +31,7 @@ func (r *Response) Read(v interface{}) (*http.Response, error) {
 		return resp, err
 	}
 
-	err = NewDecoderChain(&ResponseContext{Response: resp, Out: v}, r.decoders...).Next()
-
-	return resp, err
+	return resp, r.decoders.Decode(resp, out)
 }
 
 // ReadBytes reads response body into a byte slice.
