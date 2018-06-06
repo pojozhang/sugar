@@ -38,6 +38,7 @@ func Logger(c *Context) error {
 	return c.Next()
 }
 
+// Retryer provides a common policy to retry the request.
 func Retryer(attempts int, delay time.Duration, multiplier float32, maxDelay time.Duration) func(c *Context) error {
 	return func(c *Context) (err error) {
 		for d, i := delay, 0; i < attempts; i++ {
