@@ -72,10 +72,11 @@ func (c *Client) Delete(rawUrl string, params ...interface{}) *Response {
 // Do builds a context and then sends a request via the context.
 func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
 	context := &Context{
-		method:      method,
-		rawUrl:      rawUrl,
+		Method:      method,
+		RawUrl:      rawUrl,
 		params:      append(c.Presets, params...),
-		encoders:    c.Encoders,
+		Encoders:    c.Encoders,
+		Decoders:    c.Decoders,
 		plugins:     c.Plugins,
 		transporter: c.Transporter,
 	}
@@ -97,10 +98,10 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
 // NewRequest builds a request via context.
 func (c *Client) NewRequest(method, rawUrl string, params ...interface{}) (*http.Request, error) {
 	context := &Context{
-		method:   method,
-		rawUrl:   rawUrl,
+		Method:   method,
+		RawUrl:   rawUrl,
 		params:   append(c.Presets, params...),
-		encoders: c.Encoders,
+		Encoders: c.Encoders,
 	}
 
 	return context.BuildRequest()
