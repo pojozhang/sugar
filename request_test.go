@@ -579,7 +579,7 @@ func (p *mockPlugin) Handle(c *Context) error {
 func TestClient_Use(t *testing.T) {
 	defer gock.Off()
 	gock.New("http://api.example.com").
-		Post("/books").
+		Get("/books").
 		Reply(http.StatusOK)
 
 	plugin := &mockPlugin{}
