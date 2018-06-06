@@ -20,7 +20,7 @@ func TestResponse_ReadBytes_Returns_Error_When_Response_Has_Error(t *testing.T) 
 }
 
 func TestResponse_Read_Returns_Error_If_DecoderChain_Returns_Error(t *testing.T) {
-	resp := &Response{decoders: []Decoder{&errorDecoder{}}}
+	resp := &Response{decoders: DecoderGroup{&errorDecoder{}}}
 	var v string
 	_, err := resp.Read(&v)
 	assert.NotNil(t, err)
