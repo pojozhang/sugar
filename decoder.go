@@ -58,6 +58,14 @@ func NewDecoderChain(context *ResponseContext, decoders ...Decoder) *DecoderChai
 	return chain
 }
 
+// DecoderGroup is a set of decoders.
+type DecoderGroup []Decoder
+
+// Add appends decoders to the decoder group.
+func (d *DecoderGroup) Add(decoders ...Decoder) {
+	*d = append(*d, decoders...)
+}
+
 // JsonDecoder parses JSON-encoded data.
 type JsonDecoder struct {
 }

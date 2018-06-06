@@ -4,22 +4,6 @@ import (
 	"net/http"
 )
 
-// EncoderGroup is a set of encoders.
-type EncoderGroup []Encoder
-
-// Add appends encoders to the encoder group.
-func (e *EncoderGroup) Add(encoders ...Encoder) {
-	*e = append(*e, encoders...)
-}
-
-// DecoderGroup is a set of decoders.
-type DecoderGroup []Decoder
-
-// Add appends decoders to the decoder group.
-func (d *DecoderGroup) Add(decoders ...Decoder) {
-	*d = append(*d, decoders...)
-}
-
 // Client is a entrance to Sugar.
 // It keeps important components for building requests and parsing responses.
 type Client struct {

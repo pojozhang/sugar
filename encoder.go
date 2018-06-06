@@ -15,6 +15,14 @@ import (
 	"strings"
 )
 
+// EncoderGroup is a set of encoders.
+type EncoderGroup []Encoder
+
+// Add appends encoders to the encoder group.
+func (e *EncoderGroup) Add(encoders ...Encoder) {
+	*e = append(*e, encoders...)
+}
+
 var (
 	Stringify = ToString
 )
