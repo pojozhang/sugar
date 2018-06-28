@@ -10,7 +10,7 @@ Sugar is a **DECLARATIVE** http client providing elegant APIs for Golang.
 
 ## Features
 - Elegant APIs
-- New plugin API
+- Plugins
 - Chained invocations
 - Highly extensible
 
