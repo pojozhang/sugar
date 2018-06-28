@@ -270,7 +270,7 @@ Decoders.Add(&MyDecoder{})
 Plugin is a new feature since V2. You can do anything as you like before the request is sent or after the response is received.
 ```go
 // Implementation of builtin Logger plugin
-UseFunc(func(c *Context) error {
+Use(func(c *Context) error {
     b, _ := httputil.DumpRequest(c.Request, true)
     log.Println(string(b))
     defer func() {
@@ -281,4 +281,60 @@ UseFunc(func(c *Context) error {
     }()
     return c.Next()
 })
+```
+
+#### Log
+You can use Logger plugin to log any request you send or any response you get.
+```go
+Use(Logger)
+```
+
+#### Retry
+You can use Retryer plugin to retry a request when the server returns 500 or you get a net error.
+```go
+Use(Retryer(3, time.Second, 1, time.Second))
+```
+
+#### Custom error handling
+Sometimes you may get an custom API error when a request is invalid. The following example shows you how to handle this situation via a plugin: 
+```go
+// your error struct
+type apiError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (e apiError) Error() string {
+	return e.Message
+}
+
+Use(func(c *Context) error {
+		if err := c.Next(); err != nil {
+			return err
+		}
+
+		if c.Response != nil && c.Response.StatusCode >= http.StatusBadRequest {
+			body, err := ioutil.ReadAll(c.Response.Body)
+			if err != nil {
+				return err
+			}
+
+			e := apiError{}
+			if err = json.Unmarshal(body, &e); err != nil {
+				return err
+			}
+			return e
+		}
+
+		return nil
+	})
+
+// send request
+_, err := client.Get("some url").Read(&json{})
+// type switch
+switch e := err.(type) {
+	case apiError:
+		// your code
+	}
+// your code
 ```

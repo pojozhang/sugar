@@ -264,7 +264,7 @@ Decoders.Add(&MyDecoder{})
 插件是一个特殊的组件，你可以在请求发送前或收到响应后进行一些额外的处理。
 ```go
 // 内置Logger插件的实现
-UseFunc(func(c *Context) error {
+Use(func(c *Context) error {
     b, _ := httputil.DumpRequest(c.Request, true)
     log.Println(string(b))
     defer func() {
@@ -275,4 +275,59 @@ UseFunc(func(c *Context) error {
     }()
     return c.Next()
 })
+```
+
+#### 日志
+Logger插件用来记录发送出去的请求数据以及接收到的响应数据。
+```go
+Use(Logger)
+```
+
+#### 重试
+Retryer插件用来在请求遇到错误时自动进行重试。
+```go
+Use(Retryer(3, time.Second, 1, time.Second))
+```
+
+#### 自定义接口异常处理
+通过插件机制，我们可以定制一个异常处理器来处理接口返回的错误描述。下面这个例子展示了当服务器返回错误码和错误信息时如何用插件进行处理：
+```go
+type apiError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (e apiError) Error() string {
+	return e.Message
+}
+
+Use(func(c *Context) error {
+		if err := c.Next(); err != nil {
+			return err
+		}
+
+		if c.Response != nil && c.Response.StatusCode >= http.StatusBadRequest {
+			body, err := ioutil.ReadAll(c.Response.Body)
+			if err != nil {
+				return err
+			}
+
+			e := apiError{}
+			if err = json.Unmarshal(body, &e); err != nil {
+				return err
+			}
+			return e
+		}
+
+		return nil
+	})
+
+// 发送请求
+_, err := client.Get("some url").Read(&json{})
+// 类型判断
+switch e := err.(type) {
+	case apiError:
+		// ...
+	}
+// ...
 ```
