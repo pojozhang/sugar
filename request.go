@@ -29,7 +29,7 @@ var (
 	Apply      = defaultClient.Apply
 	Reset      = defaultClient.Reset
 	Use        = defaultClient.Use
-	UseFunc    = defaultClient.UseFunc
+	UsePlugin  = defaultClient.UsePlugin
 	NewRequest = defaultClient.NewRequest
 	Encoders   = &defaultClient.Encoders
 	Decoders   = &defaultClient.Decoders
@@ -118,13 +118,13 @@ func (c *Client) Reset() {
 	c.Presets = nil
 }
 
-// Use applies plugins.
-func (c *Client) Use(plugins ...Plugin) {
+// UsePlugin applies plugins.
+func (c *Client) UsePlugin(plugins ...Plugin) {
 	c.Plugins = append(c.Plugins, plugins...)
 }
 
-// UseFunc applies plugins.
-func (c *Client) UseFunc(plugins ...func(c *Context) error) {
+// Use applies plugins.
+func (c *Client) Use(plugins ...func(c *Context) error) {
 	for _, p := range plugins {
 		c.Plugins = append(c.Plugins, PluginFunc(p))
 	}
