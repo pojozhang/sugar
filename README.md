@@ -282,13 +282,13 @@ Use(func(c *Context) error {
 })
 ```
 
-#### Log
+#### Logger
 You can use Logger plugin to log any request you send or any response you get.
 ```go
 Use(Logger)
 ```
 
-#### Retry
+#### Retryer
 You can use Retryer plugin to retry a request when the server returns 500 or you get a net error.
 ```go
 Use(Retryer(3, time.Second, 1, time.Second))
