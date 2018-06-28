@@ -20,7 +20,7 @@ type book struct {
 }
 
 func init() {
-	UseFunc(Logger)
+	Use(Logger)
 }
 
 func TestGetText(t *testing.T) {
@@ -584,8 +584,57 @@ func TestClient_Use(t *testing.T) {
 
 	plugin := &mockPlugin{}
 	client := NewClient()
-	client.Use(plugin)
+	client.UsePlugin(plugin)
 	client.Get("http://api.example.com/books")
 
 	assert.Equal(t, 1, plugin.count)
+}
+
+type apiError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (e apiError) Error() string {
+	return e.Message
+}
+
+func TestPlugin_HandleResponseWithAnErrorCode(t *testing.T) {
+	defer gock.Off()
+	gock.New("http://api.example.com").
+		Get("/books").
+		Reply(http.StatusBadRequest).
+		JSON(`{"code": 4000, "message": "invalid request"}`)
+
+	client := NewClient()
+	client.Use(func(c *Context) error {
+		if err := c.Next(); err != nil {
+			return err
+		}
+
+		if c.Response != nil && c.Response.StatusCode >= http.StatusBadRequest {
+			body, err := ioutil.ReadAll(c.Response.Body)
+			if err != nil {
+				return err
+			}
+
+			e := apiError{}
+			if err = json.Unmarshal(body, &e); err != nil {
+				return err
+			}
+			return e
+		}
+
+		return nil
+	})
+
+	_, err := client.Get("http://api.example.com/books").Read(&book{})
+	switch e := err.(type) {
+	case apiError:
+		assert.Equal(t, 4000, e.Code)
+		assert.Equal(t, "invalid request", e.Message)
+		return
+	}
+
+	panic("should never reach here")
 }
