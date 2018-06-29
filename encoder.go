@@ -146,7 +146,7 @@ type PathEncoder struct {
 }
 
 // Encode encodes Path{} params.
-func (r *PathEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+func (e *PathEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	pathParams, ok := context.Param.(Path)
 	if !ok {
 		return chain.Next()
@@ -176,7 +176,7 @@ type QueryEncoder struct {
 }
 
 // Encode encodes Query{} params.
-func (r *QueryEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+func (e *QueryEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	queryParams, ok := context.Param.(Query)
 	if !ok {
 		return chain.Next()
@@ -203,7 +203,7 @@ type HeaderEncoder struct {
 }
 
 // Encode encodes Header{} params.
-func (r *HeaderEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+func (e *HeaderEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	headerParams, ok := context.Param.(Header)
 	if !ok {
 		return chain.Next()
@@ -220,7 +220,7 @@ type FormEncoder struct {
 }
 
 // Encode encodes Form{} params.
-func (r *FormEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+func (e *FormEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	formParams, ok := context.Param.(Form)
 	if !ok {
 		return chain.Next()
@@ -257,7 +257,7 @@ type JsonEncoder struct {
 }
 
 // Encode encodes Json{} params.
-func (r *JsonEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+func (e *JsonEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	jsonParams, ok := context.Param.(Json)
 	if !ok {
 		return chain.Next()
@@ -292,7 +292,7 @@ type CookieEncoder struct {
 }
 
 // Encode encodes Cookie{} params.
-func (r *CookieEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+func (e *CookieEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	cookieParams, ok := context.Param.(Cookie)
 	if !ok {
 		return chain.Next()
@@ -309,7 +309,7 @@ type BasicAuthEncoder struct {
 }
 
 // Encode encodes User{} params.
-func (r *BasicAuthEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+func (e *BasicAuthEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	authParams, ok := context.Param.(User)
 	if !ok {
 		return chain.Next()
@@ -324,7 +324,7 @@ type MultiPartEncoder struct {
 }
 
 // Encode encodes MultiPart{} params.
-func (r *MultiPartEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+func (e *MultiPartEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	multiPartParams, ok := context.Param.(MultiPart)
 	if !ok {
 		return chain.Next()
@@ -371,7 +371,7 @@ type PlainTextEncoder struct {
 }
 
 // Encode encodes string params.
-func (r *PlainTextEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+func (e *PlainTextEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	textParams, ok := context.Param.(string)
 	if !ok {
 		return chain.Next()
@@ -393,7 +393,7 @@ type XmlEncoder struct {
 }
 
 // Encode encodes Xml{} params.
-func (r *XmlEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
+func (e *XmlEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 	xmlParams, ok := context.Param.(Xml)
 	if !ok {
 		return chain.Next()
