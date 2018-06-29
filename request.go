@@ -2,6 +2,7 @@ package sugar
 
 import (
 	"net/http"
+	"reflect"
 )
 
 // Client is a entrance to Sugar.
@@ -35,10 +36,34 @@ var (
 	Decoders   = &defaultClient.Decoders
 )
 
-// NewClient returns a new Client given a http client, encoders and decoders.
-func NewClient() *Client {
+type Opt struct {
+}
+
+// StandardClient returns a standard go http client.
+func StandardClient(opt Opt) Transporter {
+	return &http.Client{}
+}
+
+// New returns a new Client given a transporter, encoders and decoders.
+func New(constructor interface{}, options ...interface{}) *Client {
+	t := reflect.TypeOf(constructor)
+	if t.Kind() != reflect.Func || t.NumOut() < 1 {
+		panic("constructor must be a function which returns an instance of <Transporter>")
+	}
+
+	var r []reflect.Value
+	if len(options) < 1 {
+		r = reflect.ValueOf(constructor).Call([]reflect.Value{reflect.New(t.In(0)).Elem()})
+	} else {
+		v := make([]reflect.Value, 0, len(options))
+		for o := range options {
+			v = append(v, reflect.ValueOf(o))
+		}
+		r = reflect.ValueOf(constructor).Call(v)
+	}
+
 	return &Client{
-		Transporter: &http.Client{},
+		Transporter: r[0].Interface().(Transporter),
 		Encoders:    defaultClient.Encoders,
 		Decoders:    defaultClient.Decoders,
 	}

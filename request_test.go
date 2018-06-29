@@ -560,7 +560,7 @@ func TestClient_NewRequest(t *testing.T) {
 }
 
 func TestNewClient(t *testing.T) {
-	client := NewClient()
+	client := New(StandardClient)
 
 	assert.NotNil(t, client.Transporter)
 	assert.Equal(t, *Encoders, client.Encoders)
@@ -583,7 +583,7 @@ func TestClient_Use(t *testing.T) {
 		Reply(http.StatusOK)
 
 	plugin := &mockPlugin{}
-	client := NewClient()
+	client := New(StandardClient)
 	client.UsePlugin(plugin)
 	client.Get("http://api.example.com/books")
 
@@ -606,7 +606,7 @@ func TestPlugin_HandleResponseWithAnErrorCode(t *testing.T) {
 		Reply(http.StatusBadRequest).
 		JSON(`{"code": 4000, "message": "invalid request"}`)
 
-	client := NewClient()
+	client := New(StandardClient)
 	client.Use(func(c *Context) error {
 		if err := c.Next(); err != nil {
 			return err
