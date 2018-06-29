@@ -613,6 +613,7 @@ func TestPlugin_HandleResponseWithAnErrorCode(t *testing.T) {
 		}
 
 		if c.Response != nil && c.Response.StatusCode >= http.StatusBadRequest {
+			defer func() { c.Response.Body.Close() }()
 			body, err := ioutil.ReadAll(c.Response.Body)
 			if err != nil {
 				return err
