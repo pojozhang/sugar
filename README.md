@@ -213,7 +213,7 @@ resp, err := Get("http://api.example.com/logo.png").Read(f)
 
 ## Extension
 There are three major components in Sugar: **Encoder**, **Decoder** and **Plugin**.
-- A encoder is used to encode your parameters and assemble requests.
+- An encoder is used to encode your parameters and assemble requests.
 - A decoder is used to decode the data from response body.
 - A plugin is designed to work as an interceptor.
 

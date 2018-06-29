@@ -126,7 +126,7 @@ func (c *EncoderChain) reset() *EncoderChain {
 	return c
 }
 
-// Add adds encoders to a encoder chain.
+// Add adds encoders to an encoder chain.
 func (c *EncoderChain) Add(Encoders ...Encoder) *EncoderChain {
 	for _, Encoder := range Encoders {
 		c.encoders = append(c.encoders, Encoder)
