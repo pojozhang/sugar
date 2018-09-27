@@ -287,7 +287,7 @@ Use(Logger)
 ```
 
 #### Retryer
-You can use Retryer plugin to retry a request when the server returns 500 or you get a net error.
+You can use Retryer plugin to retry a request when the server returns 500 or when you get a net error.
 ```go
 Use(Retryer(3, time.Second, 1, time.Second))
 ```
