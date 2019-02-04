@@ -8,6 +8,12 @@
   version = "v1.1.0"
 
 [[projects]]
+  name = "github.com/h2non/parth"
+  packages = ["."]
+  revision = "b4df798d65426f8c8ab5ca5f9987aec5575d26c9"
+  version = "v2.0.1"
+
+[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
@@ -16,18 +22,18 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
-  version = "v1.2.2"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
 
 [[projects]]
   name = "gopkg.in/h2non/gock.v1"
   packages = ["."]
-  revision = "4692cba4394f79372bfe85996501ad43db9d82e0"
-  version = "v1.0.9"
+  revision = "ba88c4862a27596539531ce469478a91bc5a0511"
+  version = "v1.0.14"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ceb07cf38a5f8197355d89e885ee2888baeca7a320c25cd598a231a81dfec926"
+  inputs-digest = "d29fe2b6e258aeb4293708829d79ae566d6dd3970abcc64a88e30da8031e6676"
   solver-name = "gps-cdcl"
   solver-version = 1
