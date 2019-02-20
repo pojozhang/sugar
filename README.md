@@ -6,20 +6,20 @@
 
 Sugar is a **DECLARATIVE** http client providing elegant APIs for Golang.
 
-### [中文文档](README.zh-cn.md)
+### [🇨🇳中文文档](README.zh-cn.md)
 
-## Features
+## 🌈Features
 - Elegant APIs
 - Plugins
 - Chained invocations
 - Highly extensible
 
-## Download
+## 🔨Download
 ```bash
 dep ensure -add github.com/pojozhang/sugar
 ```
 
-## Usage
+## 📙Usage
 Firstly you need to import the package.
 ```go
 import . "github.com/pojozhang/sugar"
@@ -209,7 +209,7 @@ defer f.Close()
 resp, err := Get("http://api.example.com/logo.png").Read(f)
 ```
 
-## Extension
+## 🔌Extension
 There are three major components in Sugar: **Encoder**, **Decoder** and **Plugin**.
 - An encoder is used to encode your parameters and assemble requests.
 - A decoder is used to decode the data from response body.
