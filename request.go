@@ -41,9 +41,9 @@ func StandardClient() Transporter {
 }
 
 // New returns a new Client given a transporter, encoders and decoders.
-func New(constructor func() Transporter) *Client {
+func New(factory func() Transporter) *Client {
 	return &Client{
-		Transporter: constructor(),
+		Transporter: factory(),
 		Encoders:    defaultClient.Encoders,
 		Decoders:    defaultClient.Decoders,
 	}
