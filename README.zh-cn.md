@@ -5,18 +5,18 @@
 
 Sugar是一个Go语言编写的声明式Http客户端，提供了一些优雅的接口，目的是减少冗余的拼装代码。
 
-## 特性
+## 🌈 特性
 - 优雅的接口设计
 - 插件功能
 - 链式调用
 - 高度可定制
 
-## 下载
+## 🚀 下载
 ```bash
 dep ensure -add github.com/pojozhang/sugar
 ```
 
-## 使用
+## 📙 使用
 首先导入包，为了看起来更简洁，此处用省略包名的方式导入。
 ```go
 import . "github.com/pojozhang/sugar"
@@ -205,7 +205,7 @@ defer f.Close()
 resp, err := Get("http://api.example.com/logo.png").Read(f)
 ```
 
-## 自定义
+## 🔌 扩展
 Sugar中有三大组件 **Encoder**, **Decoder** 和 **Plugin**.
 - **Encoder**负责把调用者传入参数组装成一个请求体。
 - **Decoder**负责把服务器返回的数据解析成一个结构体。
