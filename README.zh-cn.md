@@ -13,7 +13,7 @@ Sugar是一个Go语言编写的声明式Http客户端，提供了一些优雅的
 
 ## 🚀 下载
 ```bash
-dep ensure -add github.com/pojozhang/sugar
+go get -add github.com/pojozhang/sugar
 ```
 
 ## 📙 使用

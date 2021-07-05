@@ -16,7 +16,7 @@ Sugar is a **DECLARATIVE** http client providing elegant APIs for Golang.
 
 ## 🚀 Download
 ```bash
-dep ensure -add github.com/pojozhang/sugar
+go get -add github.com/pojozhang/sugar
 ```
 
 ## 📙 Usage
