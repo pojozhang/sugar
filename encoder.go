@@ -127,10 +127,8 @@ func (c *EncoderChain) reset() *EncoderChain {
 }
 
 // Add adds encoders to an encoder chain.
-func (c *EncoderChain) Add(Encoders ...Encoder) *EncoderChain {
-	for _, Encoder := range Encoders {
-		c.encoders = append(c.encoders, Encoder)
-	}
+func (c *EncoderChain) Add(encoders ...Encoder) *EncoderChain {
+	c.encoders = append(c.encoders, encoders...)
 	return c
 }
 
@@ -165,7 +163,7 @@ func (e *PathEncoder) Encode(context *RequestContext, chain *EncoderChain) error
 
 			key := req.URL.Path[i+1 : j]
 			value := pathParams[key]
-			req.URL.Path = strings.Replace(req.URL.Path, req.URL.Path[i:j], Stringify(value), -1)
+			req.URL.Path = strings.ReplaceAll(req.URL.Path, req.URL.Path[i:j], Stringify(value))
 		}
 	}
 	return nil
@@ -194,7 +192,7 @@ func (e *QueryEncoder) Encode(context *RequestContext, chain *EncoderChain) erro
 			q.Add(k, Stringify(v))
 		}
 	}
-	req.URL.RawQuery = strings.Replace(q.Encode(), "+", "%20", -1)
+	req.URL.RawQuery = strings.ReplaceAll(q.Encode(), "+", "%20")
 	return nil
 }
 
@@ -269,7 +267,7 @@ func (e *JsonEncoder) Encode(context *RequestContext, chain *EncoderChain) error
 	case []byte:
 		b, err = json.RawMessage(x).MarshalJSON()
 	case string:
-		b, err = json.RawMessage([]byte(x)).MarshalJSON()
+		b, err = json.RawMessage(x).MarshalJSON()
 	default:
 		b, err = json.Marshal(x)
 	}
@@ -333,6 +331,7 @@ func (e *MultiPartEncoder) Encode(context *RequestContext, chain *EncoderChain) 
 	b := &bytes.Buffer{}
 	w := multipart.NewWriter(b)
 	defer w.Close()
+
 	for k, v := range multiPartParams {
 		switch x := v.(type) {
 		case *os.File:
@@ -340,7 +339,9 @@ func (e *MultiPartEncoder) Encode(context *RequestContext, chain *EncoderChain) 
 				return err
 			}
 		default:
-			w.WriteField(k, Stringify(v))
+			if err := w.WriteField(k, Stringify(v)); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -435,7 +436,7 @@ func ToString(v interface{}) string {
 	case uint32:
 		s = strconv.FormatUint(uint64(x), 10)
 	case uint64:
-		s = strconv.FormatUint(uint64(x), 10)
+		s = strconv.FormatUint(x, 10)
 	case int:
 		s = strconv.FormatInt(int64(x), 10)
 	case int8:
@@ -445,11 +446,11 @@ func ToString(v interface{}) string {
 	case int32:
 		s = strconv.FormatInt(int64(x), 10)
 	case int64:
-		s = strconv.FormatInt(int64(x), 10)
+		s = strconv.FormatInt(x, 10)
 	case float32:
 		s = strconv.FormatFloat(float64(x), 'f', -1, 32)
 	case float64:
-		s = strconv.FormatFloat(float64(x), 'f', -1, 64)
+		s = strconv.FormatFloat(x, 'f', -1, 64)
 	case string:
 		s = v.(string)
 	}

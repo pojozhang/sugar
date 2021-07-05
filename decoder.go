@@ -45,9 +45,7 @@ func (c *DecoderChain) Next() error {
 
 // Add adds decoders to a decoder chain.
 func (c *DecoderChain) Add(decoders ...Decoder) *DecoderChain {
-	for _, decoder := range decoders {
-		c.decoders = append(c.decoders, decoder)
-	}
+	c.decoders = append(c.decoders, decoders...)
 	return c
 }
 
@@ -111,7 +109,7 @@ func (d *XmlDecoder) Decode(context *ResponseContext, chain *DecoderChain) error
 	return chain.Next()
 }
 
-// XmlDecoder parses plain text.
+// PlainTextDecoder parses plain text.
 type PlainTextDecoder struct {
 }
 
