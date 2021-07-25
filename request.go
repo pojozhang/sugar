@@ -1,6 +1,7 @@
 package sugar
 
 import (
+	"context"
 	"net/http"
 )
 
@@ -50,33 +51,34 @@ func New(factory func() Transporter) *Client {
 }
 
 // Get is a shortcut for client.Do("Get", url, params).
-func (c *Client) Get(rawUrl string, params ...interface{}) *Response {
-	return c.Do(http.MethodGet, rawUrl, params...)
+func (c *Client) Get(ctx context.Context, rawUrl string, params ...interface{}) *Response {
+	return c.Do(ctx, http.MethodGet, rawUrl, params...)
 }
 
 // Post is a shortcut for client.Do("Post", url, params).
-func (c *Client) Post(rawUrl string, params ...interface{}) *Response {
-	return c.Do(http.MethodPost, rawUrl, params...)
+func (c *Client) Post(ctx context.Context, rawUrl string, params ...interface{}) *Response {
+	return c.Do(ctx, http.MethodPost, rawUrl, params...)
 }
 
 // Put is a shortcut for client.Do("Put", url, params).
-func (c *Client) Put(rawUrl string, params ...interface{}) *Response {
-	return c.Do(http.MethodPut, rawUrl, params...)
+func (c *Client) Put(ctx context.Context, rawUrl string, params ...interface{}) *Response {
+	return c.Do(ctx, http.MethodPut, rawUrl, params...)
 }
 
 // Patch is a shortcut for client.Do("Patch", url, params).
-func (c *Client) Patch(rawUrl string, params ...interface{}) *Response {
-	return c.Do(http.MethodPatch, rawUrl, params...)
+func (c *Client) Patch(ctx context.Context, rawUrl string, params ...interface{}) *Response {
+	return c.Do(ctx, http.MethodPatch, rawUrl, params...)
 }
 
 // Delete is a shortcut for client.Do("Delete", url, params).
-func (c *Client) Delete(rawUrl string, params ...interface{}) *Response {
-	return c.Do(http.MethodDelete, rawUrl, params...)
+func (c *Client) Delete(ctx context.Context, rawUrl string, params ...interface{}) *Response {
+	return c.Do(ctx, http.MethodDelete, rawUrl, params...)
 }
 
 // Do builds a context and then sends a request via the context.
-func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
+func (c *Client) Do(ctx context.Context, method, rawUrl string, params ...interface{}) *Response {
 	context := &Context{
+		ctx:         ctx,
 		Method:      method,
 		RawUrl:      rawUrl,
 		params:      append(c.Presets, params...),
@@ -101,8 +103,9 @@ func (c *Client) Do(method, rawUrl string, params ...interface{}) *Response {
 }
 
 // NewRequest builds a request via context.
-func (c *Client) NewRequest(method, rawUrl string, params ...interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(ctx context.Context, method, rawUrl string, params ...interface{}) (*http.Request, error) {
 	context := &Context{
+		ctx:      ctx,
 		Method:   method,
 		RawUrl:   rawUrl,
 		params:   append(c.Presets, params...),

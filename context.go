@@ -1,10 +1,14 @@
 package sugar
 
-import "net/http"
+import (
+	"context"
+	"net/http"
+)
 
 // Context keeps all necessary params to build a request,
 // and it allows us to pass params between plugins and encoders.
 type Context struct {
+	ctx         context.Context
 	Request     *http.Request
 	Response    *http.Response
 	Method      string
@@ -19,7 +23,7 @@ type Context struct {
 
 // BuildRequest initializes a new request and encodes params via encoders.
 func (c *Context) BuildRequest() (*http.Request, error) {
-	req, err := http.NewRequest(c.Method, c.RawUrl, nil)
+	req, err := http.NewRequestWithContext(c.ctx, c.Method, c.RawUrl, nil)
 	if err != nil {
 		return nil, err
 	}
