@@ -32,29 +32,29 @@ And now you are ready to easily send any request to any corner on this blue plan
 // POST /books HTTP/1.1
 // Host: api.example.com
 // Content-Type: text/plain
-Post("http://api.example.com/books", "bookA")
+Post(ctx, "http://api.example.com/books", "bookA")
 ```
 
 #### Path
 ```go
 // GET /books/123 HTTP/1.1
 // Host: api.example.com
-Get("http://api.example.com/books/:id", Path{"id": 123})
-Get("http://api.example.com/books/:id", P{"id": 123})
+Get(ctx, "http://api.example.com/books/:id", Path{"id": 123})
+Get(ctx, "http://api.example.com/books/:id", P{"id": 123})
 ```
 
 #### Query
 ```go
 // GET /books?name=bookA HTTP/1.1
 // Host: api.example.com
-Get("http://api.example.com/books", Query{"name": "bookA"})
-Get("http://api.example.com/books", Q{"name": "bookA"})
+Get(ctx, "http://api.example.com/books", Query{"name": "bookA"})
+Get(ctx, "http://api.example.com/books", Q{"name": "bookA"})
 
 // list
 // GET /books?name=bookA&name=bookB HTTP/1.1
 // Host: api.example.com
-Get("http://api.example.com/books", Query{"name": List{"bookA", "bookB"}})
-Get("http://api.example.com/books", Q{"name": L{"bookA", "bookB"}})
+Get(ctx, "http://api.example.com/books", Query{"name": List{"bookA", "bookB"}})
+Get(ctx, "http://api.example.com/books", Q{"name": L{"bookA", "bookB"}})
 ```
 
 #### Cookie
@@ -62,8 +62,8 @@ Get("http://api.example.com/books", Q{"name": L{"bookA", "bookB"}})
 // GET /books HTTP/1.1
 // Host: api.example.com
 // Cookie: name=bookA
-Get("http://api.example.com/books", Cookie{"name": "bookA"})
-Get("http://api.example.com/books", C{"name": "bookA"})
+Get(ctx, "http://api.example.com/books", Cookie{"name": "bookA"})
+Get(ctx, "http://api.example.com/books", C{"name": "bookA"})
 ```
 
 #### Header
@@ -71,8 +71,8 @@ Get("http://api.example.com/books", C{"name": "bookA"})
 // GET /books HTTP/1.1
 // Host: api.example.com
 // Name: bookA
-Get("http://api.example.com/books", Header{"name": "bookA"})
-Get("http://api.example.com/books", H{"name": "bookA"})
+Get(ctx, "http://api.example.com/books", Header{"name": "bookA"})
+Get(ctx, "http://api.example.com/books", H{"name": "bookA"})
 ```
 
 #### Json
@@ -81,16 +81,16 @@ Get("http://api.example.com/books", H{"name": "bookA"})
 // Host: api.example.com
 // Content-Type: application/json;charset=UTF-8
 // {"name":"bookA"}
-Post("http://api.example.com/books", Json{`{"name":"bookA"}`})
-Post("http://api.example.com/books", J{`{"name":"bookA"}`})
+Post(ctx, "http://api.example.com/books", Json{`{"name":"bookA"}`})
+Post(ctx, "http://api.example.com/books", J{`{"name":"bookA"}`})
 
 // map
-Post("http://api.example.com/books", Json{Map{"name": "bookA"}})
-Post("http://api.example.com/books", J{M{"name": "bookA"}})
+Post(ctx, "http://api.example.com/books", Json{Map{"name": "bookA"}})
+Post(ctx, "http://api.example.com/books", J{M{"name": "bookA"}})
 
 // list
-Post("http://api.example.com/books", Json{List{Map{"name": "bookA"}}})
-Post("http://api.example.com/books", J{L{M{"name": "bookA"}}})
+Post(ctx, "http://api.example.com/books", Json{List{Map{"name": "bookA"}}})
+Post(ctx, "http://api.example.com/books", J{L{M{"name": "bookA"}}})
 ```
 
 #### Xml
@@ -100,8 +100,8 @@ Post("http://api.example.com/books", J{L{M{"name": "bookA"}}})
 // Authorization: Basic dXNlcjpwYXNzd29yZA==
 // Content-Type: application/xml; charset=UTF-8
 // <book name="bookA"></book>
-Post("http://api.example.com/books", Xml{`<book name="bookA"></book>`})
-Post("http://api.example.com/books", X{`<book name="bookA"></book>`})
+Post(ctx, "http://api.example.com/books", Xml{`<book name="bookA"></book>`})
+Post(ctx, "http://api.example.com/books", X{`<book name="bookA"></book>`})
 ```
 
 #### Form
@@ -109,12 +109,12 @@ Post("http://api.example.com/books", X{`<book name="bookA"></book>`})
 // POST /books HTTP/1.1
 // Host: api.example.com
 // Content-Type: application/x-www-form-urlencoded
-Post("http://api.example.com/books", Form{"name": "bookA"})
-Post("http://api.example.com/books", F{"name": "bookA"})
+Post(ctx, "http://api.example.com/books", Form{"name": "bookA"})
+Post(ctx, "http://api.example.com/books", F{"name": "bookA"})
 
 // list
-Post("http://api.example.com/books", Form{"name": List{"bookA", "bookB"}})
-Post("http://api.example.com/books", F{"name": L{"bookA", "bookB"}})
+Post(ctx, "http://api.example.com/books", Form{"name": List{"bookA", "bookB"}})
+Post(ctx, "http://api.example.com/books", F{"name": L{"bookA", "bookB"}})
 ```
 
 #### Basic Auth
@@ -122,8 +122,8 @@ Post("http://api.example.com/books", F{"name": L{"bookA", "bookB"}})
 // DELETE /books HTTP/1.1
 // Host: api.example.com
 // Authorization: Basic dXNlcjpwYXNzd29yZA==
-Delete("http://api.example.com/books", User{"user", "password"})
-Delete("http://api.example.com/books", U{"user", "password"})
+Delete(ctx, "http://api.example.com/books", User{"user", "password"})
+Delete(ctx, "http://api.example.com/books", U{"user", "password"})
 ```
 
 #### Multipart
@@ -143,29 +143,29 @@ Delete("http://api.example.com/books", U{"user", "password"})
 // hello sugar!
 // --19b8acc2469f1914a24fc6e0152aac72f1f92b6f5104b57477262816ab0f--
 f, _ := os.Open("text")
-Post("http://api.example.com/books", MultiPart{"name": "bookA", "file": f})
-Post("http://api.example.com/books", MP{"name": "bookA", "file": f})
+Post(ctx, "http://api.example.com/books", MultiPart{"name": "bookA", "file": f})
+Post(ctx, "http://api.example.com/books", MP{"name": "bookA", "file": f})
 ```
 
 #### Mix
 Due to Sugar's flexible design, different types of parameters can be freely combined.
 ```go
-Patch("http://api.example.com/books/:id", Path{"id": 123}, Json{`{"name":"bookA"}`}, User{"user", "password"})
+Patch(ctx, "http://api.example.com/books/:id", Path{"id": 123}, Json{`{"name":"bookA"}`}, User{"user", "password"})
 ```
 
 #### Apply
 You can use Apply() to preset some values which will be attached to every following request. Call Reset() to clean preset values.
 ```go
 Apply(User{"user", "password"})
-Get("http://api.example.com/books")
-Get("http://api.example.com/books")
+Get(ctx, "http://api.example.com/books")
+Get(ctx, "http://api.example.com/books")
 Reset()
-Get("http://api.example.com/books")
+Get(ctx, "http://api.example.com/books")
 ```
 ```go
-Get("http://api.example.com/books", User{"user", "password"})
-Get("http://api.example.com/books", User{"user", "password"})
-Get("http://api.example.com/books")
+Get(ctx, "http://api.example.com/books", User{"user", "password"})
+Get(ctx, "http://api.example.com/books", User{"user", "password"})
+Get(ctx, "http://api.example.com/books")
 ```
 The latter is equal to the former.
 
@@ -176,7 +176,7 @@ A request API always returns a value of type `*Response` which also provides som
 #### Raw
 Raw() returns a value of type `*http.Response` and an `error` which is similar to standard go API.
 ```go
-resp, err := Post("http://api.example.com/books", "bookA").Raw()
+resp, err := Post(ctx, "http://api.example.com/books", "bookA").Raw()
 ...
 ```
 
@@ -184,7 +184,7 @@ resp, err := Post("http://api.example.com/books", "bookA").Raw()
 ReadBytes() is another syntax sugar to read bytes from response body.
 Notice that this method will close body after reading.
 ```go
-bytes, resp, err := Get("http://api.example.com/books").ReadBytes()
+bytes, resp, err := Get(ctx, "http://api.example.com/books").ReadBytes()
 ...
 ```
 
@@ -194,11 +194,11 @@ The following two examples read response body as plain text/JSON according to di
 ```go
 // plain text
 var text = new(string)
-resp, err := Get("http://api.example.com/text").Read(text)
+resp, err := Get(ctx, "http://api.example.com/text").Read(text)
 
 // json
 var books []book
-resp, err := Get("http://api.example.com/json").Read(&books)
+resp, err := Get(ctx, "http://api.example.com/json").Read(&books)
 ```
 
 #### Download files
@@ -206,7 +206,7 @@ You can also use Read() to download files.
 ```go
 f,_ := os.Create("tmp.png")
 defer f.Close()
-resp, err := Get("http://api.example.com/logo.png").Read(f)
+resp, err := Get(ctx, "http://api.example.com/logo.png").Read(f)
 ```
 
 ## 🔌 Extension
@@ -234,7 +234,7 @@ func (r *MyEncoder) Encode(context *RequestContext, chain *EncoderChain) error {
 
 Encoders.Add(&MyEncoder{})
 
-Get("http://api.example.com/books", MyParam{})
+Get(ctx, "http://api.example.com/books", MyParam{})
 ```
 
 ### Decoder
@@ -328,7 +328,7 @@ Use(func(c *Context) error {
 	})
 
 // send request
-_, err := client.Get("some url").Read(&json{})
+_, err := client.Get(ctx, "some url").Read(&json{})
 // type switch
 switch e := err.(type) {
 	case apiError:
